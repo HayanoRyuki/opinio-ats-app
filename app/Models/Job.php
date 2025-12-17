@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Job extends Model
 {
@@ -12,6 +13,7 @@ class Job extends Model
         'title',
         'description',
         'status',
+        'share_token',
     ];
 
     public function company()
@@ -37,8 +39,18 @@ class Job extends Model
     {
         return $this->hasMany(
             SelectionStep::class,
-            'company_id',   // selection_steps.company_id
-            'company_id'    // jobs.company_id
+            'company_id',
+            'company_id'
         )->orderBy('order');
+    }
+
+    /**
+     * ATS共有用トークンを生成
+     */
+    public function generateShareToken(): void
+    {
+        $this->update([
+            'share_token' => Str::random(40),
+        ]);
     }
 }

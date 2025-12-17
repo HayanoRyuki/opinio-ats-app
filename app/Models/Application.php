@@ -15,6 +15,7 @@ class Application extends Model
         'candidate_id',
         'selection_step_id',
         'status',
+        'opinio_meet_url',
     ];
 
     /**
@@ -39,5 +40,13 @@ class Application extends Model
     public function job()
     {
         return $this->belongsTo(Job::class);
+    }
+
+    /**
+     * 評価（← ★ここが正しい場所）
+     */
+    public function evaluations()
+    {
+        return $this->hasMany(\App\Models\Evaluation::class);
     }
 }
