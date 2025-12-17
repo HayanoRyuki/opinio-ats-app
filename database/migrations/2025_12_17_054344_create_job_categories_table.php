@@ -8,18 +8,15 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('job_categories', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-
+            $table->id();
             $table->uuid('company_id');
-            $table->uuid('parent_id')->nullable();
-
-            $table->string('name');
-            $table->integer('sort_order')->default(0);
-
+            $table->string('key');     // business / engineer
+            $table->string('label');   // 表示名
+            $table->integer('order')->default(0);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->index(['company_id']);
-            $table->index(['parent_id']);
+            $table->unique(['company_id', 'key']);
         });
     }
 
