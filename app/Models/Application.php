@@ -18,35 +18,34 @@ class Application extends Model
         'opinio_meet_url',
     ];
 
-    /**
-     * 候補者
-     */
     public function candidate()
     {
         return $this->belongsTo(Candidate::class);
     }
 
-    /**
-     * 選考ステップ
-     */
     public function selectionStep()
     {
         return $this->belongsTo(SelectionStep::class);
     }
 
-    /**
-     * 求人
-     */
     public function job()
     {
         return $this->belongsTo(Job::class);
     }
 
     /**
-     * 評価（← ★ここが正しい場所）
+     * 評価一覧
      */
     public function evaluations()
     {
         return $this->hasMany(\App\Models\Evaluation::class);
+    }
+
+    /**
+     * ★ 評価済みか？
+     */
+    public function isEvaluated(): bool
+    {
+        return $this->evaluations()->exists();
     }
 }

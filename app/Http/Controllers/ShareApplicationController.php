@@ -6,31 +6,27 @@ use App\Models\Application;
 
 class ShareApplicationController extends Controller
 {
-    /**
-     * 応募者単体・共有（readonly）ビュー
-     */
     public function show(Application $application, string $token)
     {
-        // 応募が属する求人
-        $job = $application->job;
-
-        // Job の share_token で検証
-        if (!$job || $job->share_token !== $token) {
-            abort(404);
+        // トークンチェック（簡易）
+        if ($application->job->share_token !== $token) {
+            abort(403);
         }
 
-        // 必要な関連をロード
+        // 全評価を最新順でロード
         $application->load([
             'candidate',
+            'job',
             'selectionStep',
+            'evaluations' => function ($q) {
+                $q->with('user')->orderBy('created_at', 'desc');
+            },
         ]);
 
-        $readonly = true;
-
-        return view('applications.share', compact(
-            'application',
-            'job',
-            'readonly'
-        ));
+        return view('applications.share', [
+            'application' => $application,
+            'job'         => $application->job,
+            'readonly'    => true,
+        ]);
     }
 }

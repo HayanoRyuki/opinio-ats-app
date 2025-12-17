@@ -8,22 +8,27 @@ use App\Models\SelectionStep;
 class PipelineController extends Controller
 {
     public function show(Job $job)
-{
-    $job->load([
-        'applications.candidate',
-        'applications.selectionStep',
-    ]);
+    {
+        // 求人に紐づく応募者をまとめて読み込む（★ evaluations を追加）
+        $job->load([
+            'applications.candidate',
+            'applications.selectionStep',
+            'applications.evaluations', // ← ★ここだけ追加
+        ]);
 
-    $steps = $job->selectionSteps()->orderBy('order')->get();
+        // 選考ステップ一覧
+        $steps = $job->selectionSteps()
+            ->orderBy('order')
+            ->get();
 
-    $applicationsByStep = $job->applications
-        ->groupBy('selection_step_id');
+        // ステップごとに応募者をまとめる
+        $applicationsByStep = $job->applications
+            ->groupBy('selection_step_id');
 
-    return view('jobs.pipeline', [
-        'job' => $job,
-        'steps' => $steps,
-        'applicationsByStep' => $applicationsByStep,
-    ]);
-}
-
+        return view('jobs.pipeline', [
+            'job' => $job,
+            'steps' => $steps,
+            'applicationsByStep' => $applicationsByStep,
+        ]);
+    }
 }

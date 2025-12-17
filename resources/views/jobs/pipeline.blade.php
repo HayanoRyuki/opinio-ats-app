@@ -50,7 +50,7 @@
                     min-width:220px;
                     background:#f7f7f7;
                     padding:12px;
-                    border-radius:6px;
+                    border-radius:8px;
                 "
             >
                 {{-- 見出し + 件数 --}}
@@ -63,11 +63,11 @@
                 ">
                     <span>{{ $step->label }}</span>
                     <span style="
-                        background:#555;
+                        background:#111827;
                         color:#fff;
-                        font-size:12px;
+                        font-size:11px;
                         padding:2px 8px;
-                        border-radius:12px;
+                        border-radius:999px;
                     ">
                         {{ $count }}
                     </span>
@@ -85,33 +85,85 @@
                         class="application-card"
                         data-application-id="{{ $application->id }}"
                         style="
-                            background:#fff;
-                            border:1px solid #ddd;
-                            padding:8px;
-                            margin-bottom:8px;
-                            border-radius:4px;
-                            {{ $readonly ? 'cursor:default;' : 'cursor:move;' }}
+                            background: {{ $application->isEvaluated() ? '#ffffff' : '#fff7ed' }};
+                            border:1px solid {{ $application->isEvaluated() ? '#e5e7eb' : '#fed7aa' }};
+                            padding:10px;
+                            margin-bottom:10px;
+                            border-radius:8px;
+                            box-shadow:0 1px 2px rgba(0,0,0,0.05);
+                            {{ $readonly ? 'cursor:default;' : 'cursor:grab;' }}
                         "
                     >
-                        <strong>{{ $application->candidate->name }}</strong><br>
-                        <small>{{ $application->candidate->email }}</small>
+                        {{-- 名前 + 評価ステータス --}}
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <div style="font-weight:600; font-size:14px;">
+                                {{ $application->candidate->name }}
+                            </div>
 
-                        {{-- 応募者単体・共有ビュー --}}
-                        @if ($job->share_token)
-                            <div style="margin-top:6px;">
+                            @if ($application->isEvaluated())
+                                <span style="
+                                    font-size:10px;
+                                    padding:2px 6px;
+                                    border-radius:999px;
+                                    background:#dcfce7;
+                                    color:#166534;
+                                ">
+                                    評価済
+                                </span>
+                            @else
+                                <span style="
+                                    font-size:10px;
+                                    padding:2px 6px;
+                                    border-radius:999px;
+                                    background:#ffedd5;
+                                    color:#9a3412;
+                                ">
+                                    未評価
+                                </span>
+                            @endif
+                        </div>
+
+                        {{-- メール（薄く） --}}
+                        <div style="font-size:12px; color:#6b7280; margin-top:2px;">
+                            {{ $application->candidate->email }}
+                        </div>
+
+                        {{-- CTA群 --}}
+                        <div style="margin-top:8px; display:flex; flex-direction:column; gap:4px;">
+
+                            {{-- 応募者詳細（共有ビュー） --}}
+                            @if ($job->share_token)
                                 <a
                                     href="{{ route('applications.share', [$application, $job->share_token]) }}"
                                     target="_blank"
-                                    style="font-size:11px; text-decoration:underline;"
+                                    style="
+                                        font-size:12px;
+                                        color:#2563eb;
+                                        text-decoration:none;
+                                    "
                                 >
-                                    共有ビューを開く
+                                    応募者詳細を開く →
                                 </a>
-                            </div>
-                        @endif
+                            @endif
 
-                        {{-- ステップ移動ボタン（readonly時は非表示） --}}
+                            {{-- 評価する --}}
+                            @if (!$readonly)
+                                <a
+                                    href="{{ route('evaluations.create', $application) }}"
+                                    style="
+                                        font-size:12px;
+                                        color:#16a34a;
+                                        text-decoration:none;
+                                    "
+                                >
+                                    評価する →
+                                </a>
+                            @endif
+                        </div>
+
+                        {{-- ステップ移動ボタン --}}
                         @if (!$readonly)
-                            <div style="display:flex; gap:4px; margin-top:6px;">
+                            <div style="display:flex; gap:6px; margin-top:8px;">
                                 @if ($prevStep)
                                     <form method="POST" action="{{ route('applications.step.update', $application) }}">
                                         @csrf
@@ -139,7 +191,7 @@
     </div>
 </div>
 
-{{-- ドラッグ＆ドロップ（readonly時は無効） --}}
+{{-- ドラッグ＆ドロップ --}}
 @if (!$readonly)
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
