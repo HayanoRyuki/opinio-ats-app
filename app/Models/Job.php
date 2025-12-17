@@ -28,4 +28,17 @@ class Job extends Model
     {
         return $this->hasMany(Application::class);
     }
+
+    /**
+     * この求人で使われる選考ステップ
+     * （company_id 経由）
+     */
+    public function selectionSteps()
+    {
+        return $this->hasMany(
+            SelectionStep::class,
+            'company_id',   // selection_steps.company_id
+            'company_id'    // jobs.company_id
+        )->orderBy('order');
+    }
 }
