@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Application;
 
 class SelectionStep extends Model
 {
@@ -21,13 +22,13 @@ class SelectionStep extends Model
     {
         return $this->belongsTo(Company::class);
     }
-}
 
     /**
-     * このステップの応募一覧
+     * このステップにある応募一覧
      */
     public function applications()
     {
         return Application::where('company_id', $this->company_id)
             ->where('status', $this->key);
     }
+}
