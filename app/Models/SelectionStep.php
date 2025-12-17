@@ -22,3 +22,12 @@ class SelectionStep extends Model
         return $this->belongsTo(Company::class);
     }
 }
+
+    /**
+     * このステップの応募一覧
+     */
+    public function applications()
+    {
+        return Application::where('company_id', $this->company_id)
+            ->where('status', $this->key);
+    }
