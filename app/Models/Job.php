@@ -11,7 +11,14 @@ class Job extends Model
         'company_id',
         'job_category_id',
         'title',
+        'location',        // 追加
+        'employment_type', // 追加
+        'salary',          // 追加
+        'working_hours',   // 追加
         'description',
+        'requirements',    // 追加
+        'benefits',        // 追加
+        'notes',           // 追加
         'status',
         'share_token',
     ];

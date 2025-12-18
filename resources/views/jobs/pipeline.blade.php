@@ -1,15 +1,11 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ $job->title }}｜選考パイプライン</title>
-</head>
+@extends('layouts.menu')
+
+@section('content')
 
 @php
     $readonly = $readonly ?? false;
 @endphp
 
-<body class="bg-gray-50">
 <div class="p-6">
 
     {{-- 共有URL表示 or 発行 --}}

@@ -9,11 +9,17 @@ class PipelineController extends Controller
 {
     public function show(Job $job)
     {
-        // 求人に紐づく応募者をまとめて読み込む（★ evaluations を追加）
+        // ★ 直近で触った求人をセッションに保存
+        session([
+            'last_job_id' => $job->id,
+            'last_job_title' => $job->title,
+        ]);
+
+        // 求人に紐づく応募者をまとめて読み込む（evaluations 含む）
         $job->load([
             'applications.candidate',
             'applications.selectionStep',
-            'applications.evaluations', // ← ★ここだけ追加
+            'applications.evaluations',
         ]);
 
         // 選考ステップ一覧

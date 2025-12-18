@@ -6,12 +6,14 @@ class Company extends BaseModel
 {
     protected $table = 'companies';
 
-    protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'mission',
-        'culture',
-        'logo_url',
-    ];
+protected $fillable = [
+    'name',
+    'domain',    
+    'address',
+    'phone',
+    'website',
+    'industry',
+];
 }
+
+
