@@ -5,10 +5,10 @@
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">職種管理</h1>
 
-        <a href="#"
-           class="px-4 py-2 bg-blue-600 text-white rounded">
-            職種を追加
-        </a>
+        <a href="{{ route('ats.job_roles.create') }}"
+   class="px-4 py-2 bg-blue-600 text-white rounded">
+    職種を追加
+</a>
     </div>
 
     @if($jobRoles->isEmpty())

@@ -126,6 +126,17 @@ Route::middleware('auth')->group(function () {
     Route::view('/announcements', 'static.announcements')->name('announcements');
     Route::view('/ai-policy', 'static.ai-policy')->name('ai.policy');
     Route::view('/data-policy', 'static.data-policy')->name('data.policy');
+
+    Route::middleware(['auth'])->prefix('ats')->group(function () {
+    Route::get('/job-roles', [JobRoleController::class, 'index'])
+        ->name('ats.job_roles.index');
+
+    Route::get('/job-roles/create', [JobRoleController::class, 'create'])
+        ->name('ats.job_roles.create');
+
+    Route::post('/job-roles', [JobRoleController::class, 'store'])
+        ->name('ats.job_roles.store');
+});
 });
 
 /*
