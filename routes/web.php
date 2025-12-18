@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ATS\JobRoleController;
 
 use App\Models\Job;
 use App\Http\Controllers\{
@@ -153,3 +154,9 @@ Route::view('/privacy', 'static.privacy')->name('privacy');
 |--------------------------------------------------------------------------
 */
 Route::get('/__route_test', fn () => 'route ok');
+
+
+Route::middleware(['auth'])->prefix('ats')->group(function () {
+    Route::get('/job-roles', [JobRoleController::class, 'index'])
+        ->name('ats.job_roles.index');
+});
