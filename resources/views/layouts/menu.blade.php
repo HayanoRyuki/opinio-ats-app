@@ -37,7 +37,7 @@
 
             {{-- ===== 求人管理 ===== --}}
             @php
-                $jobActive = request()->routeIs('jobs.*');
+                $jobActive = request()->routeIs('jobs.*') || request()->routeIs('ats.job_roles.*');
                 $lastJobId = session('last_job_id');
                 $lastJobTitle = session('last_job_title');
             @endphp
@@ -63,6 +63,16 @@
                         {{ request()->routeIs('jobs.create') ? $activeStyle : '' }}">
                         <img src="{{ asset('images/icons/apply.svg') }}" style="width:18px; margin-right:8px;">
                         <a href="{{ route('jobs.create') }}" style="color:#fff; text-decoration:none;">新規求人作成</a>
+                    </li>
+
+                    {{-- ★ 職種管理（追加） --}}
+                    <li class="sidebar-menu-item"
+                        style="margin-bottom:12px; display:flex; align-items:center;
+                        {{ request()->routeIs('ats.job_roles.*') ? $activeStyle : '' }}">
+                        <img src="{{ asset('images/icons/apply.svg') }}" style="width:18px; margin-right:8px;">
+                        <a href="{{ route('ats.job_roles.index') }}" style="color:#fff; text-decoration:none;">
+                            職種管理
+                        </a>
                     </li>
 
                     {{-- 最近の求人 --}}
