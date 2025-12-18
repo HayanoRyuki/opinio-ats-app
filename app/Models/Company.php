@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Job;
 use App\Models\JobRole;
 
 class Company extends BaseModel
@@ -23,5 +24,13 @@ class Company extends BaseModel
     public function jobRoles()
     {
         return $this->hasMany(JobRole::class);
+    }
+
+    /**
+     * この会社に紐づく求人
+     */
+    public function jobs()
+    {
+        return $this->hasMany(Job::class);
     }
 }

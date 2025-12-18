@@ -137,6 +137,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/job-roles', [JobRoleController::class, 'store'])
         ->name('ats.job_roles.store');
 });
+
+Route::get('/job-roles/{jobRole}/edit', [JobRoleController::class, 'edit'])
+    ->name('ats.job_roles.edit');
+
+Route::patch('/job-roles/{jobRole}', [JobRoleController::class, 'update'])
+    ->name('ats.job_roles.update');
+    
 });
 
 /*
