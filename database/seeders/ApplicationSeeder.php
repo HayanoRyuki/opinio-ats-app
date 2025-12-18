@@ -3,37 +3,59 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Company;
+use App\Models\Application;
 use App\Models\Job;
 use App\Models\Candidate;
-use App\Models\Application;
 use App\Models\SelectionStep;
 
 class ApplicationSeeder extends Seeder
 {
     public function run(): void
     {
-        $company = Company::first();
-        $job = Job::first();
-        $candidate = Candidate::first();
+        $jobs = Job::all();
 
-        if (!$company || !$job || !$candidate) {
+        if ($jobs->isEmpty()) {
+            $this->command->warn('No jobs found. Skip ApplicationSeeder.');
             return;
         }
 
-        // 書類選考ステップを取得
-        $step = SelectionStep::where('key', 'screening')->first();
+        $candidates = Candidate::all();
 
-        Application::firstOrCreate(
-            [
-                'job_id' => $job->id,
-                'candidate_id' => $candidate->id,
-            ],
-            [
-                'company_id' => $company->id,
-                'selection_step_id' => $step?->id,
-                'status' => 'screening',
-            ]
-        );
+        if ($candidates->isEmpty()) {
+            $this->command->warn('No candidates found. Skip ApplicationSeeder.');
+            return;
+        }
+
+        foreach ($jobs as $job) {
+
+            // 会社フロー（SelectionStep）
+            $steps = SelectionStep::where('company_id', $job->company_id)
+                ->orderBy('order')
+                ->get();
+
+            if ($steps->isEmpty()) {
+                $this->command->warn("No selection steps for job {$job->id}");
+                continue;
+            }
+
+            // 候補者を適当に3〜5人割り当て
+            $targetCandidates = $candidates->shuffle()->take(rand(3, 5));
+
+            foreach ($targetCandidates as $index => $candidate) {
+
+                // 初期 or 少し進んだステップに配置
+                $step = $steps->get(min($index, $steps->count() - 1));
+
+                Application::create([
+                    'company_id'        => $job->company_id,
+                    'job_id'            => $job->id,
+                    'candidate_id'      => $candidate->id,
+                    'selection_step_id' => $step->id,
+                    'status'            => $step->key, // ← 今は参照用
+                ]);
+            }
+        }
+
+        $this->command->info('ApplicationSeeder completed.');
     }
 }

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Application;
 
 class SelectionStep extends Model
 {
@@ -24,11 +23,11 @@ class SelectionStep extends Model
     }
 
     /**
-     * このステップにある応募一覧
+     * このステップに属する応募一覧
+     * ★ pipeline の正は selection_step_id
      */
     public function applications()
     {
-        return Application::where('company_id', $this->company_id)
-            ->where('status', $this->key);
+        return $this->hasMany(\App\Models\Application::class);
     }
 }
