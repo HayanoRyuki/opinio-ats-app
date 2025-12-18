@@ -65,11 +65,15 @@ Route::middleware('auth')->group(function () {
         ->name('dashboard');
 
     /*
-    | 求人管理
+    | 求人管理（CRUD）
+    | ※ show は使わない（pipeline が代替）
     */
     Route::resource('jobs', JobController::class)
-        ->only(['index', 'create', 'store']);
+        ->except(['show']);
 
+    /*
+    | 求人 Pipeline（実質 show）
+    */
     Route::get('/jobs/{job}/pipeline', [PipelineController::class, 'show'])
         ->name('jobs.pipeline');
 
@@ -95,7 +99,7 @@ Route::middleware('auth')->group(function () {
         ->name('evaluations.store');
 
     /*
-    | 共有トークン
+    | 共有トークン生成
     */
     Route::post('/jobs/{job}/share-token', function (Job $job) {
         $job->generateShareToken();
@@ -112,7 +116,7 @@ Route::middleware('auth')->group(function () {
         ->name('company.update');
 
     /*
-    | 設定・情報ページ（静的）
+    | 設定・情報（静的）
     */
     Route::view('/help', 'static.help')->name('help');
     Route::view('/settings/account', 'settings.account')->name('settings.account');
