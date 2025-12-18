@@ -1,3 +1,4 @@
+{{-- resources/views/jobs/pipeline.blade.php --}}
 @extends('layouts.menu')
 
 @section('content')
@@ -6,70 +7,46 @@
     $readonly = $readonly ?? false;
 @endphp
 
-<div class="p-6">
+<div class="pipeline-page">
 
     {{-- 共有URL表示 or 発行 --}}
     @if ($job->share_token)
-        <div style="margin-bottom:16px;">
+        <div class="pipeline-share">
             <input
                 type="text"
                 readonly
                 value="{{ route('jobs.pipeline.share', [$job, $job->share_token]) }}"
-                style="width:100%; font-size:12px; padding:6px;"
                 onclick="this.select()"
             >
         </div>
     @else
-        <form method="POST" action="{{ route('jobs.share-token.generate', $job) }}" style="margin-bottom:16px;">
+        <form method="POST"
+              action="{{ route('jobs.share-token.generate', $job) }}"
+              class="pipeline-share">
             @csrf
-            <button>共有URLを発行</button>
+            <button type="submit">共有URLを発行</button>
         </form>
     @endif
 
-    <h1 style="font-size:20px; font-weight:bold; margin-bottom:24px;">
+    <h1 class="pipeline-title">
         {{ $job->title }}｜選考パイプライン
     </h1>
 
-    <div style="display:flex; gap:24px; align-items:flex-start;">
+    <div class="pipeline-board">
 
         @foreach ($steps as $step)
             @php
-                $applications = $applicationsByStep[$step->id] ?? [];
-                $count = count($applications);
+                $applications = $applicationsByStep->get($step->id, collect());
+                $count = $applications->count();
             @endphp
 
-            {{-- パイプラインカラム --}}
-            <div
-                class="pipeline-column"
-                data-step-id="{{ $step->id }}"
-                style="
-                    min-width:220px;
-                    background:#f7f7f7;
-                    padding:12px;
-                    border-radius:8px;
-                "
-            >
-                {{-- 見出し + 件数 --}}
-                <h3 style="
-                    margin-bottom:12px;
-                    font-weight:bold;
-                    display:flex;
-                    justify-content:space-between;
-                    align-items:center;
-                ">
-                    <span>{{ $step->label }}</span>
-                    <span style="
-                        background:#111827;
-                        color:#fff;
-                        font-size:11px;
-                        padding:2px 8px;
-                        border-radius:999px;
-                    ">
-                        {{ $count }}
-                    </span>
-                </h3>
+            <div class="pipeline-column" data-step-id="{{ $step->id }}">
 
-                {{-- 応募者カード --}}
+                <div class="pipeline-column-header">
+                    <span>{{ $step->label }}</span>
+                    <span class="pipeline-count">{{ $count }}</span>
+                </div>
+
                 @foreach ($applications as $application)
                     @php
                         $currentOrder = $application->selectionStep->order;
@@ -78,116 +55,76 @@
                     @endphp
 
                     <div
-                        class="application-card"
+                        class="application-card {{ $application->isEvaluated() ? 'is-evaluated' : 'is-not-evaluated' }}"
                         data-application-id="{{ $application->id }}"
-                        style="
-                            background: {{ $application->isEvaluated() ? '#ffffff' : '#fff7ed' }};
-                            border:1px solid {{ $application->isEvaluated() ? '#e5e7eb' : '#fed7aa' }};
-                            padding:10px;
-                            margin-bottom:10px;
-                            border-radius:8px;
-                            box-shadow:0 1px 2px rgba(0,0,0,0.05);
-                            {{ $readonly ? 'cursor:default;' : 'cursor:grab;' }}
-                        "
                     >
-                        {{-- 名前 + 評価ステータス --}}
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <div style="font-weight:600; font-size:14px;">
+                        <div class="application-header">
+                            <span class="application-name">
                                 {{ $application->candidate->name }}
-                            </div>
+                            </span>
 
                             @if ($application->isEvaluated())
-                                <span style="
-                                    font-size:10px;
-                                    padding:2px 6px;
-                                    border-radius:999px;
-                                    background:#dcfce7;
-                                    color:#166534;
-                                ">
-                                    評価済
-                                </span>
+                                <span class="badge badge-success">評価済</span>
                             @else
-                                <span style="
-                                    font-size:10px;
-                                    padding:2px 6px;
-                                    border-radius:999px;
-                                    background:#ffedd5;
-                                    color:#9a3412;
-                                ">
-                                    未評価
-                                </span>
+                                <span class="badge badge-warning">未評価</span>
                             @endif
                         </div>
 
-                        {{-- メール（薄く） --}}
-                        <div style="font-size:12px; color:#6b7280; margin-top:2px;">
+                        <div class="application-email">
                             {{ $application->candidate->email }}
                         </div>
 
-                        {{-- CTA群 --}}
-                        <div style="margin-top:8px; display:flex; flex-direction:column; gap:4px;">
-
-                            {{-- 応募者詳細（共有ビュー） --}}
+                        <div class="application-actions">
                             @if ($job->share_token)
-                                <a
-                                    href="{{ route('applications.share', [$application, $job->share_token]) }}"
-                                    target="_blank"
-                                    style="
-                                        font-size:12px;
-                                        color:#2563eb;
-                                        text-decoration:none;
-                                    "
-                                >
+                                <a href="{{ route('applications.share', [$application, $job->share_token]) }}"
+                                   target="_blank">
                                     応募者詳細を開く →
                                 </a>
                             @endif
 
-                            {{-- 評価する --}}
                             @if (!$readonly)
-                                <a
-                                    href="{{ route('evaluations.create', $application) }}"
-                                    style="
-                                        font-size:12px;
-                                        color:#16a34a;
-                                        text-decoration:none;
-                                    "
-                                >
+                                <a href="{{ route('evaluations.create', $application) }}">
                                     評価する →
                                 </a>
                             @endif
                         </div>
 
-                        {{-- ステップ移動ボタン --}}
                         @if (!$readonly)
-                            <div style="display:flex; gap:6px; margin-top:8px;">
+                            <div class="application-move">
                                 @if ($prevStep)
-                                    <form method="POST" action="{{ route('applications.step.update', $application) }}">
+                                    <form method="POST"
+                                          action="{{ route('applications.step.update', $application) }}">
                                         @csrf
                                         @method('PATCH')
-                                        <input type="hidden" name="selection_step_id" value="{{ $prevStep->id }}">
-                                        <button style="font-size:11px;">← 戻す</button>
+                                        <input type="hidden"
+                                               name="selection_step_id"
+                                               value="{{ $prevStep->id }}">
+                                        <button type="submit">← 戻す</button>
                                     </form>
                                 @endif
 
                                 @if ($nextStep)
-                                    <form method="POST" action="{{ route('applications.step.update', $application) }}">
+                                    <form method="POST"
+                                          action="{{ route('applications.step.update', $application) }}">
                                         @csrf
                                         @method('PATCH')
-                                        <input type="hidden" name="selection_step_id" value="{{ $nextStep->id }}">
-                                        <button style="font-size:11px;">次へ →</button>
+                                        <input type="hidden"
+                                               name="selection_step_id"
+                                               value="{{ $nextStep->id }}">
+                                        <button type="submit">次へ →</button>
                                     </form>
                                 @endif
                             </div>
                         @endif
                     </div>
                 @endforeach
+
             </div>
         @endforeach
 
     </div>
 </div>
 
-{{-- ドラッグ＆ドロップ --}}
 @if (!$readonly)
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
@@ -216,5 +153,4 @@ document.querySelectorAll('.pipeline-column').forEach(column => {
 </script>
 @endif
 
-</body>
-</html>
+@endsection

@@ -6,6 +6,244 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* ===============================
+   Base
+   =============================== */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ===============================
+   Sidebar (menu)
+   =============================== */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100vh;
+    background: #111827;
+    color: #ffffff;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    z-index: 20;
+    transition: width 0.25s ease, box-shadow 0.25s ease;
+}
+
+.sidebar:hover {
+    width: 240px;
+    box-shadow: 8px 0 24px rgba(0,0,0,0.25);
+}
+
+.sidebar-menu-item {
+    transition: background-color 0.15s ease;
+}
+
+.sidebar-menu-item:hover {
+    background: #374151;
+    border-radius: 6px;
+}
+
+.sidebar a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* ===============================
+   Main content
+   =============================== */
+.main-content {
+    margin-left: 220px;
+    padding: 24px;
+    background: #ffffff;
+}
+
+.main-content.expand {
+    margin-left: 200px !important;
+}
+
+/* ===============================
+   Pipeline page
+   =============================== */
+.pipeline-page {
+    padding: 24px;
+    background: #f3f4f6;
+    min-height: 100vh;
+}
+
+/* board */
+.pipeline-board {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    overflow-x: auto;
+    padding-bottom: 16px;
+}
+
+/* column */
+.pipeline-column {
+    min-width: 240px;
+    background: #f7f7f7;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.pipeline-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.pipeline-count {
+    background: #111827;
+    color: #ffffff;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+
+/* ===============================
+   Application card
+   =============================== */
+.application-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.application-card.is-not-evaluated {
+    background: #fff7ed;
+    border-color: #fed7aa;
+}
+
+.application-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.application-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.application-email {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+/* ===============================
+   Badges
+   =============================== */
+.badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 999px;
+}
+
+.badge-success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge-warning {
+    background: #ffedd5;
+    color: #9a3412;
+}
+
+/* ===============================
+   Actions
+   =============================== */
+.application-actions {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.application-actions a {
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.application-actions a:hover {
+    text-decoration: underline;
+}
+
+/* ===============================
+   Move buttons
+   =============================== */
+.application-move {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.application-move button {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.application-move button:hover {
+    background: #f3f4f6;
+}
+
+/* ===============================
+   Share URL
+   =============================== */
+.pipeline-share {
+    margin-bottom: 16px;
+}
+
+.pipeline-share input {
+    width: 100%;
+    font-size: 12px;
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+}
+
+.pipeline-share button {
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+/* ===============================
+   Title
+   =============================== */
+.pipeline-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 24px;
 }
