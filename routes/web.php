@@ -3,9 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use App\Http\Controllers\ATS\JobRoleController;
 
 use App\Models\Job;
+
 use App\Http\Controllers\{
     JobController,
     PipelineController,
@@ -17,6 +17,10 @@ use App\Http\Controllers\{
     RecruiterController,
     CompanyController
 };
+
+use App\Http\Controllers\ATS\JobRoleController;
+use App\Http\Controllers\CMS\PageController;
+use App\Http\Controllers\CMS\PublicPageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,7 +58,7 @@ Route::post('/logout', function (Request $request) {
 
 /*
 |--------------------------------------------------------------------------
-| 認証必須：ATS 管理画面
+| 認証必須：ATS / CMS 管理画面
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
@@ -66,15 +70,16 @@ Route::middleware('auth')->group(function () {
         ->name('dashboard');
 
     /*
-    | 求人管理（CRUD）
-    | ※ show は使わない（pipeline が代替）
+    |--------------------------------------------------------------------------
+    | ATS：求人管理
+    |--------------------------------------------------------------------------
     */
+
+    // 求人 CRUD（show は使わない）
     Route::resource('jobs', JobController::class)
         ->except(['show']);
 
-    /*
-    | 求人 Pipeline（実質 show）
-    */
+    // 求人 Pipeline（実質 show）
     Route::get('/jobs/{job}/pipeline', [PipelineController::class, 'show'])
         ->name('jobs.pipeline');
 
@@ -108,7 +113,61 @@ Route::middleware('auth')->group(function () {
     })->name('jobs.share-token.generate');
 
     /*
-    | 会社情報
+    |--------------------------------------------------------------------------
+    | ATS：職種管理
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('ats')->name('ats.')->group(function () {
+
+        Route::get('/job-roles', [JobRoleController::class, 'index'])
+            ->name('job_roles.index');
+
+        Route::get('/job-roles/create', [JobRoleController::class, 'create'])
+            ->name('job_roles.create');
+
+        Route::post('/job-roles', [JobRoleController::class, 'store'])
+            ->name('job_roles.store');
+
+        Route::get('/job-roles/{jobRole}/edit', [JobRoleController::class, 'edit'])
+            ->name('job_roles.edit');
+
+        Route::patch('/job-roles/{jobRole}', [JobRoleController::class, 'update'])
+            ->name('job_roles.update');
+    });
+
+/*
+|--------------------------------------------------------------------------
+| CMS：ページ管理
+|--------------------------------------------------------------------------
+*/
+Route::prefix('cms')->name('cms.')->group(function () {
+
+    Route::get('/pages', [PageController::class, 'index'])
+        ->name('pages.index');
+
+    Route::get('/pages/create', [PageController::class, 'create'])
+        ->name('pages.create');
+
+    Route::post('/pages', [PageController::class, 'store'])
+        ->name('pages.store');
+
+    Route::get('/pages/{page}/edit', [PageController::class, 'edit'])
+        ->name('pages.edit');
+
+    Route::put('/pages/{page}', [PageController::class, 'update'])
+        ->name('pages.update');
+
+    Route::delete('/pages/{page}', [PageController::class, 'destroy'])
+        ->name('pages.destroy');
+});
+
+Route::get('/job-pages/{slug}', [PublicPageController::class, 'show'])
+    ->name('cms.pages.public');
+
+    /*
+    |--------------------------------------------------------------------------
+    | 設定・情報
+    |--------------------------------------------------------------------------
     */
     Route::get('/settings/company', [CompanyController::class, 'edit'])
         ->name('company.edit');
@@ -116,34 +175,20 @@ Route::middleware('auth')->group(function () {
     Route::patch('/settings/company', [CompanyController::class, 'update'])
         ->name('company.update');
 
-    /*
-    | 設定・情報（静的）
-    */
-    Route::view('/help', 'static.help')->name('help');
-    Route::view('/settings/account', 'settings.account')->name('settings.account');
-    Route::view('/settings/billing', 'settings.billing')->name('settings.billing');
+    Route::view('/settings/account', 'settings.account')
+        ->name('settings.account');
 
-    Route::view('/announcements', 'static.announcements')->name('announcements');
-    Route::view('/ai-policy', 'static.ai-policy')->name('ai.policy');
-    Route::view('/data-policy', 'static.data-policy')->name('data.policy');
+    Route::view('/settings/billing', 'settings.billing')
+        ->name('settings.billing');
 
-    Route::middleware(['auth'])->prefix('ats')->group(function () {
-    Route::get('/job-roles', [JobRoleController::class, 'index'])
-        ->name('ats.job_roles.index');
+    Route::view('/announcements', 'static.announcements')
+        ->name('announcements');
 
-    Route::get('/job-roles/create', [JobRoleController::class, 'create'])
-        ->name('ats.job_roles.create');
+    Route::view('/ai-policy', 'static.ai-policy')
+        ->name('ai.policy');
 
-    Route::post('/job-roles', [JobRoleController::class, 'store'])
-        ->name('ats.job_roles.store');
-});
-
-Route::get('/job-roles/{jobRole}/edit', [JobRoleController::class, 'edit'])
-    ->name('ats.job_roles.edit');
-
-Route::patch('/job-roles/{jobRole}', [JobRoleController::class, 'update'])
-    ->name('ats.job_roles.update');
-    
+    Route::view('/data-policy', 'static.data-policy')
+        ->name('data.policy');
 });
 
 /*
@@ -172,9 +217,3 @@ Route::view('/privacy', 'static.privacy')->name('privacy');
 |--------------------------------------------------------------------------
 */
 Route::get('/__route_test', fn () => 'route ok');
-
-
-Route::middleware(['auth'])->prefix('ats')->group(function () {
-    Route::get('/job-roles', [JobRoleController::class, 'index'])
-        ->name('ats.job_roles.index');
-});

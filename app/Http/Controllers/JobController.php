@@ -12,10 +12,17 @@ class JobController extends Controller
      * 求人一覧（自社のみ）
      */
     public function index()
-    {
-        $jobs = Job::where('company_id', auth()->user()->company_id)->get();
-        return view('jobs.index', compact('jobs'));
-    }
+{
+    $jobs = Job::where('company_id', auth()->user()->company_id)
+        ->withExists([
+            'pages as has_published_page' => function ($query) {
+                $query->where('status', 'published');
+            }
+        ])
+        ->get();
+
+    return view('jobs.index', compact('jobs'));
+}
 
     /**
      * 求人作成フォーム

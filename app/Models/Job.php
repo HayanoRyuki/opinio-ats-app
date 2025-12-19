@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use App\Models\Page;
 
 class Job extends Model
 {
@@ -11,17 +12,23 @@ class Job extends Model
         'company_id',
         'job_category_id',
         'title',
-        'location',        // 追加
-        'employment_type', // 追加
-        'salary',          // 追加
-        'working_hours',   // 追加
+        'location',
+        'employment_type',
+        'salary',
+        'working_hours',
         'description',
-        'requirements',    // 追加
-        'benefits',        // 追加
-        'notes',           // 追加
+        'requirements',
+        'benefits',
+        'notes',
         'status',
         'share_token',
     ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     public function company()
     {
@@ -39,8 +46,7 @@ class Job extends Model
     }
 
     /**
-     * この求人で使われる選考ステップ
-     * （company_id 経由）
+     * この求人で使われる選考ステップ（company_id 経由）
      */
     public function selectionSteps()
     {
@@ -52,6 +58,20 @@ class Job extends Model
     }
 
     /**
+     * この求人に紐づく CMS ページ
+     */
+    public function pages()
+    {
+        return $this->hasMany(Page::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Business Logic
+    |--------------------------------------------------------------------------
+    */
+
+    /**
      * ATS共有用トークンを生成
      */
     public function generateShareToken(): void
@@ -59,5 +79,15 @@ class Job extends Model
         $this->update([
             'share_token' => Str::random(40),
         ]);
+    }
+
+    /**
+     * 公開中の CMS ページが存在するか
+     */
+    public function hasPublishedPage(): bool
+    {
+        return $this->pages()
+            ->published()
+            ->exists();
     }
 }
