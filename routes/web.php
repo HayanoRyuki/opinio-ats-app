@@ -217,3 +217,8 @@ Route::view('/privacy', 'static.privacy')->name('privacy');
 |--------------------------------------------------------------------------
 */
 Route::get('/__route_test', fn () => 'route ok');
+
+Route::middleware('auth')->get(
+    '/applications/{application}/status-test',
+    [ApplicationController::class, 'updateStatus']
+);

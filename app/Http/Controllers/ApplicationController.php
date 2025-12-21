@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Application;
 use App\Models\Job;
 use App\Models\SelectionStep;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -63,6 +64,42 @@ class ApplicationController extends Controller
         ]);
 
         return redirect()->route('jobs.pipeline', $job);
+    }
+
+    /**
+     * 応募ステータス更新
+     * 内定承諾（offer_accepted）になったら employee を作成する
+     */
+    public function updateStatus(Request $request, Application $application)
+    {
+        abort_if(
+            $application->company_id !== auth()->user()->company_id,
+            403
+        );
+
+        $request->validate([
+            'status' => 'required|string',
+        ]);
+
+        // ステータス更新
+        $application->update([
+            'status' => $request->status,
+        ]);
+
+        // 内定承諾時のみ employee を作成
+        if ($request->status === 'offer_accepted') {
+            // すでに employee が存在する場合は作らない
+            if (!Employee::where('candidate_id', $application->candidate_id)->exists()) {
+                Employee::create([
+                    'candidate_id' => $application->candidate_id,
+                    'company_id'   => $application->company_id,
+                    'joined_at'    => now()->toDateString(),
+                    'status'       => 'active',
+                ]);
+            }
+        }
+
+        return back();
     }
 
     /**

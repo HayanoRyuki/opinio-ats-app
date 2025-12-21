@@ -149,6 +149,63 @@
             </li>
 
             {{-- ====================
+    入社後フォロー（ATS拡張）
+==================== --}}
+@php
+    $employeeActive =
+        request()->routeIs('employees.*') ||
+        request()->routeIs('one_on_one.*') ||
+        request()->routeIs('performance.*');
+@endphp
+
+<li style="margin-bottom:24px; {{ $employeeActive ? $activeStyle : '' }}">
+
+    <div style="display:flex; align-items:center; margin-bottom:8px;">
+        <img src="{{ asset('images/icons/users.svg') }}" style="width:24px; margin-right:12px;">
+        <span>入社後フォロー</span>
+    </div>
+
+    <ul style="list-style:none; padding-left:36px; margin:0;">
+
+        {{-- 入社者一覧 --}}
+        <li class="sidebar-menu-item"
+            style="margin-bottom:12px; display:flex; align-items:center;">
+            <img src="{{ asset('images/icons/list.svg') }}" style="width:18px; margin-right:8px;">
+            <a href="#" style="color:#fff; text-decoration:none;">
+                入社者一覧
+            </a>
+        </li>
+
+        {{-- 1on1 記録 --}}
+        <li class="sidebar-menu-item"
+            style="margin-bottom:12px; display:flex; align-items:center;">
+            <img src="{{ asset('images/icons/chat.svg') }}" style="width:18px; margin-right:8px;">
+            <a href="#" style="color:#fff; text-decoration:none;">
+                1on1 記録
+            </a>
+        </li>
+
+        {{-- パフォーマンスメモ --}}
+        <li class="sidebar-menu-item"
+            style="margin-bottom:12px; display:flex; align-items:center;">
+            <img src="{{ asset('images/icons/note.svg') }}" style="width:18px; margin-right:8px;">
+            <a href="#" style="color:#fff; text-decoration:none;">
+                パフォーマンスメモ
+            </a>
+        </li>
+
+        {{-- 採用→定着分析（将来） --}}
+        <li class="sidebar-menu-item"
+            style="margin-bottom:12px; display:flex; align-items:center; opacity:0.6;">
+            <img src="{{ asset('images/icons/chart.svg') }}" style="width:18px; margin-right:8px;">
+            <span>採用→定着分析（準備中）</span>
+        </li>
+
+    </ul>
+</li>
+
+
+            {{-- ====================
                 設定系
             ==================== --}}
             <li style="margin:24px 0; border-top:1px solid rgba(255,255,255,0.1);"></li>
