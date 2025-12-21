@@ -14,7 +14,7 @@ class Employee extends Model
     ];
 
     public function candidate()
-    {
-        return $this->belongsTo(Candidate::class);
-    }
+{
+    return $this->belongsTo(\App\Models\Candidate::class);
+}
 }

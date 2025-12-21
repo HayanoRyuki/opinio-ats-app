@@ -169,40 +169,42 @@
 
         {{-- 入社者一覧 --}}
         <li class="sidebar-menu-item"
-            style="margin-bottom:12px; display:flex; align-items:center;">
+            style="margin-bottom:12px; display:flex; align-items:center;
+            {{ request()->routeIs('employees.index') ? $activeStyle : '' }}">
             <img src="{{ asset('images/icons/list.svg') }}" style="width:18px; margin-right:8px;">
-            <a href="#" style="color:#fff; text-decoration:none;">
+            <a href="{{ route('employees.index') }}" style="color:#fff; text-decoration:none;">
                 入社者一覧
             </a>
         </li>
 
-        {{-- 1on1 記録 --}}
+        {{-- 1on1 記録（定着フォロー） --}}
         <li class="sidebar-menu-item"
             style="margin-bottom:12px; display:flex; align-items:center;">
             <img src="{{ asset('images/icons/chat.svg') }}" style="width:18px; margin-right:8px;">
             <a href="#" style="color:#fff; text-decoration:none;">
-                1on1 記録
+                1on1 記録（定着フォロー）
             </a>
         </li>
 
-        {{-- パフォーマンスメモ --}}
+        {{-- パフォーマンスメモ（参考） --}}
         <li class="sidebar-menu-item"
             style="margin-bottom:12px; display:flex; align-items:center;">
             <img src="{{ asset('images/icons/note.svg') }}" style="width:18px; margin-right:8px;">
             <a href="#" style="color:#fff; text-decoration:none;">
-                パフォーマンスメモ
+                パフォーマンスメモ（参考）
             </a>
         </li>
 
-        {{-- 採用→定着分析（将来） --}}
+        {{-- 採用→定着の検証（準備中） --}}
         <li class="sidebar-menu-item"
             style="margin-bottom:12px; display:flex; align-items:center; opacity:0.6;">
             <img src="{{ asset('images/icons/chart.svg') }}" style="width:18px; margin-right:8px;">
-            <span>採用→定着分析（準備中）</span>
+            <span>採用→定着の検証（準備中）</span>
         </li>
 
     </ul>
 </li>
+
 
 
             {{-- ====================

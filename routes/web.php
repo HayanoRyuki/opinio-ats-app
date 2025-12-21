@@ -21,6 +21,7 @@ use App\Http\Controllers\{
 use App\Http\Controllers\ATS\JobRoleController;
 use App\Http\Controllers\CMS\PageController;
 use App\Http\Controllers\CMS\PublicPageController;
+use App\Http\Controllers\EmployeeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,17 +75,16 @@ Route::middleware('auth')->group(function () {
     | ATS：求人管理
     |--------------------------------------------------------------------------
     */
-
-    // 求人 CRUD（show は使わない）
     Route::resource('jobs', JobController::class)
         ->except(['show']);
 
-    // 求人 Pipeline（実質 show）
     Route::get('/jobs/{job}/pipeline', [PipelineController::class, 'show'])
         ->name('jobs.pipeline');
 
     /*
+    |--------------------------------------------------------------------------
     | 応募者
+    |--------------------------------------------------------------------------
     */
     Route::get('/jobs/{job}/applications/create', [ApplicationController::class, 'create'])
         ->name('applications.create');
@@ -96,7 +96,17 @@ Route::middleware('auth')->group(function () {
         ->name('applications.step.update');
 
     /*
+    | ステータス更新（テスト用）
+    */
+    Route::get(
+        '/applications/{application}/status-test',
+        [ApplicationController::class, 'updateStatus']
+    );
+
+    /*
+    |--------------------------------------------------------------------------
     | 評価
+    |--------------------------------------------------------------------------
     */
     Route::get('/applications/{application}/evaluations/create', [EvaluationController::class, 'create'])
         ->name('evaluations.create');
@@ -105,7 +115,9 @@ Route::middleware('auth')->group(function () {
         ->name('evaluations.store');
 
     /*
+    |--------------------------------------------------------------------------
     | 共有トークン生成
+    |--------------------------------------------------------------------------
     */
     Route::post('/jobs/{job}/share-token', function (Job $job) {
         $job->generateShareToken();
@@ -135,34 +147,31 @@ Route::middleware('auth')->group(function () {
             ->name('job_roles.update');
     });
 
-/*
-|--------------------------------------------------------------------------
-| CMS：ページ管理
-|--------------------------------------------------------------------------
-*/
-Route::prefix('cms')->name('cms.')->group(function () {
+    /*
+    |--------------------------------------------------------------------------
+    | CMS：ページ管理
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('cms')->name('cms.')->group(function () {
 
-    Route::get('/pages', [PageController::class, 'index'])
-        ->name('pages.index');
+        Route::get('/pages', [PageController::class, 'index'])
+            ->name('pages.index');
 
-    Route::get('/pages/create', [PageController::class, 'create'])
-        ->name('pages.create');
+        Route::get('/pages/create', [PageController::class, 'create'])
+            ->name('pages.create');
 
-    Route::post('/pages', [PageController::class, 'store'])
-        ->name('pages.store');
+        Route::post('/pages', [PageController::class, 'store'])
+            ->name('pages.store');
 
-    Route::get('/pages/{page}/edit', [PageController::class, 'edit'])
-        ->name('pages.edit');
+        Route::get('/pages/{page}/edit', [PageController::class, 'edit'])
+            ->name('pages.edit');
 
-    Route::put('/pages/{page}', [PageController::class, 'update'])
-        ->name('pages.update');
+        Route::put('/pages/{page}', [PageController::class, 'update'])
+            ->name('pages.update');
 
-    Route::delete('/pages/{page}', [PageController::class, 'destroy'])
-        ->name('pages.destroy');
-});
-
-Route::get('/job-pages/{slug}', [PublicPageController::class, 'show'])
-    ->name('cms.pages.public');
+        Route::delete('/pages/{page}', [PageController::class, 'destroy'])
+            ->name('pages.destroy');
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -189,7 +198,23 @@ Route::get('/job-pages/{slug}', [PublicPageController::class, 'show'])
 
     Route::view('/data-policy', 'static.data-policy')
         ->name('data.policy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | 入社後フォロー（ATS拡張）
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/employees', [EmployeeController::class, 'index'])
+        ->name('employees.index');
 });
+
+/*
+|--------------------------------------------------------------------------
+| CMS 公開ページ（ログイン不要）
+|--------------------------------------------------------------------------
+*/
+Route::get('/job-pages/{slug}', [PublicPageController::class, 'show'])
+    ->name('cms.pages.public');
 
 /*
 |--------------------------------------------------------------------------
@@ -217,8 +242,3 @@ Route::view('/privacy', 'static.privacy')->name('privacy');
 |--------------------------------------------------------------------------
 */
 Route::get('/__route_test', fn () => 'route ok');
-
-Route::middleware('auth')->get(
-    '/applications/{application}/status-test',
-    [ApplicationController::class, 'updateStatus']
-);
