@@ -10,23 +10,21 @@
 <div class="pipeline-page">
 
     {{-- 共有URL表示 or 発行 --}}
-    @if ($job->share_token)
-        <div class="pipeline-share">
+    <div class="pipeline-share">
+        @if ($job->share_token)
             <input
                 type="text"
                 readonly
                 value="{{ route('jobs.pipeline.share', [$job, $job->share_token]) }}"
                 onclick="this.select()"
             >
-        </div>
-    @else
-        <form method="POST"
-              action="{{ route('jobs.share-token.generate', $job) }}"
-              class="pipeline-share">
-            @csrf
-            <button type="submit">共有URLを発行</button>
-        </form>
-    @endif
+        @else
+            <form method="POST" action="{{ route('jobs.share-token.generate', $job) }}">
+                @csrf
+                <button type="submit">共有URLを発行</button>
+            </form>
+        @endif
+    </div>
 
     <h1 class="pipeline-title">
         {{ $job->title }}｜選考パイプライン
@@ -37,14 +35,13 @@
         @foreach ($steps as $step)
             @php
                 $applications = $applicationsByStep->get($step->id, collect());
-                $count = $applications->count();
             @endphp
 
             <div class="pipeline-column" data-step-id="{{ $step->id }}">
 
                 <div class="pipeline-column-header">
                     <span>{{ $step->label }}</span>
-                    <span class="pipeline-count">{{ $count }}</span>
+                    <span class="pipeline-count">{{ $applications->count() }}</span>
                 </div>
 
                 @foreach ($applications as $application)
@@ -52,28 +49,29 @@
                         $currentOrder = $application->selectionStep->order;
                         $prevStep = $steps->firstWhere('order', $currentOrder - 1);
                         $nextStep = $steps->firstWhere('order', $currentOrder + 1);
+                        $decision = $application->hiringDecision;
                     @endphp
 
                     <div
                         class="application-card {{ $application->isEvaluated() ? 'is-evaluated' : 'is-not-evaluated' }}"
                         data-application-id="{{ $application->id }}"
                     >
+                        {{-- ヘッダ --}}
                         <div class="application-header">
                             <span class="application-name">
                                 {{ $application->candidate->name }}
                             </span>
 
-                            @if ($application->isEvaluated())
-                                <span class="badge badge-success">評価済</span>
-                            @else
-                                <span class="badge badge-warning">未評価</span>
-                            @endif
+                            <span class="badge {{ $application->isEvaluated() ? 'badge-success' : 'badge-warning' }}">
+                                {{ $application->isEvaluated() ? '評価済' : '未評価' }}
+                            </span>
                         </div>
 
                         <div class="application-email">
                             {{ $application->candidate->email }}
                         </div>
 
+                        {{-- アクション --}}
                         <div class="application-actions">
                             @if ($job->share_token)
                                 <a href="{{ route('applications.share', [$application, $job->share_token]) }}"
@@ -89,24 +87,39 @@
                             @endif
                         </div>
 
-                        {{-- 既存の採用判断表示 --}}
-                        @if ($application->hiringDecision)
-                            <div class="application-decision-result" style="margin-top:6px;">
-                                <strong>判断：</strong>
-                                {{ match($application->hiringDecision->decision) {
-                                    'hire' => '採用',
-                                    'reject' => '見送り',
-                                    'hold' => '保留',
-                                } }}
+                        {{-- 採用判断の表示（色付き＋日時） --}}
+                        @if ($decision)
+                            @php
+                                $decisionMeta = match ($decision->decision) {
+                                    'hire' => ['label' => '採用',   'class' => 'bg-green-100 text-green-800'],
+                                    'reject' => ['label' => '見送り', 'class' => 'bg-red-100 text-red-800'],
+                                    'hold' => ['label' => '保留',   'class' => 'bg-gray-100 text-gray-800'],
+                                };
+                            @endphp
 
-                                @if ($application->hiringDecision->reason)
-                                    <div style="font-size:12px; color:#666;">
-                                        理由：{{ $application->hiringDecision->reason }}
+                            <div class="application-decision-result" style="margin-top:6px;">
+                                <strong>採用判断：</strong>
+                                <span class="px-2 py-1 rounded text-xs font-semibold {{ $decisionMeta['class'] }}">
+                                    {{ $decisionMeta['label'] }}
+                                </span>
+
+                                @if ($decision->reason)
+                                    <div class="text-xs text-gray-500" style="margin-top:4px;">
+                                        理由：{{ $decision->reason }}
                                     </div>
                                 @endif
+
+                                <div class="text-xs text-gray-400" style="margin-top:2px;">
+                                    決定日時：{{ $decision->decided_at->format('Y/m/d H:i') }}
+                                </div>
+                            </div>
+                        @else
+                            <div class="text-xs text-gray-400" style="margin-top:6px;">
+                                採用判断：未判断
                             </div>
                         @endif
 
+                        {{-- ステップ移動 --}}
                         @if (!$readonly)
                             <div class="application-move">
                                 @if ($prevStep)
@@ -114,9 +127,7 @@
                                           action="{{ route('applications.step.update', $application) }}">
                                         @csrf
                                         @method('PATCH')
-                                        <input type="hidden"
-                                               name="selection_step_id"
-                                               value="{{ $prevStep->id }}">
+                                        <input type="hidden" name="selection_step_id" value="{{ $prevStep->id }}">
                                         <button type="submit">← 戻す</button>
                                     </form>
                                 @endif
@@ -126,66 +137,27 @@
                                           action="{{ route('applications.step.update', $application) }}">
                                         @csrf
                                         @method('PATCH')
-                                        <input type="hidden"
-                                               name="selection_step_id"
-                                               value="{{ $nextStep->id }}">
+                                        <input type="hidden" name="selection_step_id" value="{{ $nextStep->id }}">
                                         <button type="submit">次へ →</button>
                                     </form>
                                 @endif
                             </div>
                         @endif
 
-{{-- 判断の上書き（確認付き） --}}
-@if (!$readonly && $application->hiringDecision)
-    <div class="application-decision-overwrite" style="margin-top:6px;">
-        <form
-            method="POST"
-            action="{{ route('applications.decision.store', $application->id) }}"
-            onsubmit="return confirm('この採用判断を上書きします。よろしいですか？');"
-        >
-            @csrf
-
-            <label>
-                <input type="radio" name="decision" value="hire" required>
-                採用
-            </label>
-
-            <label>
-                <input type="radio" name="decision" value="reject">
-                見送り
-            </label>
-
-            <label>
-                <input type="radio" name="decision" value="hold">
-                保留
-            </label>
-
-            <div style="margin-top:6px;">
-                <textarea
-                    name="reason"
-                    rows="2"
-                    placeholder="判断理由（任意）"
-                ></textarea>
-            </div>
-
-            <button type="submit" style="margin-top:6px;">
-                判断を上書き
-            </button>
-        </form>
-    </div>
-@endif
-
-
-                        {{-- 採用判断入力（未判断のみ） --}}
-                        @if (!$readonly && !$application->hiringDecision)
-                            <div class="application-decision" style="margin-top:8px; padding-top:8px; border-top:1px dashed #ccc;">
+                        {{-- 採用判断フォーム（新規 or 上書き） --}}
+                        @if (!$readonly)
+                            <div class="application-decision-form"
+                                 style="margin-top:8px; padding-top:8px; border-top:1px dashed #ccc;">
                                 <form
                                     method="POST"
                                     action="{{ route('applications.decision.store', $application->id) }}"
+                                    @if ($decision)
+                                        onsubmit="return confirm('この採用判断を上書きします。よろしいですか？');"
+                                    @endif
                                 >
                                     @csrf
 
-                                    <strong>採用判断</strong><br>
+                                    <strong>{{ $decision ? '採用判断（上書き）' : '採用判断' }}</strong><br>
 
                                     <label>
                                         <input type="radio" name="decision" value="hire" required>
@@ -211,7 +183,7 @@
                                     </div>
 
                                     <button type="submit" style="margin-top:6px;">
-                                        判断を保存
+                                        {{ $decision ? '判断を上書き' : '判断を保存' }}
                                     </button>
                                 </form>
                             </div>
@@ -226,6 +198,7 @@
     </div>
 </div>
 
+{{-- DnD --}}
 @if (!$readonly)
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
