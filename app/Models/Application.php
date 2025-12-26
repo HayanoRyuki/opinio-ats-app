@@ -42,6 +42,14 @@ class Application extends Model
     }
 
     /**
+     * 採用判断（Decide Domain）
+     */
+    public function hiringDecision()
+    {
+        return $this->hasOne(\App\Models\HiringDecision::class);
+    }
+
+    /**
      * ★ 評価済みか？
      */
     public function isEvaluated(): bool
