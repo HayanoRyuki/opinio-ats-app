@@ -4,7 +4,7 @@ namespace App\Infrastructure\Eloquent\Repository;
 
 use App\Domain\Decide\HiringDecision as DomainHiringDecision;
 use App\Domain\Decide\HiringDecisionRepository;
-use App\Infrastructure\Eloquent\Models\HiringDecision as EloquentHiringDecision;
+use App\Models\HiringDecision as EloquentHiringDecision;
 use DateTimeImmutable;
 
 final class EloquentHiringDecisionRepository implements HiringDecisionRepository

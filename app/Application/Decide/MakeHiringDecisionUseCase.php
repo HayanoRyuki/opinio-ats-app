@@ -5,6 +5,7 @@ namespace App\Application\Decide;
 use App\Domain\Decide\HiringDecision;
 use App\Domain\Decide\HiringDecisionRepository;
 use DateTimeImmutable;
+use InvalidArgumentException;
 
 final class MakeHiringDecisionUseCase
 {
@@ -15,10 +16,8 @@ final class MakeHiringDecisionUseCase
     /**
      * 採用判断を確定する
      *
-     * Application.status には触れない。
-     * 採用可否という「意思決定」を独立した Domain として記録する。
-     *
-     * @throws \InvalidArgumentException
+     * - Application.status には触れない
+     * - 採用可否という「意思決定」を独立した Domain として記録する
      */
     public function execute(
         int $applicationId,
@@ -45,7 +44,7 @@ final class MakeHiringDecisionUseCase
         $allowed = ['hire', 'reject', 'hold'];
 
         if (!in_array($decision, $allowed, true)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "Invalid decision: {$decision}"
             );
         }
