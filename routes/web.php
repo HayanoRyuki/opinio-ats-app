@@ -15,9 +15,12 @@ use App\Http\Controllers\{
     ApplicationController,
     EvaluationController,
     RecruiterController,
-    CompanyController
+    CompanyController,
+    DashboardController,
+    MyPageController
 };
 
+use App\Http\Controllers\Decide\HiringDecisionController;
 use App\Http\Controllers\ATS\JobRoleController;
 use App\Http\Controllers\CMS\PageController;
 use App\Http\Controllers\CMS\PublicPageController;
@@ -65,10 +68,17 @@ Route::post('/logout', function (Request $request) {
 Route::middleware('auth')->group(function () {
 
     /*
+    |--------------------------------------------------------------------------
     | ダッシュボード / マイページ
+    |--------------------------------------------------------------------------
+    | Controller は配線のみ
+    | Application + Domain を経由
     */
-    Route::get('/dashboard', [RecruiterController::class, 'mypage'])
+    Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
+
+    Route::get('/mypage', [MyPageController::class, 'index'])
+        ->name('mypage');
 
     /*
     |--------------------------------------------------------------------------
@@ -102,6 +112,18 @@ Route::middleware('auth')->group(function () {
         '/applications/{application}/status-test',
         [ApplicationController::class, 'updateStatus']
     );
+
+    /*
+    |--------------------------------------------------------------------------
+    | 採用判断（Decide Domain）
+    |--------------------------------------------------------------------------
+    | Application.status には触れず、
+    | HiringDecision のみを確定させる
+    */
+    Route::post(
+        '/applications/{application}/decision',
+        [HiringDecisionController::class, 'store']
+    )->name('applications.decision.store');
 
     /*
     |--------------------------------------------------------------------------

@@ -89,6 +89,24 @@
                             @endif
                         </div>
 
+                        {{-- 既存の採用判断表示 --}}
+                        @if ($application->hiringDecision)
+                            <div class="application-decision-result" style="margin-top:6px;">
+                                <strong>判断：</strong>
+                                {{ match($application->hiringDecision->decision) {
+                                    'hire' => '採用',
+                                    'reject' => '見送り',
+                                    'hold' => '保留',
+                                } }}
+
+                                @if ($application->hiringDecision->reason)
+                                    <div style="font-size:12px; color:#666;">
+                                        理由：{{ $application->hiringDecision->reason }}
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
                         @if (!$readonly)
                             <div class="application-move">
                                 @if ($prevStep)
@@ -116,6 +134,89 @@
                                 @endif
                             </div>
                         @endif
+
+{{-- 判断の上書き（確認付き） --}}
+@if (!$readonly && $application->hiringDecision)
+    <div class="application-decision-overwrite" style="margin-top:6px;">
+        <form
+            method="POST"
+            action="{{ route('applications.decision.store', $application->id) }}"
+            onsubmit="return confirm('この採用判断を上書きします。よろしいですか？');"
+        >
+            @csrf
+
+            <label>
+                <input type="radio" name="decision" value="hire" required>
+                採用
+            </label>
+
+            <label>
+                <input type="radio" name="decision" value="reject">
+                見送り
+            </label>
+
+            <label>
+                <input type="radio" name="decision" value="hold">
+                保留
+            </label>
+
+            <div style="margin-top:6px;">
+                <textarea
+                    name="reason"
+                    rows="2"
+                    placeholder="判断理由（任意）"
+                ></textarea>
+            </div>
+
+            <button type="submit" style="margin-top:6px;">
+                判断を上書き
+            </button>
+        </form>
+    </div>
+@endif
+
+
+                        {{-- 採用判断入力（未判断のみ） --}}
+                        @if (!$readonly && !$application->hiringDecision)
+                            <div class="application-decision" style="margin-top:8px; padding-top:8px; border-top:1px dashed #ccc;">
+                                <form
+                                    method="POST"
+                                    action="{{ route('applications.decision.store', $application->id) }}"
+                                >
+                                    @csrf
+
+                                    <strong>採用判断</strong><br>
+
+                                    <label>
+                                        <input type="radio" name="decision" value="hire" required>
+                                        採用
+                                    </label>
+
+                                    <label>
+                                        <input type="radio" name="decision" value="reject">
+                                        見送り
+                                    </label>
+
+                                    <label>
+                                        <input type="radio" name="decision" value="hold">
+                                        保留
+                                    </label>
+
+                                    <div style="margin-top:6px;">
+                                        <textarea
+                                            name="reason"
+                                            rows="2"
+                                            placeholder="判断理由（任意）"
+                                        ></textarea>
+                                    </div>
+
+                                    <button type="submit" style="margin-top:6px;">
+                                        判断を保存
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
+
                     </div>
                 @endforeach
 
