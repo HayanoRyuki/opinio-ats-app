@@ -1,4 +1,3 @@
-{{-- resources/views/layouts/menu.blade.php --}}
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -9,22 +8,16 @@
 
 @php
     $isLoginPage = request()->routeIs('login');
-    $activeStyle = 'background:#1f2937; font-weight:600; border-radius:6px;';
-
-    $jobActive = request()->routeIs('jobs.*') || request()->routeIs('ats.job_roles.*');
-    $cmsActive = request()->routeIs('cms.pages.*');
-
-    $lastJobId = session('last_job_id');
-    $lastJobTitle = session('last_job_title');
+    $active = 'background:#1f2937; font-weight:600; border-radius:6px;';
 @endphp
 
 <body>
 
-@if(! $isLoginPage)
-<nav class="sidebar">
+@if (! $isLoginPage)
+<nav class="sidebar"
+     style="width:240px; font-size:14px; line-height:1.6;">
 
-    {{-- ===== 上部（スクロール可） ===== --}}
-    <div style="flex:1; overflow-y:auto;">
+    <div style="flex:1; overflow-y:auto; padding:16px;">
 
         {{-- ロゴ --}}
         <div style="text-align:center; margin-bottom:32px;">
@@ -33,213 +26,154 @@
 
         <ul style="list-style:none; padding:0; margin:0;">
 
-            {{-- ====================
-                マイページ
-            ==================== --}}
-            <li class="sidebar-menu-item"
-                style="margin-bottom:20px; display:flex; align-items:center;
-                {{ request()->routeIs('dashboard') ? $activeStyle : '' }}">
-                <img src="{{ asset('images/icons/home.svg') }}" style="width:24px; margin-right:12px;">
-                <a href="{{ route('dashboard') }}" style="color:#fff; text-decoration:none;">
+            {{-- マイページ --}}
+            <li style="margin-bottom:24px; {{ request()->routeIs('dashboard') ? $active : '' }}">
+                <a href="{{ route('dashboard') }}"
+                   style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
                     マイページ
                 </a>
             </li>
 
-            {{-- ====================
-                求人管理
-            ==================== --}}
-            <li style="margin-bottom:24px; {{ $jobActive ? $activeStyle : '' }}">
-
-                <div style="display:flex; align-items:center; margin-bottom:8px;">
-                    <img src="{{ asset('images/icons/apply.svg') }}" style="width:24px; margin-right:12px;">
-                    <span>求人管理</span>
+            {{-- 決める --}}
+            <li style="margin-bottom:24px;">
+                <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
+                    決める
                 </div>
-
-                <ul style="list-style:none; padding-left:36px; margin:0;">
-
-                    {{-- 求人一覧 --}}
-                    <li class="sidebar-menu-item"
-                        style="margin-bottom:12px; display:flex; align-items:center;
-                        {{ request()->routeIs('jobs.index') ? $activeStyle : '' }}">
-                        <img src="{{ asset('images/icons/list.svg') }}" style="width:18px; margin-right:8px;">
-                        <a href="{{ route('jobs.index') }}" style="color:#fff; text-decoration:none;">
-                            求人一覧
+                <ul style="list-style:none; padding-left:12px; margin:0;">
+                    <li>
+                        <a href="#"
+                           style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
+                            評価基準
                         </a>
                     </li>
-
-                    {{-- 新規求人作成 --}}
-                    <li class="sidebar-menu-item"
-                        style="margin-bottom:12px; display:flex; align-items:center;
-                        {{ request()->routeIs('jobs.create') ? $activeStyle : '' }}">
-                        <img src="{{ asset('images/icons/edit.svg') }}" style="width:18px; margin-right:8px;">
-                        <a href="{{ route('jobs.create') }}" style="color:#fff; text-decoration:none;">
-                            新規求人作成
-                        </a>
+                    <li style="opacity:.5; padding:6px 8px;">
+                        採用方針
                     </li>
-
-                    {{-- 職種管理 --}}
-                    <li class="sidebar-menu-item"
-                        style="margin-bottom:12px; display:flex; align-items:center;
-                        {{ request()->routeIs('ats.job_roles.*') ? $activeStyle : '' }}">
-                        <img src="{{ asset('images/icons/tag.svg') }}" style="width:18px; margin-right:8px;">
-                        <a href="{{ route('ats.job_roles.index') }}" style="color:#fff; text-decoration:none;">
-                            職種管理
-                        </a>
-                    </li>
-
-                    {{-- 最近の求人 --}}
-                    @if($lastJobId)
-                        <li style="margin:16px 0 6px; font-size:0.75rem; opacity:0.6;">
-                            最近の求人
-                        </li>
-
-                        <li class="sidebar-menu-item"
-                            style="
-                                margin-bottom:12px;
-                                display:flex;
-                                align-items:center;
-                                padding:6px 8px;
-                                border-radius:6px;
-                                background:{{ request()->routeIs('jobs.pipeline') ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)' }};
-                            ">
-                            <img src="{{ asset('images/icons/apply.svg') }}" style="width:16px; margin-right:8px;">
-                            <a href="{{ route('jobs.pipeline', $lastJobId) }}"
-                               style="color:#fff; text-decoration:none; font-size:0.85rem;">
-                                {{ $lastJobTitle }}
-                            </a>
-                        </li>
-                    @endif
-
                 </ul>
             </li>
 
-            {{-- ====================
-                CMS：ページ管理
-            ==================== --}}
-            <li style="margin-bottom:24px; {{ $cmsActive ? $activeStyle : '' }}">
-
-                <div style="display:flex; align-items:center; margin-bottom:8px;">
-                    <img src="{{ asset('images/icons/pages.svg') }}" style="width:24px; margin-right:12px;">
-                    <span>ページ管理</span>
+            {{-- 集める --}}
+            <li style="margin-bottom:24px;">
+                <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
+                    集める
                 </div>
-
-                <ul style="list-style:none; padding-left:36px; margin:0;">
-
-                    {{-- 求人ページ一覧 --}}
-                    <li class="sidebar-menu-item"
-                        style="margin-bottom:12px; display:flex; align-items:center;
-                        {{ request()->routeIs('cms.pages.index') ? $activeStyle : '' }}">
-                        <img src="{{ asset('images/icons/list.svg') }}" style="width:18px; margin-right:8px;">
-                        <a href="{{ route('cms.pages.index') }}" style="color:#fff; text-decoration:none;">
-                            求人ページ一覧
+                <ul style="list-style:none; padding-left:12px; margin:0;">
+                    <li>
+                        <a href="{{ route('jobs.index') }}"
+                           style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
+                            求人
                         </a>
                     </li>
-
-                    {{-- 求人ページ作成 --}}
-                    <li class="sidebar-menu-item"
-                        style="margin-bottom:12px; display:flex; align-items:center;
-                        {{ request()->routeIs('cms.pages.create') ? $activeStyle : '' }}">
-                        <img src="{{ asset('images/icons/edit.svg') }}" style="width:18px; margin-right:8px;">
-                        <a href="{{ route('cms.pages.create') }}" style="color:#fff; text-decoration:none;">
-                            求人ページ作成
+                    <li>
+                        <a href="{{ route('cms.pages.index') }}"
+                           style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
+                            採用ページ
                         </a>
                     </li>
-
+                    <li style="opacity:.5; padding:6px 8px;">
+                        エージェント
+                    </li>
+                    <li style="opacity:.5; padding:6px 8px;">
+                        リファラル
+                    </li>
                 </ul>
             </li>
 
-            {{-- ====================
-    入社後フォロー（ATS拡張）
-==================== --}}
-@php
-    $employeeActive =
-        request()->routeIs('employees.*') ||
-        request()->routeIs('one_on_one.*') ||
-        request()->routeIs('performance.*');
-@endphp
-
-<li style="margin-bottom:24px; {{ $employeeActive ? $activeStyle : '' }}">
-
-    <div style="display:flex; align-items:center; margin-bottom:8px;">
-        <img src="{{ asset('images/icons/users.svg') }}" style="width:24px; margin-right:12px;">
-        <span>入社後フォロー</span>
-    </div>
-
-    <ul style="list-style:none; padding-left:36px; margin:0;">
-
-        {{-- 入社者一覧 --}}
-        <li class="sidebar-menu-item"
-            style="margin-bottom:12px; display:flex; align-items:center;
-            {{ request()->routeIs('employees.index') ? $activeStyle : '' }}">
-            <img src="{{ asset('images/icons/list.svg') }}" style="width:18px; margin-right:8px;">
-            <a href="{{ route('employees.index') }}" style="color:#fff; text-decoration:none;">
-                入社者一覧
-            </a>
-        </li>
-
-        {{-- 1on1 記録（定着フォロー） --}}
-        <li class="sidebar-menu-item"
-            style="margin-bottom:12px; display:flex; align-items:center;">
-            <img src="{{ asset('images/icons/chat.svg') }}" style="width:18px; margin-right:8px;">
-            <a href="#" style="color:#fff; text-decoration:none;">
-                1on1 記録（定着フォロー）
-            </a>
-        </li>
-
-        {{-- パフォーマンスメモ（参考） --}}
-        <li class="sidebar-menu-item"
-            style="margin-bottom:12px; display:flex; align-items:center;">
-            <img src="{{ asset('images/icons/note.svg') }}" style="width:18px; margin-right:8px;">
-            <a href="#" style="color:#fff; text-decoration:none;">
-                パフォーマンスメモ（参考）
-            </a>
-        </li>
-
-        {{-- 採用→定着の検証（準備中） --}}
-        <li class="sidebar-menu-item"
-            style="margin-bottom:12px; display:flex; align-items:center; opacity:0.6;">
-            <img src="{{ asset('images/icons/chart.svg') }}" style="width:18px; margin-right:8px;">
-            <span>採用→定着の検証（準備中）</span>
-        </li>
-
-    </ul>
-</li>
-
-
-
-            {{-- ====================
-                設定系
-            ==================== --}}
-            <li style="margin:24px 0; border-top:1px solid rgba(255,255,255,0.1);"></li>
-
-            <li class="sidebar-menu-item">
-                <a href="{{ route('settings.account') }}" style="color:#fff;">アカウント設定</a>
-            </li>
-            <li class="sidebar-menu-item">
-                <a href="{{ route('settings.billing') }}" style="color:#fff;">利用プラン・請求</a>
-            </li>
-            <li class="sidebar-menu-item">
-                <a href="{{ route('announcements') }}" style="color:#fff;">お知らせ</a>
-            </li>
-            <li class="sidebar-menu-item">
-                <a href="{{ route('data.policy') }}" style="color:#fff;">データポリシー</a>
+            {{-- 見極める --}}
+            <li style="margin-bottom:24px;">
+                <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
+                    見極める
+                </div>
+                <ul style="list-style:none; padding-left:12px; margin:0;">
+                    <li style="padding:6px 8px; color:#fff;">
+                        パイプライン
+                    </li>
+                    <li style="padding:6px 8px; color:#fff;">
+                        評価
+                    </li>
+                    <li style="padding:6px 8px; color:#fff;">
+                        日程
+                    </li>
+                </ul>
             </li>
 
-            {{-- ====================
-                フッター
-            ==================== --}}
-            <li style="margin:24px 0; border-top:1px solid rgba(255,255,255,0.1);"></li>
+            {{-- 残す --}}
+            <li style="margin-bottom:24px;">
+                <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
+                    残す
+                </div>
+                <ul style="list-style:none; padding-left:12px; margin:0;">
+                    <li style="padding:6px 8px; color:#fff;">
+                        採用判断
+                    </li>
+                    <li style="opacity:.5; padding:6px 8px;">
+                        判断履歴
+                    </li>
+                </ul>
+            </li>
 
-            <li class="sidebar-menu-item"><a href="{{ route('ai.policy') }}" style="color:#fff;">AIの使い方</a></li>
-            <li class="sidebar-menu-item"><a href="{{ route('terms') }}" style="color:#fff;">利用規約</a></li>
-            <li class="sidebar-menu-item"><a href="{{ route('company') }}" style="color:#fff;">運営会社</a></li>
-            <li class="sidebar-menu-item"><a href="{{ route('privacy') }}" style="color:#fff;">プライバシーポリシー</a></li>
+            {{-- 学ぶ --}}
+            <li style="margin-bottom:24px;">
+                <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
+                    学ぶ
+                </div>
+                <ul style="list-style:none; padding-left:12px; margin:0;">
+                    <li>
+                        <a href="{{ route('dashboard') }}"
+                           style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
+                            ダッシュボード
+                        </a>
+                    </li>
+                    <li style="opacity:.5; padding:6px 8px;">
+                        振り返り
+                    </li>
+                </ul>
+            </li>
 
-            {{-- ログアウト --}}
-            <li class="sidebar-menu-item" style="margin-top:16px;">
+            {{-- 入社後 --}}
+            <li style="margin-bottom:24px;">
+                <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
+                    入社後
+                </div>
+                <ul style="list-style:none; padding-left:12px; margin:0;">
+                    <li>
+                        <a href="{{ route('employees.index') }}"
+                           style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
+                            入社者
+                        </a>
+                    </li>
+                    <li style="opacity:.5; padding:6px 8px;">
+                        1on1
+                    </li>
+                </ul>
+            </li>
+
+            {{-- 設定 --}}
+            <li style="margin-top:32px; border-top:1px solid rgba(255,255,255,0.1); padding-top:16px;">
+                <a href="{{ route('settings.account') }}"
+                   style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
+                    設定
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('terms') }}"
+                   style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
+                    利用規約
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('privacy') }}"
+                   style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
+                    プライバシー
+                </a>
+            </li>
+
+            <li style="margin-top:16px;">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button style="background:none; border:none; color:#fff; cursor:pointer;">
+                    <button style="background:none; border:none; color:#fff; cursor:pointer; padding:6px 8px;">
                         ログアウト
                     </button>
                 </form>
@@ -250,7 +184,7 @@
 </nav>
 @endif
 
-<main class="main-content" style="margin-left:{{ $isLoginPage ? '0' : '220px' }};">
+<main class="main-content" style="margin-left:{{ $isLoginPage ? '0' : '240px' }};">
     @yield('content')
 </main>
 
