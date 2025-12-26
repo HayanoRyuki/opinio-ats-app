@@ -8,6 +8,8 @@ class JobController extends Controller
 {
     public function index()
     {
-        return Job::all(); // 仮。あとで直す
+        $jobs = Job::all();
+
+        return view('jobs.index', compact('jobs'));
     }
 }

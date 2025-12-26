@@ -170,14 +170,16 @@
                 </a>
             </li>
 
-            <li style="margin-top:16px;">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button style="background:none; border:none; color:#fff; cursor:pointer; padding:6px 8px;">
-                        ログアウト
-                    </button>
-                </form>
-            </li>
+            {{--
+<li style="margin-top:16px;">
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button style="background:none; border:none; color:#fff; cursor:pointer; padding:6px 8px;">
+            ログアウト
+        </button>
+    </form>
+</li>
+--}}
 
         </ul>
     </div>

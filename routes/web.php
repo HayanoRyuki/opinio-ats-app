@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 use App\Models\Job;
@@ -28,239 +27,97 @@ use App\Http\Controllers\EmployeeController;
 
 /*
 |--------------------------------------------------------------------------
-| Top
+| 認証必須：ATS / CMS 管理画面（JWT 前提）
 |--------------------------------------------------------------------------
 */
-Route::get('/', fn () => redirect()->route('jobs.index'));
+Route::middleware('verify.jwt')->group(function () {
 
-/*
-|--------------------------------------------------------------------------
-| 認証（ログイン / ログアウト）
-|--------------------------------------------------------------------------
-*/
-Route::get('/login', fn () => view('auth.login'))->name('login');
+    Route::get('/', fn () => redirect()->route('jobs.index'));
 
-Route::post('/login', function (Request $request) {
-    $credentials = $request->only('email', 'password');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/mypage', [MyPageController::class, 'index'])->name('mypage');
 
-    if (Auth::attempt($credentials)) {
-        $request->session()->regenerate();
-        return redirect()->intended(route('jobs.index'));
-    }
+    Route::resource('jobs', JobController::class)->except(['show']);
+    Route::get('/jobs/{job}/pipeline', [PipelineController::class, 'show'])->name('jobs.pipeline');
 
-    return back()->withErrors([
-        'email' => 'メールアドレスまたはパスワードが違います。',
-    ]);
-});
+    Route::get('/jobs/{job}/applications/create', [ApplicationController::class, 'create'])->name('applications.create');
+    Route::post('/jobs/{job}/applications', [ApplicationController::class, 'store'])->name('applications.store');
+    Route::patch('/applications/{application}/step', [ApplicationStepController::class, 'update'])->name('applications.step.update');
 
-Route::post('/logout', function (Request $request) {
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return redirect()->route('login');
-})->name('logout');
+    Route::get('/applications/{application}/status-test', [ApplicationController::class, 'updateStatus']);
 
-/*
-|--------------------------------------------------------------------------
-| 認証必須：ATS / CMS 管理画面
-|--------------------------------------------------------------------------
-*/
-Route::middleware('auth')->group(function () {
-
-    /*
-    |--------------------------------------------------------------------------
-    | ダッシュボード / マイページ
-    |--------------------------------------------------------------------------
-    | Controller は配線のみ
-    | Application + Domain を経由
-    */
-    Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
-
-    Route::get('/mypage', [MyPageController::class, 'index'])
-        ->name('mypage');
-
-    /*
-    |--------------------------------------------------------------------------
-    | ATS：求人管理
-    |--------------------------------------------------------------------------
-    */
-    Route::resource('jobs', JobController::class)
-        ->except(['show']);
-
-    Route::get('/jobs/{job}/pipeline', [PipelineController::class, 'show'])
-        ->name('jobs.pipeline');
-
-    /*
-    |--------------------------------------------------------------------------
-    | 応募者
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/jobs/{job}/applications/create', [ApplicationController::class, 'create'])
-        ->name('applications.create');
-
-    Route::post('/jobs/{job}/applications', [ApplicationController::class, 'store'])
-        ->name('applications.store');
-
-    Route::patch('/applications/{application}/step', [ApplicationStepController::class, 'update'])
-        ->name('applications.step.update');
-
-    /*
-    | ステータス更新（テスト用）
-    */
-    Route::get(
-        '/applications/{application}/status-test',
-        [ApplicationController::class, 'updateStatus']
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | 採用判断（Decide Domain）
-    |--------------------------------------------------------------------------
-    | Application.status には触れず、
-    | HiringDecision のみを確定させる
-    */
     Route::post(
         '/applications/{application}/decision',
         [HiringDecisionController::class, 'store']
     )->name('applications.decision.store');
 
-    /*
-    |--------------------------------------------------------------------------
-    | 評価
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/applications/{application}/evaluations/create', [EvaluationController::class, 'create'])
-        ->name('evaluations.create');
+    Route::get('/applications/{application}/evaluations/create', [EvaluationController::class, 'create'])->name('evaluations.create');
+    Route::post('/applications/{application}/evaluations', [EvaluationController::class, 'store'])->name('evaluations.store');
 
-    Route::post('/applications/{application}/evaluations', [EvaluationController::class, 'store'])
-        ->name('evaluations.store');
-
-    /*
-    |--------------------------------------------------------------------------
-    | 共有トークン生成
-    |--------------------------------------------------------------------------
-    */
     Route::post('/jobs/{job}/share-token', function (Job $job) {
         $job->generateShareToken();
         return back();
     })->name('jobs.share-token.generate');
 
-    /*
-    |--------------------------------------------------------------------------
-    | ATS：職種管理
-    |--------------------------------------------------------------------------
-    */
     Route::prefix('ats')->name('ats.')->group(function () {
-
-        Route::get('/job-roles', [JobRoleController::class, 'index'])
-            ->name('job_roles.index');
-
-        Route::get('/job-roles/create', [JobRoleController::class, 'create'])
-            ->name('job_roles.create');
-
-        Route::post('/job-roles', [JobRoleController::class, 'store'])
-            ->name('job_roles.store');
-
-        Route::get('/job-roles/{jobRole}/edit', [JobRoleController::class, 'edit'])
-            ->name('job_roles.edit');
-
-        Route::patch('/job-roles/{jobRole}', [JobRoleController::class, 'update'])
-            ->name('job_roles.update');
+        Route::get('/job-roles', [JobRoleController::class, 'index'])->name('job_roles.index');
+        Route::get('/job-roles/create', [JobRoleController::class, 'create'])->name('job_roles.create');
+        Route::post('/job-roles', [JobRoleController::class, 'store'])->name('job_roles.store');
+        Route::get('/job-roles/{jobRole}/edit', [JobRoleController::class, 'edit'])->name('job_roles.edit');
+        Route::patch('/job-roles/{jobRole}', [JobRoleController::class, 'update'])->name('job_roles.update');
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | CMS：ページ管理
-    |--------------------------------------------------------------------------
-    */
     Route::prefix('cms')->name('cms.')->group(function () {
-
-        Route::get('/pages', [PageController::class, 'index'])
-            ->name('pages.index');
-
-        Route::get('/pages/create', [PageController::class, 'create'])
-            ->name('pages.create');
-
-        Route::post('/pages', [PageController::class, 'store'])
-            ->name('pages.store');
-
-        Route::get('/pages/{page}/edit', [PageController::class, 'edit'])
-            ->name('pages.edit');
-
-        Route::put('/pages/{page}', [PageController::class, 'update'])
-            ->name('pages.update');
-
-        Route::delete('/pages/{page}', [PageController::class, 'destroy'])
-            ->name('pages.destroy');
+        Route::get('/pages', [PageController::class, 'index'])->name('pages.index');
+        Route::get('/pages/create', [PageController::class, 'create'])->name('pages.create');
+        Route::post('/pages', [PageController::class, 'store'])->name('pages.store');
+        Route::get('/pages/{page}/edit', [PageController::class, 'edit'])->name('pages.edit');
+        Route::put('/pages/{page}', [PageController::class, 'update'])->name('pages.update');
+        Route::delete('/pages/{page}', [PageController::class, 'destroy'])->name('pages.destroy');
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | 設定・情報
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/settings/company', [CompanyController::class, 'edit'])
-        ->name('company.edit');
+    Route::get('/settings/company', [CompanyController::class, 'edit'])->name('company.edit');
+    Route::patch('/settings/company', [CompanyController::class, 'update'])->name('company.update');
 
-    Route::patch('/settings/company', [CompanyController::class, 'update'])
-        ->name('company.update');
+    Route::view('/settings/account', 'settings.account')->name('settings.account');
+    Route::view('/settings/billing', 'settings.billing')->name('settings.billing');
 
-    Route::view('/settings/account', 'settings.account')
-        ->name('settings.account');
+    Route::view('/announcements', 'static.announcements')->name('announcements');
+    Route::view('/ai-policy', 'static.ai-policy')->name('ai.policy');
+    Route::view('/data-policy', 'static.data-policy')->name('data.policy');
 
-    Route::view('/settings/billing', 'settings.billing')
-        ->name('settings.billing');
-
-    Route::view('/announcements', 'static.announcements')
-        ->name('announcements');
-
-    Route::view('/ai-policy', 'static.ai-policy')
-        ->name('ai.policy');
-
-    Route::view('/data-policy', 'static.data-policy')
-        ->name('data.policy');
-
-    /*
-    |--------------------------------------------------------------------------
-    | 入社後フォロー（ATS拡張）
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/employees', [EmployeeController::class, 'index'])
-        ->name('employees.index');
+    Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
 });
 
 /*
 |--------------------------------------------------------------------------
-| CMS 公開ページ（ログイン不要）
+| 公開ページ
 |--------------------------------------------------------------------------
 */
-Route::get('/job-pages/{slug}', [PublicPageController::class, 'show'])
-    ->name('cms.pages.public');
+Route::get('/job-pages/{slug}', [PublicPageController::class, 'show'])->name('cms.pages.public');
 
-/*
-|--------------------------------------------------------------------------
-| 共有（ログイン不要・readonly）
-|--------------------------------------------------------------------------
-*/
-Route::get('/share/jobs/{job}/{token}', [SharePipelineController::class, 'show'])
-    ->name('jobs.pipeline.share');
+Route::get('/share/jobs/{job}/{token}', [SharePipelineController::class, 'show'])->name('jobs.pipeline.share');
+Route::get('/share/applications/{application}/{token}', [ShareApplicationController::class, 'show'])->name('applications.share');
 
-Route::get('/share/applications/{application}/{token}', [ShareApplicationController::class, 'show'])
-    ->name('applications.share');
-
-/*
-|--------------------------------------------------------------------------
-| 法務・会社情報（ログイン不要）
-|--------------------------------------------------------------------------
-*/
 Route::view('/terms', 'static.terms')->name('terms');
 Route::view('/company', 'static.company')->name('company');
 Route::view('/privacy', 'static.privacy')->name('privacy');
 
+Route::get('/__route_test', fn () => 'route ok');
+
 /*
 |--------------------------------------------------------------------------
-| Debug
+| SSO callback（JWT を session に保存する）
 |--------------------------------------------------------------------------
 */
-Route::get('/__route_test', fn () => 'route ok');
+Route::get('/sso/callback', function (Request $request) {
+    $jwt = $request->query('token');
+
+    if (! $jwt) {
+        abort(401);
+    }
+
+    session(['jwt' => $jwt]);
+
+    return redirect('/');
+});
