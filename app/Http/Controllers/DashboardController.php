@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Learn\DashboardRepository;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
-final class DashboardController extends Controller
+class DashboardController extends Controller
 {
-    public function __construct(
-        private DashboardRepository $repository
-    ) {}
-
-    public function index(): JsonResponse
+    public function index()
     {
-        return response()->json([
-            'kpi'     => $this->repository->getKpiSnapshot(),
-            'funnel'  => $this->repository->getHiringFunnel(),
-        ]);
+        $user = auth()->user();
+
+        // 面接官は閲覧不可（×）
+        if ($user->role === 'interviewer') {
+            abort(403, 'アクセス権限がありません。');
+        }
+
+        return view('dashboard.index');
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class JobController extends Controller
+class ReportController extends Controller
 {
     public function index()
     {
@@ -15,7 +15,8 @@ class JobController extends Controller
             abort(403, 'アクセス権限がありません。');
         }
 
-        return view('jobs.index');
+        // 管理者・採用担当はアクセス可（◎/○）
+        return view('reports.index');
     }
 
     public function show($id)
@@ -27,6 +28,6 @@ class JobController extends Controller
             abort(403, 'アクセス権限がありません。');
         }
 
-        return view('jobs.show', ['id' => $id]);
+        return view('reports.show', ['id' => $id]);
     }
 }
