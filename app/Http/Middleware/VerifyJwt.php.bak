@@ -16,20 +16,11 @@ class VerifyJwt
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $jwt = null;
-
-        // 1) Authorization header
         $authHeader = $request->header('Authorization');
+
         if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
             $jwt = substr($authHeader, 7);
-        }
-
-        // 2) Cookie fallback
-        if (! $jwt) {
-            $jwt = $request->cookie('jwt');
-        }
-
-        if (! $jwt) {
+        } else {
             abort(401);
         }
 
@@ -42,21 +33,24 @@ class VerifyJwt
             $publicKey = file_get_contents($publicKeyPath);
             $payload = JWT::decode($jwt, new Key($publicKey, 'RS256'));
 
-            // ATS側 company 解決（slug 固定）
+            // ATS側の company（UUID）を解決（今回は slug 固定）
             $company = Company::where('slug', 'opinio')->firstOrFail();
 
-            // User 解決（auth_user_id を唯一キーに）
-            $user = User::updateOrCreate(
-                ['auth_user_id' => (string) $payload->sub],
-                [
-                    'name'       => 'auth_user_' . $payload->sub,
-                    'email'      => 'auth_' . $payload->sub . '@opinio.local',
-                    'company_id' => $company->id,
-                    'role'       => $payload->role ?? 'member',
-                    'password'   => bcrypt(str()->random(32)),
-                ]
-            );
+            // --- User 解決（auth-app user_id = sub） ---
+            $user = User::where('auth_user_id', $payload->sub)->first();
 
+            if (! $user) {
+                $user = User::create([
+                    'name'         => 'auth_user_' . $payload->sub,
+                    'auth_user_id' => $payload->sub,
+                    'email'        => 'auth_' . $payload->sub . '@opinio.local',
+                    'company_id'   => $company->id, // UUID
+                    'role'         => $payload->role ?? 'member',
+                    'password'     => bcrypt(str()->random(32)),
+                ]);
+            }
+
+            // ステートレスにユーザーセット
             Auth::setUser($user);
 
             $request->attributes->set('jwt', $payload);

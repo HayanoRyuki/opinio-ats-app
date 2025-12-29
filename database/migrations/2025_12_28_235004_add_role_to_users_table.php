@@ -8,16 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('jobs', function (Blueprint $table) {
-            $table->string('share_token')->nullable()->unique();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('role')->nullable()->after('company_id');
         });
     }
 
     public function down(): void
     {
-        Schema::table('jobs', function (Blueprint $table) {
-            $table->dropUnique(['share_token']);
-            $table->dropColumn('share_token');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('role');
         });
     }
 };
