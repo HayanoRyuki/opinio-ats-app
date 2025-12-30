@@ -1,17 +1,20 @@
 <?php
 
 return [
+    'auth_app' => [
+        'url' => env('AUTH_APP_URL'),
+    ],
+
+    'auth' => [
+        'token_endpoint' => env('AUTH_TOKEN_ENDPOINT', 'https://auth.opinio.co.jp/api/oauth/token'),
+        'client_id'      => env('AUTH_CLIENT_ID', 'ats'),
+        'client_secret'  => env('AUTH_CLIENT_SECRET'),
+    ],
 
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
     |--------------------------------------------------------------------------
-    |
-    | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
-    |
     */
 
     'postmark' => [
@@ -34,5 +37,4 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-
 ];
