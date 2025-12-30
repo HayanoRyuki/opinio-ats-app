@@ -34,28 +34,25 @@ class VerifyJwt
         }
 
         try {
-            $publicKeyPath = storage_path('oauth/public.key');
-            if (! file_exists($publicKeyPath)) {
-                abort(500);
-            }
-
-            $publicKey = file_get_contents($publicKeyPath);
+            $publicKey = file_get_contents(storage_path('oauth/public.key'));
             $payload = JWT::decode($jwt, new Key($publicKey, 'RS256'));
 
-            // ATS側 company 解決（slug 固定）
+            // company 解決（暫定）
             $company = Company::where('slug', 'opinio')->firstOrFail();
 
-            // User 解決（auth_user_id を唯一キーに）
+            // User 解決（role は保存しない）
             $user = User::updateOrCreate(
                 ['auth_user_id' => (string) $payload->sub],
                 [
                     'name'       => 'auth_user_' . $payload->sub,
                     'email'      => 'auth_' . $payload->sub . '@opinio.local',
                     'company_id' => $company->id,
-                    'role'       => $payload->role ?? 'member',
                     'password'   => bcrypt(str()->random(32)),
                 ]
             );
+
+            // ★ role は JWT を正として runtime にだけ反映
+            $user->setAttribute('role', $payload->role ?? null);
 
             Auth::setUser($user);
 
