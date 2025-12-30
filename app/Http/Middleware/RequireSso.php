@@ -10,10 +10,10 @@ class RequireSso
     public function handle(Request $request, Closure $next)
     {
         if (! $request->cookie('jwt')) {
-            $authApp = config('services.auth_app.url', 'http://localhost:8000');
+            $authApp = config('services.auth_app.url');
 
             return redirect()->away(
-                $authApp . '/sso/start?client=ats'
+                rtrim($authApp, '/') . '/sso/start?client=ats'
             );
         }
 

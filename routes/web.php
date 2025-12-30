@@ -45,10 +45,14 @@ Route::get('/sso/callback', SsoCallbackController::class);
 
 /*
 |--------------------------------------------------------------------------
-| Protected routes
+| Protected routes (admin / recruiter only)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['require.sso','verify.jwt'])->group(function () {
+Route::middleware([
+    'require.sso',
+    'verify.jwt',
+    'role:admin,recruiter',
+])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
