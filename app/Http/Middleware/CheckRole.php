@@ -10,13 +10,12 @@ class CheckRole
 {
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // JWT が無い場合は role では判断しない
-        // require.sso に処理を委ねる
-        if (! $request->cookie('jwt')) {
+        // verify.jwt が成功した場合のみ role が attributes に入る
+        // role が無い場合は、ここでは判断しない
+        if (! $request->attributes->has('role')) {
             return $next($request);
         }
 
-        // verify.jwt 後に入る想定
         $role = $request->attributes->get('role');
 
         if (! is_string($role)) {
