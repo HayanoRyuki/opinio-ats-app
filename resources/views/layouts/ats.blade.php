@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Opinio ATS</title>
-    @vite(['resources/css/app.css'])
+
+    {{-- 本番では Vite を使わない --}}
+    {{-- <link rel="stylesheet" href="{{ asset('css/app.css') }}"> --}}
 </head>
 
 @php
