@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
-    $authApp = config('services.auth_app.url', 'https://auth.opinio.co.jp');
-    return redirect()->away($authApp . '/sso/start?client=ats');
+    return redirect()->away('https://auth.opinio.co.jp/sso/start?client=ats');
 });
 
 /*
