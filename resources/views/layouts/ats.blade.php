@@ -27,8 +27,10 @@
 <body>
 
 @if (! $isLoginPage)
-<nav class="sidebar" style="width:240px; font-size:14px; line-height:1.6; background:#332c54; color:#f4f4ed;">
-    <div style="flex:1; overflow-y:auto; padding:16px;">
+<nav class="sidebar"
+     style="width:240px; font-size:14px; line-height:1.6; 
+            background:#332c54; color:#f4f4ed; position:fixed; top:0; left:0; height:100vh;">
+    <div style="flex:1; overflow-y:auto; padding:16px; height:100%;">
 
         {{-- ロゴ --}}
         <div style="text-align:center; margin-bottom:32px;">
@@ -107,7 +109,6 @@
 
             {{-- interviewer 専用 --}}
             @if ($role === 'interviewer')
-
             <li style="margin-bottom:24px;">
                 <div style="font-size:12px; opacity:.6; margin-bottom:8px;">面接</div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
@@ -115,7 +116,6 @@
                     <li style="padding:6px 8px;">面接評価</li>
                 </ul>
             </li>
-
             @endif
 
             {{-- 共通フッター --}}
@@ -152,7 +152,7 @@
 </nav>
 @endif
 
-<main class="main-content" style="margin-left:{{ $isLoginPage ? '0' : '240px' }};">
+<main class="main-content" style="margin-left:{{ $isLoginPage ? '0' : '240px' }}; min-height:100vh; padding:16px;">
     @yield('content')
 </main>
 
