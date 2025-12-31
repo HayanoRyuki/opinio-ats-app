@@ -10,6 +10,19 @@
 
 @php
     $isLoginPage = request()->routeIs('login');
+
+    $role = auth()->user()?->role;
+
+    $dashboardRoute = match ($role) {
+        'admin', 'recruiter'   => route('dashboard'),
+        'interviewer'          => route('interviewer.dashboard'),
+        default                => '#',
+    };
+
+    $isDashboardActive =
+        ($role === 'interviewer' && request()->routeIs('interviewer.dashboard'))
+        || (($role === 'admin' || $role === 'recruiter') && request()->routeIs('dashboard'));
+
     $active = 'background:#1f2937; font-weight:600; border-radius:6px;';
 @endphp
 
@@ -29,8 +42,8 @@
         <ul style="list-style:none; padding:0; margin:0;">
 
             {{-- ダッシュボード --}}
-            <li style="margin-bottom:24px; {{ request()->routeIs('dashboard') ? $active : '' }}">
-                <a href="{{ route('dashboard') }}"
+            <li style="margin-bottom:24px; {{ $isDashboardActive ? $active : '' }}">
+                <a href="{{ $dashboardRoute }}"
                    style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
                     ダッシュボード
                 </a>
@@ -69,15 +82,9 @@
                             採用ページ
                         </a>
                     </li>
-                    <li style="opacity:.5; padding:6px 8px;">
-                        媒体
-                    </li>
-                    <li style="opacity:.5; padding:6px 8px;">
-                        エージェント
-                    </li>
-                    <li style="opacity:.5; padding:6px 8px;">
-                        リファラル
-                    </li>
+                    <li style="opacity:.5; padding:6px 8px;">媒体</li>
+                    <li style="opacity:.5; padding:6px 8px;">エージェント</li>
+                    <li style="opacity:.5; padding:6px 8px;">リファラル</li>
                 </ul>
             </li>
 
@@ -87,15 +94,9 @@
                     候補者
                 </div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
-                    <li style="padding:6px 8px; color:#fff;">
-                        候補者一覧
-                    </li>
-                    <li style="opacity:.5; padding:6px 8px;">
-                        書類・プロフィール
-                    </li>
-                    <li style="opacity:.5; padding:6px 8px;">
-                        重複チェック
-                    </li>
+                    <li style="padding:6px 8px; color:#fff;">候補者一覧</li>
+                    <li style="opacity:.5; padding:6px 8px;">書類・プロフィール</li>
+                    <li style="opacity:.5; padding:6px 8px;">重複チェック</li>
                 </ul>
             </li>
 
@@ -105,18 +106,10 @@
                     選考
                 </div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
-                    <li style="padding:6px 8px; color:#fff;">
-                        パイプライン
-                    </li>
-                    <li style="padding:6px 8px; color:#fff;">
-                        評価
-                    </li>
-                    <li style="opacity:.5; padding:6px 8px;">
-                        メッセージ
-                    </li>
-                    <li style="opacity:.5; padding:6px 8px;">
-                        採用判断
-                    </li>
+                    <li style="padding:6px 8px; color:#fff;">パイプライン</li>
+                    <li style="padding:6px 8px; color:#fff;">評価</li>
+                    <li style="opacity:.5; padding:6px 8px;">メッセージ</li>
+                    <li style="opacity:.5; padding:6px 8px;">採用判断</li>
                 </ul>
             </li>
 
@@ -126,12 +119,8 @@
                     面接
                 </div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
-                    <li style="padding:6px 8px; color:#fff;">
-                        日程調整
-                    </li>
-                    <li style="opacity:.5; padding:6px 8px;">
-                        面接評価
-                    </li>
+                    <li style="padding:6px 8px; color:#fff;">日程調整</li>
+                    <li style="opacity:.5; padding:6px 8px;">面接評価</li>
                 </ul>
             </li>
 
@@ -142,23 +131,15 @@
                 </div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
                     <li>
-                        <a href="{{ route('dashboard') }}"
+                        <a href="{{ $dashboardRoute }}"
                            style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
                             ダッシュボード
                         </a>
                     </li>
-                    <li style="opacity:.5; padding:6px 8px;">
-                        歩留まり分析
-                    </li>
-                    <li style="opacity:.5; padding:6px 8px;">
-                        チャネル別分析
-                    </li>
-                    <li style="opacity:.5; padding:6px 8px;">
-                        面接官別分析
-                    </li>
-                    <li style="opacity:.5; padding:6px 8px;">
-                        判断履歴
-                    </li>
+                    <li style="opacity:.5; padding:6px 8px;">歩留まり分析</li>
+                    <li style="opacity:.5; padding:6px 8px;">チャネル別分析</li>
+                    <li style="opacity:.5; padding:6px 8px;">面接官別分析</li>
+                    <li style="opacity:.5; padding:6px 8px;">判断履歴</li>
                 </ul>
             </li>
 
