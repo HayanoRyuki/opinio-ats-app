@@ -10,17 +10,14 @@ use Illuminate\Support\Facades\Route;
 | 未ログインで ATS に直アクセスされた場合は、
 | 必ず Auth アプリの SSO 開始画面へリダイレクトする
 |
+| ※ SSO callback は「必ず絶対URLで固定」する
+|
 */
 Route::get('/', function () {
-    $authAppUrl = 'https://auth.opinio.co.jp';
-    $clientId   = 'ats';
-    $callback   = config('app.url') . '/sso/callback';
-
     return redirect()->away(
-        $authAppUrl
-        . '/sso/start'
-        . '?client_id=' . $clientId
-        . '&redirect_uri=' . urlencode($callback)
+        'https://auth.opinio.co.jp/sso/start'
+        . '?client_id=ats'
+        . '&redirect_uri=' . urlencode('https://ats.opinio.co.jp/sso/callback')
     );
 });
 
