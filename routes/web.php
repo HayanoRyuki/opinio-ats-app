@@ -24,6 +24,21 @@ Route::get('/login', $redirectToAuth);
 
 /*
 |--------------------------------------------------------------------------
+| Static pages (login required, role independent)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::view('/terms', 'static.terms')->name('terms');
+    Route::view('/privacy', 'static.privacy')->name('privacy');
+    Route::view('/data-policy', 'static.data-policy')->name('data-policy');
+    Route::view('/ai-policy', 'static.ai-policy')->name('ai-policy');
+    Route::view('/company', 'static.company')->name('company');
+    Route::view('/help', 'static.help')->name('help');
+});
+
+
+/*
+|--------------------------------------------------------------------------
 | Route groups
 |--------------------------------------------------------------------------
 */
