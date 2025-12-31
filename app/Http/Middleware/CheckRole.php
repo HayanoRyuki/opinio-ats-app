@@ -8,17 +8,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  mixed  ...$roles
-     */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // verify.jwt で検証済み前提。
-        // Auth App 由来の role は request attributes に入っている
+        // JWT が無い場合は role では判断しない
+        // require.sso に処理を委ねる
+        if (! $request->cookie('jwt')) {
+            return $next($request);
+        }
+
+        // verify.jwt 後に入る想定
         $role = $request->attributes->get('role');
 
         if (! is_string($role)) {
