@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
+use App\Enums\Role;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class SsoCallbackController
 {
@@ -15,7 +18,7 @@ class SsoCallbackController
 
         Log::info('ATS SSO callback received', [
             'code_present' => (bool) $code,
-            'query' => $request->query(),
+            'query'        => $request->query(),
         ]);
 
         if (! $code) {
@@ -48,7 +51,46 @@ class SsoCallbackController
 
         $token = (string) $data['access_token']['access_token'];
 
-        return redirect('/dashboard')->withCookie(
+        /*
+        |--------------------------------------------------------------------------
+        | Decode JWT to determine role
+        |--------------------------------------------------------------------------
+        */
+        try {
+            $decoded = JWT::decode(
+                $token,
+                new Key(
+                    file_get_contents(storage_path('oauth/public.key')),
+                    'RS256'
+                )
+            );
+        } catch (\Throwable $e) {
+            Log::error('JWT decode failed', ['error' => $e->getMessage()]);
+            abort(401, 'invalid_jwt');
+        }
+
+        if (! isset($decoded->role)) {
+            abort(403, 'role_missing');
+        }
+
+        try {
+            $role = Role::from((string) $decoded->role);
+        } catch (\ValueError $e) {
+            abort(403, 'invalid_role');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Role based redirect
+        |--------------------------------------------------------------------------
+        */
+        $redirectTo = match ($role) {
+            Role::Admin,
+            Role::Recruiter   => '/dashboard',
+            Role::Interviewer => '/interviewer/dashboard',
+        };
+
+        return redirect($redirectTo)->withCookie(
             cookie(
                 name: 'jwt',
                 value: $token,
