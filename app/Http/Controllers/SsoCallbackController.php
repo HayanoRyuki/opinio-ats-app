@@ -85,8 +85,8 @@ class SsoCallbackController
         |--------------------------------------------------------------------------
         */
         $redirectTo = match ($role) {
-            Role::Admin,
-            Role::Recruiter   => '/dashboard',
+            Role::Admin      => '/dashboard',
+            Role::Recruiter  => '/dashboard',
             Role::Interviewer => '/interviewer/dashboard',
         };
 
