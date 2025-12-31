@@ -29,13 +29,14 @@ class VerifyJwt
             $jwt = $request->cookie('jwt');
         }
 
+        // JWT が無い = SSO に戻す（401 は出さない）
         if (! $jwt) {
-            abort(401);
+            return $this->redirectToSso();
         }
 
         try {
             $publicKey = file_get_contents(storage_path('oauth/public.key'));
-            $payload = JWT::decode($jwt, new Key($publicKey, 'RS256'));
+            $payload   = JWT::decode($jwt, new Key($publicKey, 'RS256'));
 
             // company 解決（暫定）
             $company = Company::where('slug', 'opinio')->firstOrFail();
@@ -51,7 +52,7 @@ class VerifyJwt
                 ]
             );
 
-            // ★ role は JWT を正として runtime にだけ反映
+            // role は JWT を正として runtime にのみ反映
             $user->setAttribute('role', $payload->role ?? null);
 
             Auth::setUser($user);
@@ -62,13 +63,19 @@ class VerifyJwt
             $request->attributes->set('auth_user', $user);
 
         } catch (Throwable $e) {
-            return response()->json([
-                'error'   => 'jwt_decode_failed',
-                'message' => $e->getMessage(),
-                'class'   => get_class($e),
-            ], 401);
+            // JWT 不正・期限切れ → SSO に戻す
+            return $this->redirectToSso();
         }
 
         return $next($request);
+    }
+
+    private function redirectToSso(): Response
+    {
+        return redirect()->away(
+            'https://auth.opinio.co.jp/sso/start'
+            . '?client_id=ats'
+            . '&redirect_uri=' . urlencode('https://ats.opinio.co.jp/sso/callback')
+        );
     }
 }
