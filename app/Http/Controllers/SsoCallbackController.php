@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
-use App\Enums\Role;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
@@ -51,11 +50,7 @@ class SsoCallbackController
 
         $token = (string) $data['access_token']['access_token'];
 
-        /*
-        |--------------------------------------------------------------------------
-        | Decode JWT to determine role
-        |--------------------------------------------------------------------------
-        */
+        // JWT decode
         try {
             $decoded = JWT::decode(
                 $token,
@@ -73,21 +68,11 @@ class SsoCallbackController
             abort(403, 'role_missing');
         }
 
-        try {
-            $role = Role::from((string) $decoded->role);
-        } catch (\ValueError $e) {
-            abort(403, 'invalid_role');
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Role based redirect
-        |--------------------------------------------------------------------------
-        */
-        $redirectTo = match ($role) {
-            Role::Admin      => '/dashboard',
-            Role::Recruiter  => '/dashboard',
-            Role::Interviewer => '/interviewer/dashboard',
+        // Role based redirect（Enumは使わない）
+        $redirectTo = match ((string) $decoded->role) {
+            'admin', 'recruiter' => '/dashboard',
+            'interviewer'        => '/interviewer/dashboard',
+            default              => abort(403, 'invalid_role'),
         };
 
         return redirect($redirectTo)->withCookie(
