@@ -1,5 +1,5 @@
 {{-- resources/views/jobs/pipeline.blade.php --}}
-@extends('layouts.menu')
+@extends('layouts.ats')
 
 @section('content')
 

@@ -1,5 +1,5 @@
 {{-- resources/views/dashboard.blade.php --}}
-@extends('layouts.menu')
+@extends('layouts.ats')
 
 @section('content')
 <div class="max-w-5xl mx-auto p-6">

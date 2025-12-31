@@ -1,5 +1,5 @@
 {{-- resources/views/static/privacy.blade.php --}}
-@extends('layouts.menu')
+@extends('layouts.ats')
 
 @section('content')
 <div class="max-w-4xl mx-auto p-6">

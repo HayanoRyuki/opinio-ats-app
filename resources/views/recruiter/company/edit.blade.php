@@ -1,4 +1,4 @@
-@extends('layouts.menu')
+@extends('layouts.ats')
 
 @section('content')
 <div style="max-width:960px; margin:0 auto;">

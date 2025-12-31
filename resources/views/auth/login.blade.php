@@ -1,4 +1,4 @@
-@extends('layouts.menu')
+@extends('layouts.ats')
 
 @php
 $description = 'ログインしてOpinio ATSの管理画面にアクセスしてください。';

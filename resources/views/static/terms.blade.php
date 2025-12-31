@@ -1,5 +1,5 @@
 {{-- resources/views/static/terms.blade.php --}}
-@extends('layouts.menu')
+@extends('layouts.ats')
 
 @section('content')
 {{-- 右カラム余白ラッパー --}}

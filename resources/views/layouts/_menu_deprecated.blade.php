@@ -26,18 +26,18 @@
 
         <ul style="list-style:none; padding:0; margin:0;">
 
-            {{-- マイページ --}}
+            {{-- ダッシュボード --}}
             <li style="margin-bottom:24px; {{ request()->routeIs('dashboard') ? $active : '' }}">
                 <a href="{{ route('dashboard') }}"
                    style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
-                    マイページ
+                    ダッシュボード
                 </a>
             </li>
 
-            {{-- 決める --}}
+            {{-- 募集 --}}
             <li style="margin-bottom:24px;">
                 <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
-                    決める
+                    募集
                 </div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
                     <li>
@@ -46,29 +46,29 @@
                             評価基準
                         </a>
                     </li>
-                    <li style="opacity:.5; padding:6px 8px;">
-                        採用方針
-                    </li>
-                </ul>
-            </li>
-
-            {{-- 集める --}}
-            <li style="margin-bottom:24px;">
-                <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
-                    集める
-                </div>
-                <ul style="list-style:none; padding-left:12px; margin:0;">
                     <li>
                         <a href="{{ route('jobs.index') }}"
                            style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
                             求人
                         </a>
                     </li>
+                </ul>
+            </li>
+
+            {{-- 経路 --}}
+            <li style="margin-bottom:24px;">
+                <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
+                    経路
+                </div>
+                <ul style="list-style:none; padding-left:12px; margin:0;">
                     <li>
                         <a href="{{ route('cms.pages.index') }}"
                            style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
                             採用ページ
                         </a>
+                    </li>
+                    <li style="opacity:.5; padding:6px 8px;">
+                        媒体
                     </li>
                     <li style="opacity:.5; padding:6px 8px;">
                         エージェント
@@ -79,10 +79,28 @@
                 </ul>
             </li>
 
-            {{-- 見極める --}}
+            {{-- 候補者 --}}
             <li style="margin-bottom:24px;">
                 <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
-                    見極める
+                    候補者
+                </div>
+                <ul style="list-style:none; padding-left:12px; margin:0;">
+                    <li style="padding:6px 8px; color:#fff;">
+                        候補者一覧
+                    </li>
+                    <li style="opacity:.5; padding:6px 8px;">
+                        書類・プロフィール
+                    </li>
+                    <li style="opacity:.5; padding:6px 8px;">
+                        重複チェック
+                    </li>
+                </ul>
+            </li>
+
+            {{-- 選考 --}}
+            <li style="margin-bottom:24px;">
+                <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
+                    選考
                 </div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
                     <li style="padding:6px 8px; color:#fff;">
@@ -91,31 +109,34 @@
                     <li style="padding:6px 8px; color:#fff;">
                         評価
                     </li>
-                    <li style="padding:6px 8px; color:#fff;">
-                        日程
+                    <li style="opacity:.5; padding:6px 8px;">
+                        メッセージ
+                    </li>
+                    <li style="opacity:.5; padding:6px 8px;">
+                        採用判断
                     </li>
                 </ul>
             </li>
 
-            {{-- 残す --}}
+            {{-- 面接 --}}
             <li style="margin-bottom:24px;">
                 <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
-                    残す
+                    面接
                 </div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
                     <li style="padding:6px 8px; color:#fff;">
-                        採用判断
+                        日程調整
                     </li>
                     <li style="opacity:.5; padding:6px 8px;">
-                        判断履歴
+                        面接評価
                     </li>
                 </ul>
             </li>
 
-            {{-- 学ぶ --}}
+            {{-- 分析 --}}
             <li style="margin-bottom:24px;">
                 <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
-                    学ぶ
+                    分析
                 </div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
                     <li>
@@ -125,25 +146,16 @@
                         </a>
                     </li>
                     <li style="opacity:.5; padding:6px 8px;">
-                        振り返り
-                    </li>
-                </ul>
-            </li>
-
-            {{-- 入社後 --}}
-            <li style="margin-bottom:24px;">
-                <div style="font-size:12px; opacity:.6; margin-bottom:8px;">
-                    入社後
-                </div>
-                <ul style="list-style:none; padding-left:12px; margin:0;">
-                    <li>
-                        <a href="{{ route('employees.index') }}"
-                           style="display:block; padding:6px 8px; color:#fff; text-decoration:none;">
-                            入社者
-                        </a>
+                        歩留まり分析
                     </li>
                     <li style="opacity:.5; padding:6px 8px;">
-                        1on1
+                        チャネル別分析
+                    </li>
+                    <li style="opacity:.5; padding:6px 8px;">
+                        面接官別分析
+                    </li>
+                    <li style="opacity:.5; padding:6px 8px;">
+                        判断履歴
                     </li>
                 </ul>
             </li>
@@ -169,17 +181,6 @@
                     プライバシー
                 </a>
             </li>
-
-            {{--
-<li style="margin-top:16px;">
-    <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <button style="background:none; border:none; color:#fff; cursor:pointer; padding:6px 8px;">
-            ログアウト
-        </button>
-    </form>
-</li>
---}}
 
         </ul>
     </div>
