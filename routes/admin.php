@@ -15,14 +15,18 @@ use App\Http\Controllers\{
 |--------------------------------------------------------------------------
 | Protected routes (admin / recruiter)
 |--------------------------------------------------------------------------
+|
+| ・SSO 開始は web.php の "/" のみで行う
+| ・ここでは JWT があることを前提に gate する
+|
 */
 Route::middleware([
-    'require.sso',
     'verify.jwt',
     'role:admin,recruiter',
 ])->group(function () {
 
-    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
     Route::get('/applications', [ApplicationController::class, 'index']);
     Route::get('/applications/{application}', [ApplicationController::class, 'show']);
