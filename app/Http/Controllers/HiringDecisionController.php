@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Decide;
 
+use App\Http\Controllers\Controller;
 use App\Application\Decide\MakeHiringDecisionUseCase;
-use App\Models\Application;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
+use App\Models\Application;
 
 final class HiringDecisionController extends Controller
 {
@@ -13,25 +13,25 @@ final class HiringDecisionController extends Controller
         private MakeHiringDecisionUseCase $useCase
     ) {}
 
-    /**
-     * 採用判断を確定する
-     */
-    public function store(
-        Request $request,
-        Application $application
-    ): RedirectResponse {
+    public function store(Request $request, Application $application)
+    {
         $validated = $request->validate([
             'decision' => 'required|in:hire,reject,hold',
             'reason'   => 'nullable|string',
         ]);
 
+        $authUser = $request->attributes->get('auth_user');
+        if (! $authUser) {
+            abort(401, 'Unauthenticated');
+        }
+
         $this->useCase->execute(
             applicationId: $application->id,
-            decidedBy: $request->user()->id,
             decision: $validated['decision'],
+            decidedBy: $authUser->id,
             reason: $validated['reason'] ?? null,
         );
 
-        return back()->with('status', '採用判断を保存しました');
+        return back();
     }
 }
