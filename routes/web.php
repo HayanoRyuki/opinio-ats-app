@@ -4,11 +4,11 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Root / Login (always redirect to Auth SSO start)
+| Root / Login
 |--------------------------------------------------------------------------
 |
 | ATS はログイン画面を持たない。
-| 直打ち・/login いずれも必ず Auth の SSO に飛ばす。
+| / および /login は常に Auth SSO にリダイレクトする。
 |
 */
 $redirectToAuth = function () {
@@ -24,24 +24,33 @@ Route::get('/login', $redirectToAuth);
 
 /*
 |--------------------------------------------------------------------------
-| Static pages (login required, role independent)
+| Public routes (JWT 不要)
 |--------------------------------------------------------------------------
+|
+| SSO callback / JWT test など
+|
 */
-Route::middleware(['auth'])->group(function () {
+require __DIR__ . '/sso.php';
+
+/*
+|--------------------------------------------------------------------------
+| Protected routes (JWT 必須)
+|--------------------------------------------------------------------------
+|
+| ATS の実画面はすべて verify.jwt を通す
+|
+*/
+Route::middleware(['verify.jwt'])->group(function () {
+
+    // ---- Static pages (role independent) ----
     Route::view('/terms', 'static.terms')->name('terms');
     Route::view('/privacy', 'static.privacy')->name('privacy');
     Route::view('/data-policy', 'static.data-policy')->name('data-policy');
     Route::view('/ai-policy', 'static.ai-policy')->name('ai-policy');
     Route::view('/company', 'static.company')->name('company');
     Route::view('/help', 'static.help')->name('help');
+
+    // ---- Role based route groups ----
+    require __DIR__ . '/admin.php';
+    require __DIR__ . '/interviewer.php';
 });
-
-
-/*
-|--------------------------------------------------------------------------
-| Route groups
-|--------------------------------------------------------------------------
-*/
-require __DIR__ . '/sso.php';
-require __DIR__ . '/admin.php';
-require __DIR__ . '/interviewer.php';
