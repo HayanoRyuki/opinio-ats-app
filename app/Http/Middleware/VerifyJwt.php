@@ -41,9 +41,9 @@ class VerifyJwt
             // company 解決（暫定）
             $company = Company::where('slug', 'opinio')->firstOrFail();
 
-            // User 解決（role は保存しない）
+            // User 解決（Auth user_id = sub を external_auth_user_id として保存）
             $user = User::updateOrCreate(
-                ['auth_user_id' => (string) $payload->sub],
+                ['external_auth_user_id' => (string) $payload->sub],
                 [
                     'name'       => 'auth_user_' . $payload->sub,
                     'email'      => 'auth_' . $payload->sub . '@opinio.local',
