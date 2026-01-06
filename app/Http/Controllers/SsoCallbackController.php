@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use App\Models\User;
+use App\Enums\Role;
 
 class SsoCallbackController
 {
@@ -24,6 +27,7 @@ class SsoCallbackController
             abort(401, 'missing_code');
         }
 
+        // ① Auth サーバーから JWT 取得
         $response = Http::asForm()->post(
             config('services.auth.token_endpoint'),
             [
@@ -32,11 +36,6 @@ class SsoCallbackController
                 'client_secret' => config('services.auth.client_secret'),
             ]
         );
-
-        Log::info('ATS token endpoint response', [
-            'status' => $response->status(),
-            'body'   => $response->body(),
-        ]);
 
         if (! $response->successful()) {
             abort(401, 'token_request_failed');
@@ -50,7 +49,7 @@ class SsoCallbackController
 
         $token = (string) $data['access_token']['access_token'];
 
-        // JWT decode
+        // ② JWT decode
         try {
             $decoded = JWT::decode(
                 $token,
@@ -64,12 +63,41 @@ class SsoCallbackController
             abort(401, 'invalid_jwt');
         }
 
-        if (! isset($decoded->role)) {
-            abort(403, 'role_missing');
+        // ③ 必須クレーム確認
+        if (! isset($decoded->sub, $decoded->email, $decoded->role)) {
+            abort(403, 'invalid_jwt_payload');
         }
 
-        // Role based redirect（Enumは使わない）
-        $redirectTo = match ((string) $decoded->role) {
+        $authUserId = (string) $decoded->sub;
+        $email      = (string) $decoded->email;
+        $roleValue  = (string) $decoded->role;
+
+        // ④ ATS ユーザー確立（external_auth_user_id 正）
+        $user = User::where('external_auth_user_id', $authUserId)->first();
+
+        if (! $user) {
+            // 既存 email ユーザー救済
+            $user = User::where('email', $email)->first();
+
+            if ($user) {
+                $user->external_auth_user_id = $authUserId;
+            } else {
+                $user = User::create([
+                    'email'                  => $email,
+                    'external_auth_user_id'  => $authUserId,
+                ]);
+            }
+        }
+
+        // ⑤ role 同期（Enum）
+        $user->role = Role::from($roleValue);
+        $user->save();
+
+        // ⑥ ATS セッション確立
+        Auth::login($user);
+
+        // ⑦ role based redirect
+        $redirectTo = match ($roleValue) {
             'admin', 'recruiter' => '/dashboard',
             'interviewer'        => '/interviewer/dashboard',
             default              => abort(403, 'invalid_role'),
