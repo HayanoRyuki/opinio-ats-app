@@ -19,32 +19,53 @@ class VerifyJwt
     {
         $jwt = null;
 
-        // 1) Authorization header
+        /*
+        |--------------------------------------------------------------------------
+        | 1. JWT 取得（Header → Cookie）
+        |--------------------------------------------------------------------------
+        */
         $authHeader = $request->header('Authorization');
         if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
             $jwt = substr($authHeader, 7);
         }
 
-        // 2) Cookie fallback
         if (! $jwt) {
             $jwt = $request->cookie('jwt');
         }
 
-        // JWT が無い = SSO に戻す
+        /*
+        |--------------------------------------------------------------------------
+        | 2. JWT 無し → Auth SSO へ
+        |--------------------------------------------------------------------------
+        */
         if (! $jwt) {
             return $this->redirectToSso();
         }
 
         try {
-            // JWT decode
+            /*
+            |--------------------------------------------------------------------------
+            | 3. JWT decode
+            |--------------------------------------------------------------------------
+            */
             $publicKey = file_get_contents(storage_path('oauth/public.key'));
             $payload   = JWT::decode($jwt, new Key($publicKey, 'RS256'));
 
-            // company 解決（暫定：slug 固定）
+            // ★ 重要：JWT の中身を必ずログに出す（今回の目的）
+            Log::info('ATS JWT payload', (array) $payload);
+
+            /*
+            |--------------------------------------------------------------------------
+            | 4. Company 解決（暫定：slug 固定）
+            |--------------------------------------------------------------------------
+            */
             $company = Company::where('slug', 'opinio')->firstOrFail();
 
-            // User 解決
-            // Auth 側 sub(UUID) → ATS external_auth_user_id
+            /*
+            |--------------------------------------------------------------------------
+            | 5. User 解決（Auth 側 sub を外部IDとして同期）
+            |--------------------------------------------------------------------------
+            */
             $user = User::updateOrCreate(
                 ['external_auth_user_id' => (string) $payload->sub],
                 [
@@ -55,19 +76,31 @@ class VerifyJwt
                 ]
             );
 
-            // role は JWT を正として runtime のみ反映
+            /*
+            |--------------------------------------------------------------------------
+            | 6. role は DB 保存せず、JWT を正として runtime 反映
+            |--------------------------------------------------------------------------
+            */
             $user->setAttribute('role', $payload->role ?? null);
 
             Auth::setUser($user);
 
-            // request attributes
+            /*
+            |--------------------------------------------------------------------------
+            | 7. request に詰める（Controller / Policy 用）
+            |--------------------------------------------------------------------------
+            */
             $request->attributes->set('jwt', $payload);
             $request->attributes->set('company_id', $company->id);
-            $request->attributes->set('role', $payload->role);
+            $request->attributes->set('role', $payload->role ?? null);
             $request->attributes->set('auth_user', $user);
 
         } catch (Throwable $e) {
-            // ★ ここが今回の核心：例外内容を確定させる
+            /*
+            |--------------------------------------------------------------------------
+            | 8. 失敗時ログ（原因確定用）
+            |--------------------------------------------------------------------------
+            */
             Log::error('VerifyJwt failed', [
                 'message' => $e->getMessage(),
                 'file'    => $e->getFile(),
