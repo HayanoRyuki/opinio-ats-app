@@ -17,6 +17,21 @@ return Application::configure(basePath: dirname(__DIR__))
 
         /*
         |--------------------------------------------------------------------------
+        | Disable Laravel session/auth/csrf (ATS is JWT-only)
+        |--------------------------------------------------------------------------
+        | Laravel 11 (Kernel-less) の既定 web stack に session/auth が積まれ、
+        | Authenticate が 401 を返してしまうため、明示的に外す。
+        */
+        $middleware->remove([
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \Illuminate\Auth\Middleware\Authenticate::class,
+            \Illuminate\Session\Middleware\AuthenticateSession::class,
+            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
         | Cookie Encryption
         |--------------------------------------------------------------------------
         | JWT は Auth App から渡されるため暗号化対象外
