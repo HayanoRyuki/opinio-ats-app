@@ -7,62 +7,54 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use Throwable;
-use App\Models\User;
-use App\Models\Company;
 
 final class VerifyJwt
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $jwt = null;
-
-        // Authorization header
-        $authHeader = $request->header('Authorization');
-        if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
-            $jwt = substr($authHeader, 7);
-        }
-
-        // Cookie fallback
-        if (! $jwt) {
-            $jwt = $request->cookie('jwt');
-        }
+        // JWT は Cookie のみを正とする（SSO 前提）
+        $jwt = $request->cookie('jwt');
 
         if (! $jwt) {
             abort(401, 'JWT not provided');
         }
 
         try {
-            $publicKey = file_get_contents(storage_path('oauth/public.key'));
+            $publicKey = file_get_contents(
+                storage_path('oauth/public.key')
+            );
 
             $payload = JWT::decode(
                 $jwt,
                 new Key($publicKey, 'RS256')
             );
-        } catch (Throwable $e) {
+        } catch (\Throwable) {
             abort(401, 'Invalid JWT');
         }
 
-        // aud チェック
-        if (($payload->aud ?? null) !== config('app.url')) {
+        // aud は固定文字列で厳密チェック
+        if (($payload->aud ?? null) !== 'ats.opinio.co.jp') {
             abort(401, 'Invalid audience');
         }
 
-        // user / company 解決（※最小構成）
-        $user = User::find($payload->sub);
-        if (! $user) {
-            abort(401, 'User not found');
-        }
+        /**
+         * DB は一切触らない
+         * Auth を正史とし、JWT の中身だけを信頼する
+         */
+        $request->attributes->set(
+            'auth_user_id',
+            (string) $payload->sub
+        );
 
-        $company = Company::find($payload->company_id);
-        if (! $company) {
-            abort(401, 'Company not found');
-        }
+        $request->attributes->set(
+            'role',
+            $payload->role ?? null
+        );
 
-        // 🔽 Laravel Auth は使わない。Request に積むだけ
-        $request->attributes->set('auth_user', $user);
-        $request->attributes->set('role', $payload->role);
-        $request->attributes->set('company', $company);
+        $request->attributes->set(
+            'company_id',
+            $payload->company_id ?? null
+        );
 
         return $next($request);
     }
