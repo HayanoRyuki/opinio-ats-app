@@ -14,16 +14,6 @@
     // 会議用フルメニュー対象
     $isAdminLike = in_array($role, ['admin', 'recruiter'], true);
 
-    $dashboardRoute = match ($role) {
-        'admin', 'recruiter' => route('dashboard'),
-        'interviewer'        => route('interviewer.dashboard'),
-        default              => '#',
-    };
-
-    $isDashboardActive =
-        ($role === 'interviewer' && request()->routeIs('interviewer.dashboard'))
-        || ($isAdminLike && request()->routeIs('dashboard'));
-
     $active = 'background:#65b891; font-weight:600; border-radius:6px;';
 @endphp
 
@@ -42,9 +32,9 @@
 
         <ul style="list-style:none; padding:0; margin:0;">
 
-            {{-- ダッシュボード --}}
-            <li style="margin-bottom:24px; {{ $isDashboardActive ? $active : '' }}">
-                <a href="{{ $dashboardRoute }}"
+            {{-- ダッシュボード（ダミー） --}}
+            <li style="margin-bottom:24px; {{ $active }}">
+                <a href="#"
                    style="display:block; padding:6px 8px; color:#f4f4ed; text-decoration:none;">
                     ダッシュボード
                 </a>
@@ -57,11 +47,12 @@
             <li style="margin-bottom:24px;">
                 <div style="font-size:12px; opacity:.6; margin-bottom:8px;">募集</div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
-                    <li style="padding:6px 8px;">評価基準</li>
+                    <li style="opacity:.5; padding:6px 8px;">評価基準</li>
                     <li>
-                        <a href="{{ route('jobs.index') }}"
-                           style="display:block; padding:6px 8px; color:#f4f4ed; text-decoration:none;">
-                            求人
+                        <a href="#"
+                           style="display:block; padding:6px 8px; color:#f4f4ed;
+                                  text-decoration:none; opacity:.5; cursor:not-allowed;">
+                            求人（準備中）
                         </a>
                     </li>
                 </ul>
@@ -71,12 +62,7 @@
             <li style="margin-bottom:24px;">
                 <div style="font-size:12px; opacity:.6; margin-bottom:8px;">経路</div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
-                    <li>
-                        <a href="{{ route('cms.pages.index') }}"
-                           style="display:block; padding:6px 8px; color:#f4f4ed; text-decoration:none;">
-                            採用ページ
-                        </a>
-                    </li>
+                    <li style="opacity:.5; padding:6px 8px;">採用ページ</li>
                     <li style="opacity:.5; padding:6px 8px;">媒体</li>
                     <li style="opacity:.5; padding:6px 8px;">エージェント</li>
                     <li style="opacity:.5; padding:6px 8px;">リファラル</li>
@@ -87,7 +73,7 @@
             <li style="margin-bottom:24px;">
                 <div style="font-size:12px; opacity:.6; margin-bottom:8px;">候補者</div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
-                    <li style="padding:6px 8px;">候補者一覧</li>
+                    <li style="opacity:.5; padding:6px 8px;">候補者一覧</li>
                     <li style="opacity:.5; padding:6px 8px;">書類・プロフィール</li>
                     <li style="opacity:.5; padding:6px 8px;">重複チェック</li>
                 </ul>
@@ -97,8 +83,8 @@
             <li style="margin-bottom:24px;">
                 <div style="font-size:12px; opacity:.6; margin-bottom:8px;">選考</div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
-                    <li style="padding:6px 8px;">パイプライン</li>
-                    <li style="padding:6px 8px;">評価</li>
+                    <li style="opacity:.5; padding:6px 8px;">パイプライン</li>
+                    <li style="opacity:.5; padding:6px 8px;">評価</li>
                     <li style="opacity:.5; padding:6px 8px;">メッセージ</li>
                     <li style="opacity:.5; padding:6px 8px;">採用判断</li>
                 </ul>
@@ -111,8 +97,8 @@
             <li style="margin-bottom:24px;">
                 <div style="font-size:12px; opacity:.6; margin-bottom:8px;">面接</div>
                 <ul style="list-style:none; padding-left:12px; margin:0;">
-                    <li style="padding:6px 8px;">面接一覧</li>
-                    <li style="padding:6px 8px;">面接評価</li>
+                    <li style="opacity:.5; padding:6px 8px;">面接一覧</li>
+                    <li style="opacity:.5; padding:6px 8px;">面接評価</li>
                 </ul>
             </li>
             @endif
@@ -120,24 +106,21 @@
             {{-- フッター --}}
             @if ($isAdminLike)
             <li style="margin-top:32px; border-top:1px solid rgba(255,255,255,0.1); padding-top:16px;">
-                <a href="{{ route('settings.account') }}"
-                   style="display:block; padding:6px 8px; color:#f4f4ed; text-decoration:none;">
-                    設定
-                </a>
+                <span style="display:block; padding:6px 8px; opacity:.5;">
+                    設定（準備中）
+                </span>
             </li>
             @endif
 
             <li>
-                <a href="{{ route('terms') }}"
-                   style="display:block; padding:6px 8px; color:#f4f4ed; text-decoration:none;">
+                <span style="display:block; padding:6px 8px; opacity:.5;">
                     利用規約
-                </a>
+                </span>
             </li>
             <li>
-                <a href="{{ route('privacy') }}"
-                   style="display:block; padding:6px 8px; color:#f4f4ed; text-decoration:none;">
+                <span style="display:block; padding:6px 8px; opacity:.5;">
                     プライバシー
-                </a>
+                </span>
             </li>
 
         </ul>
@@ -146,7 +129,8 @@
 @endif
 
 <main class="main-content"
-      style="margin-left:{{ $isLoginPage ? '0' : '240px' }}; min-height:100vh; padding:16px;">
+      style="margin-left:{{ $isLoginPage ? '0' : '240px' }};
+             min-height:100vh; padding:16px;">
     @yield('content')
 </main>
 
