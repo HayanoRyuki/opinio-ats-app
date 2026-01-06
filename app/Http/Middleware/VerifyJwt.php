@@ -7,10 +7,11 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use Throwable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\Company;
+use Throwable;
 
 class VerifyJwt
 {
@@ -29,19 +30,21 @@ class VerifyJwt
             $jwt = $request->cookie('jwt');
         }
 
-        // JWT が無い = SSO に戻す（401 は出さない）
+        // JWT が無い = SSO に戻す
         if (! $jwt) {
             return $this->redirectToSso();
         }
 
         try {
+            // JWT decode
             $publicKey = file_get_contents(storage_path('oauth/public.key'));
             $payload   = JWT::decode($jwt, new Key($publicKey, 'RS256'));
 
-            // company 解決（暫定）
+            // company 解決（暫定：slug 固定）
             $company = Company::where('slug', 'opinio')->firstOrFail();
 
-            // User 解決（Auth user_id = sub を external_auth_user_id として保存）
+            // User 解決
+            // Auth 側 sub(UUID) → ATS external_auth_user_id
             $user = User::updateOrCreate(
                 ['external_auth_user_id' => (string) $payload->sub],
                 [
@@ -52,19 +55,26 @@ class VerifyJwt
                 ]
             );
 
-            // role は JWT を正として runtime にのみ反映
+            // role は JWT を正として runtime のみ反映
             $user->setAttribute('role', $payload->role ?? null);
 
             Auth::setUser($user);
 
+            // request attributes
             $request->attributes->set('jwt', $payload);
             $request->attributes->set('company_id', $company->id);
             $request->attributes->set('role', $payload->role);
             $request->attributes->set('auth_user', $user);
 
         } catch (Throwable $e) {
-            // JWT 不正・期限切れ → SSO に戻す
-            return $this->redirectToSso();
+            // ★ ここが今回の核心：例外内容を確定させる
+            Log::error('VerifyJwt failed', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+
+            abort(403, 'verify_jwt_failed');
         }
 
         return $next($request);
