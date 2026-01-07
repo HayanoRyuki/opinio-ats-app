@@ -6,17 +6,21 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    public function index()
+    /**
+     * レポート一覧
+     */
+    public function index(Request $request)
     {
-        $user = auth()->user();
+        // VerifyJwt middleware で積まれた role を取得
+        $role = $request->attributes->get('role');
 
-        // 未ログイン対策（暫定）
-        if (! $user) {
-            abort(401, '未ログインです。');
+        // 未認証（JWT 未付与 / 不正）
+        if (! $role) {
+            abort(401, '未認証です。');
         }
 
-        // 面接官はアクセス不可（×）
-        if ($user->role === 'interviewer') {
+        // 面接官はアクセス不可
+        if ($role === 'interviewer') {
             abort(403, 'アクセス権限がありません。');
         }
 

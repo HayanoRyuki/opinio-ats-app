@@ -6,36 +6,48 @@ use Illuminate\Http\Request;
 
 class JobController extends Controller
 {
-    public function index()
+    /**
+     * 求人一覧
+     */
+    public function index(Request $request)
     {
-        $user = auth()->user();
+        // VerifyJwt middleware で積まれた role を取得
+        $role = $request->attributes->get('role');
 
-        // 未ログイン対策（暫定）
-        if (! $user) {
-            abort(401, '未ログインです。');
+        // 認証されていない（JWT 不正・未付与）
+        if (! $role) {
+            abort(401, '未認証です。');
         }
 
-        // 面接官はアクセス不可（×）
-        if ($user->role === 'interviewer') {
+        // 面接官はアクセス不可
+        if ($role === 'interviewer') {
             abort(403, 'アクセス権限がありません。');
         }
 
-        // 管理者・採用担当は閲覧可
+        // 管理者 / 採用担当は閲覧可
         return view('jobs.index');
     }
 
-    public function show($id)
+    /**
+     * 求人詳細
+     */
+    public function show(Request $request, $id)
     {
-        $user = auth()->user();
+        // VerifyJwt middleware で積まれた role を取得
+        $role = $request->attributes->get('role');
 
-        if (! $user) {
-            abort(401, '未ログインです。');
+        // 認証されていない
+        if (! $role) {
+            abort(401, '未認証です。');
         }
 
-        if ($user->role === 'interviewer') {
+        // 面接官はアクセス不可
+        if ($role === 'interviewer') {
             abort(403, 'アクセス権限がありません。');
         }
 
-        return view('jobs.show', ['id' => $id]);
+        return view('jobs.show', [
+            'id' => $id,
+        ]);
     }
 }
