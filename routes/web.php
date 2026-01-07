@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\JobPipelineController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,9 +46,13 @@ Route::middleware(['verify.jwt'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+    // 求人別パイプライン（本命）
+    Route::get('/jobs/{job}/pipeline', [JobPipelineController::class, 'show'])
+        ->name('jobs.pipeline');
+
     // 管理者系
     require __DIR__ . '/admin.php';
 
-    // 面接官系（※ verify.jwt は掛けない）
+    // 面接官系
     require __DIR__ . '/interviewer.php';
 });
