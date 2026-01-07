@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Interview;
 use App\Models\Application;
 
 class DashboardController extends Controller
@@ -13,19 +12,26 @@ class DashboardController extends Controller
         // role は VerifyJwt middleware で積まれている
         $role = $request->attributes->get('role');
 
-        // 今すぐのアクション（既存モデルのみ使用）
+        /*
+         |--------------------------------------------------------------------------
+         | 今すぐのアクション
+         |--------------------------------------------------------------------------
+         | ※ 現時点で「存在が確定しているモデル」のみを使用
+         | ※ Interview / Schedule 系は未定義なので 0 固定
+         |
+         */
         $actions = [
-            // InterviewSchedule は未定義なので一旦 0
-            'schedule_waiting'   => 0,
+            // 日程調整待ち（未実装）
+            'schedule_waiting' => 0,
 
-            // 面接評価未入力（例：completed_at が null）
-            'evaluation_pending' => Interview::whereNull('completed_at')->count(),
+            // 評価未入力（未実装）
+            'evaluation_pending' => 0,
 
-            // 応募後の返信待ち（例：ステータスが pending）
-            'reply_waiting'      => Application::where('status', 'pending')->count(),
+            // 応募後の返信待ち（Application は存在）
+            'reply_waiting' => Application::where('status', 'pending')->count(),
 
-            // 長期滞留（暫定：今は 0）
-            'long_stagnation'    => 0,
+            // 長期滞留（未実装）
+            'long_stagnation' => 0,
         ];
 
         return view('dashboard.index', [
