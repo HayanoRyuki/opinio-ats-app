@@ -7,10 +7,6 @@ use App\Http\Controllers\DashboardController;
 |--------------------------------------------------------------------------
 | Root / Login
 |--------------------------------------------------------------------------
-|
-| ATS はログイン画面を持たない。
-| / および /login は常に Auth SSO にリダイレクトする。
-|
 */
 $redirectToAuth = function () {
     return redirect()->away(
@@ -25,29 +21,19 @@ Route::get('/login', $redirectToAuth);
 
 /*
 |--------------------------------------------------------------------------
-| Public routes (JWT 不要)
+| Public routes
 |--------------------------------------------------------------------------
-|
-| SSO callback / JWT test など
-|
 */
 require __DIR__ . '/sso.php';
 
 /*
 |--------------------------------------------------------------------------
-| Protected routes (JWT 必須)
+| Protected routes（JWT はここで一度だけ）
 |--------------------------------------------------------------------------
-|
-| ATS の実画面はすべて verify.jwt を通す
-|
 */
 Route::middleware(['verify.jwt'])->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Static pages (role independent)
-    |--------------------------------------------------------------------------
-    */
+    // 共通静的ページ
     Route::view('/terms', 'static.terms')->name('terms');
     Route::view('/privacy', 'static.privacy')->name('privacy');
     Route::view('/data-policy', 'static.data-policy')->name('data-policy');
@@ -55,23 +41,13 @@ Route::middleware(['verify.jwt'])->group(function () {
     Route::view('/company', 'static.company')->name('company');
     Route::view('/help', 'static.help')->name('help');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Dashboard (正式)
-    |--------------------------------------------------------------------------
-    |
-    | 採用活動の全体状況と、今日やるべきことを確認する入口。
-    | Controller で集計し、View は表示専用。
-    |
-    */
+    // 管理者・採用担当ダッシュボード
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Role based route groups
-    |--------------------------------------------------------------------------
-    */
+    // 管理者系
     require __DIR__ . '/admin.php';
+
+    // 面接官系（※ verify.jwt は掛けない）
     require __DIR__ . '/interviewer.php';
 });
