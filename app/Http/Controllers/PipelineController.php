@@ -6,39 +6,41 @@ use Illuminate\Http\Request;
 
 class PipelineController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $user = auth()->user();
+        // VerifyJwt middleware で積まれた role を取得
+        $role = $request->attributes->get('role');
 
         // 面接官は担当のパイプラインのみ閲覧可能（△）
-        if ($user->role === 'interviewer' && ! $this->hasAssignedPipeline($user)) {
+        if ($role === 'interviewer' && ! $this->hasAssignedPipeline()) {
             abort(403, 'アクセス権限がありません。');
         }
 
         return view('pipeline.index');
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $user = auth()->user();
+        // VerifyJwt middleware で積まれた role を取得
+        $role = $request->attributes->get('role');
 
         // 面接官は担当のパイプラインのみ閲覧可能（△）
-        if ($user->role === 'interviewer' && ! $this->isAssigned($user, $id)) {
+        if ($role === 'interviewer' && ! $this->isAssigned($id)) {
             abort(403, 'アクセス権限がありません。');
         }
 
         return view('pipeline.show', ['id' => $id]);
     }
 
-    private function hasAssignedPipeline($user)
+    private function hasAssignedPipeline()
     {
         // TODO: 担当判定ロジック
-        return true;
+        return true; // 仮置き（全許可）
     }
 
-    private function isAssigned($user, $pipelineId)
+    private function isAssigned($pipelineId)
     {
         // TODO: 担当判定ロジック
-        return true;
+        return true; // 仮置き（全許可）
     }
 }
