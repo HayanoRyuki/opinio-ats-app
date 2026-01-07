@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,28 +57,15 @@ Route::middleware(['verify.jwt'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Analysis (Dashboard)
+    | Dashboard (正式)
     |--------------------------------------------------------------------------
     |
     | 採用活動の全体状況と、今日やるべきことを確認する入口。
-    | Controller は後で差し替える前提で、まずは view 直返し。
+    | Controller で集計し、View は表示専用。
     |
     */
-    Route::get('/analysis/dashboard', function () {
-        return view('analysis.dashboard');
-    })->name('analysis.dashboard');
-
-    /*
-    |--------------------------------------------------------------------------
-    | Legacy dashboard (temporary redirect)
-    |--------------------------------------------------------------------------
-    |
-    | 旧 /dashboard アクセスが来た場合は新ダッシュボードへ寄せる
-    |
-    */
-    Route::get('/dashboard', function () {
-        return redirect()->route('analysis.dashboard');
-    });
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
     /*
     |--------------------------------------------------------------------------
