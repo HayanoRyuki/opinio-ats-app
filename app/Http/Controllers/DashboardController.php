@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\InterviewSchedule;
 use App\Models\Interview;
-use App\Models\Message;
-use App\Models\Candidate;
+use App\Models\Application;
 
 class DashboardController extends Controller
 {
@@ -15,24 +13,19 @@ class DashboardController extends Controller
         // role は VerifyJwt middleware で積まれている
         $role = $request->attributes->get('role');
 
-        // 今すぐのアクション（全ロール共通・まずは admin/recruiter 想定）
+        // 今すぐのアクション（既存モデルのみ使用）
         $actions = [
-            'schedule_waiting' => InterviewSchedule::where('status', 'waiting')->count(),
+            // InterviewSchedule は未定義なので一旦 0
+            'schedule_waiting'   => 0,
 
-            'evaluation_pending' => Interview::whereNotNull('completed_at')
-                ->whereDoesntHave('evaluations')
-                ->count(),
+            // 面接評価未入力（例：completed_at が null）
+            'evaluation_pending' => Interview::whereNull('completed_at')->count(),
 
-            'reply_waiting' => Message::whereNotNull('sent_at')
-                ->whereNull('replied_at')
-                ->where('sent_at', '<', now()->subDays(2))
-                ->count(),
+            // 応募後の返信待ち（例：ステータスが pending）
+            'reply_waiting'      => Application::where('status', 'pending')->count(),
 
-            'stagnant_candidates' => Candidate::where(
-                'status_updated_at',
-                '<',
-                now()->subDays(7)
-            )->count(),
+            // 長期滞留（暫定：今は 0）
+            'long_stagnation'    => 0,
         ];
 
         return view('dashboard.index', [
