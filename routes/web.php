@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JobPipelineController;
+use App\Http\Controllers\JobShareTokenController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,9 +47,23 @@ Route::middleware(['verify.jwt'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
-    // 求人別パイプライン（本命）
+    /*
+    |--------------------------------------------------------------------------
+    | Job Pipeline（本命）
+    |--------------------------------------------------------------------------
+    */
+
+    // 求人別パイプライン
     Route::get('/jobs/{job}/pipeline', [JobPipelineController::class, 'show'])
         ->name('jobs.pipeline');
+
+    // 共有トークン発行
+    Route::post('/jobs/{job}/share-token', [JobShareTokenController::class, 'generate'])
+        ->name('jobs.share-token.generate');
+
+    // 共有URL（readonly パイプライン）
+    Route::get('/jobs/{job}/pipeline/share/{token}', [JobShareTokenController::class, 'show'])
+        ->name('jobs.pipeline.share');
 
     // 管理者系
     require __DIR__ . '/admin.php';
