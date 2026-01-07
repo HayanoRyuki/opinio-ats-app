@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 final class VerifyJwt
 {
@@ -38,23 +40,30 @@ final class VerifyJwt
         }
 
         /**
-         * DB は一切触らない
-         * Auth を正史とし、JWT の中身だけを信頼する
+         * ============================
+         * Auth コンテキストを構築する
+         * ============================
+         *
+         * DB には触らない
+         * JWT を正史として「仮想 User」を作る
          */
-        $request->attributes->set(
-            'auth_user_id',
-            (string) $payload->sub
-        );
+        $user = new User();
 
-        $request->attributes->set(
-            'role',
-            $payload->role ?? null
-        );
+        $user->id = (string) $payload->sub;
+        $user->role = $payload->role ?? null;
+        $user->company_id = $payload->company_id ?? null;
+        $user->email = $payload->email ?? null;
 
-        $request->attributes->set(
-            'company_id',
-            $payload->company_id ?? null
-        );
+        // ★ これがないと auth()->user() は null のまま
+        Auth::setUser($user);
+
+        /**
+         * request attributes は「補助情報」として保持
+         * （既存コードを壊さない）
+         */
+        $request->attributes->set('auth_user_id', (string) $payload->sub);
+        $request->attributes->set('role', $payload->role ?? null);
+        $request->attributes->set('company_id', $payload->company_id ?? null);
 
         return $next($request);
     }
