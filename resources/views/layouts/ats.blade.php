@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <title>Opinio ATS</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    {{-- 既存CSS --}}
+    <link rel="stylesheet" href="{{ asset('css/ats.css') }}">
 </head>
 
 @php
