@@ -3,51 +3,48 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Job;
 
 class JobController extends Controller
 {
-    /**
-     * 求人一覧
-     */
-    public function index(Request $request)
+    public function index()
     {
-        // VerifyJwt middleware で積まれた role を取得
-        $role = $request->attributes->get('role');
+        $user = auth()->user();
 
-        // 認証されていない（JWT 不正・未付与）
-        if (! $role) {
-            abort(401, '未認証です。');
+        // 未ログイン対策
+        if (! $user) {
+            abort(401, '未ログインです。');
         }
 
         // 面接官はアクセス不可
-        if ($role === 'interviewer') {
+        if ($user->role === 'interviewer') {
             abort(403, 'アクセス権限がありません。');
         }
 
-        // 管理者 / 採用担当は閲覧可
-        return view('jobs.index');
+        // 求人一覧（まずは全件取得）
+        $jobs = Job::orderBy('created_at', 'desc')->get();
+
+        return view('jobs.index', [
+            'jobs' => $jobs,
+        ]);
     }
 
-    /**
-     * 求人詳細
-     */
-    public function show(Request $request, $id)
+    public function show($id)
     {
-        // VerifyJwt middleware で積まれた role を取得
-        $role = $request->attributes->get('role');
+        $user = auth()->user();
 
-        // 認証されていない
-        if (! $role) {
-            abort(401, '未認証です。');
+        if (! $user) {
+            abort(401, '未ログインです。');
         }
 
-        // 面接官はアクセス不可
-        if ($role === 'interviewer') {
+        if ($user->role === 'interviewer') {
             abort(403, 'アクセス権限がありません。');
         }
 
+        $job = Job::findOrFail($id);
+
         return view('jobs.show', [
-            'id' => $id,
+            'job' => $job,
         ]);
     }
 }
