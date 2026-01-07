@@ -13,36 +13,87 @@ use App\Http\Controllers\{
 
 /*
 |--------------------------------------------------------------------------
-| Protected routes (admin / recruiter)
+| Admin / Recruiter routes
 |--------------------------------------------------------------------------
 |
-| ・SSO 開始は web.php の "/" のみで行う
-| ・ここでは JWT があることを前提に gate する
+| 前提：
+| - verify.jwt は web.php 側ですでに適用済み
+| - ここでは role のみを制御する
 |
 */
 Route::middleware([
-    'verify.jwt',
     'role:admin,recruiter',
 ])->group(function () {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard
+    |--------------------------------------------------------------------------
+    */
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
-    Route::get('/applications', [ApplicationController::class, 'index']);
-    Route::get('/applications/{application}', [ApplicationController::class, 'show']);
+    /*
+    |--------------------------------------------------------------------------
+    | Applications
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/applications', [ApplicationController::class, 'index'])
+        ->name('applications.index');
+    Route::get('/applications/{application}', [ApplicationController::class, 'show'])
+        ->name('applications.show');
 
-    Route::get('/candidates', [CandidateController::class, 'index']);
-    Route::get('/candidates/{candidate}', [CandidateController::class, 'show']);
+    /*
+    |--------------------------------------------------------------------------
+    | Candidates
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/candidates', [CandidateController::class, 'index'])
+        ->name('candidates.index');
+    Route::get('/candidates/{candidate}', [CandidateController::class, 'show'])
+        ->name('candidates.show');
 
-    Route::get('/jobs', [JobController::class, 'index']);
-    Route::get('/jobs/{job}', [JobController::class, 'show']);
+    /*
+    |--------------------------------------------------------------------------
+    | Jobs
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/jobs', [JobController::class, 'index'])
+        ->name('jobs.index');
+    Route::get('/jobs/{job}', [JobController::class, 'show'])
+        ->name('jobs.show');
 
-    Route::get('/pipeline', [PipelineController::class, 'index']);
-    Route::get('/pipeline/{pipeline}', [PipelineController::class, 'show']);
+    // （将来用：今は未実装でもOK）
+    // Route::get('/jobs/create', [JobController::class, 'create'])->name('jobs.create');
+    // Route::get('/jobs/{job}/edit', [JobController::class, 'edit'])->name('jobs.edit');
 
-    Route::get('/interviews', [InterviewController::class, 'index']);
-    Route::get('/interviews/{interview}', [InterviewController::class, 'show']);
+    /*
+    |--------------------------------------------------------------------------
+    | Pipeline
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/pipeline', [PipelineController::class, 'index'])
+        ->name('pipeline.index');
+    Route::get('/pipeline/{pipeline}', [PipelineController::class, 'show'])
+        ->name('pipeline.show');
 
-    Route::get('/reports', [ReportController::class, 'index']);
-    Route::get('/reports/{report}', [ReportController::class, 'show']);
+    /*
+    |--------------------------------------------------------------------------
+    | Interviews
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/interviews', [InterviewController::class, 'index'])
+        ->name('interviews.index');
+    Route::get('/interviews/{interview}', [InterviewController::class, 'show'])
+        ->name('interviews.show');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reports
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/reports', [ReportController::class, 'index'])
+        ->name('reports.index');
+    Route::get('/reports/{report}', [ReportController::class, 'show'])
+        ->name('reports.show');
 });
