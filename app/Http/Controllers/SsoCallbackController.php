@@ -57,7 +57,7 @@ class SsoCallbackController
                 value: $token,
                 minutes: 60 * 24,
                 path: '/',
-                domain: 'ats.opinio.co.jp',
+                domain: '.opinio.co.jp',
                 secure: true,
                 httpOnly: true,
                 sameSite: 'none'
