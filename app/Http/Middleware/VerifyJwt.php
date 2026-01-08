@@ -9,6 +9,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Membership;
 
 final class VerifyJwt
 {
@@ -39,31 +40,38 @@ final class VerifyJwt
             abort(401, 'Invalid audience');
         }
 
+        // auth の user_id（JWT sub）
+        $authUserId = (string) ($payload->sub ?? null);
+
+        if (! $authUserId) {
+            abort(401, 'Invalid subject');
+        }
+
+        // Membership を1件取得（ATS 正史）
+        $membership = Membership::where('user_id', $authUserId)->first();
+
+        if (! $membership) {
+            abort(403, 'No membership found');
+        }
+
         /**
          * ============================
-         * Auth コンテキストを構築する
+         * ATS 実効ユーザーを構築する
          * ============================
-         *
-         * DB には触らない
-         * JWT を正史として「仮想 User」を作る
          */
         $user = new User();
 
-        $user->id = (string) $payload->sub;
-        $user->role = $payload->role ?? null;
-        $user->company_id = $payload->company_id ?? null;
-        $user->email = $payload->email ?? null;
+        $user->id = $authUserId;
+        $user->company_id = $membership->company_id;
+        $user->role = $membership->role;
 
-        // ★ これがないと auth()->user() は null のまま
+        // auth()->user() を有効化
         Auth::setUser($user);
 
-        /**
-         * request attributes は「補助情報」として保持
-         * （既存コードを壊さない）
-         */
-        $request->attributes->set('auth_user_id', (string) $payload->sub);
-        $request->attributes->set('role', $payload->role ?? null);
-        $request->attributes->set('company_id', $payload->company_id ?? null);
+        // request attributes（互換用）
+        $request->attributes->set('auth_user_id', $authUserId);
+        $request->attributes->set('company_id', $membership->company_id);
+        $request->attributes->set('role', $membership->role);
 
         return $next($request);
     }
