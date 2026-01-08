@@ -50,24 +50,22 @@ class SsoCallbackController
 
         $token = (string) $data['access_token']['access_token'];
 
-        /**
-         * Cookie を Response Header に直接セットする
-         *（withCookie は使わない）
-         */
+        // Cookie をレスポンスヘッダに直接セット
         $response = redirect('/dashboard');
 
-        $response->headers->setCookie(
-            new Cookie(
-                name: 'jwt',
-                value: $token,
-                expires: now()->addDay(),
-                path: '/',
-                domain: '.opinio.co.jp',
-                secure: true,
-                httpOnly: true,
-                sameSite: 'None'
-            )
+        $cookie = new Cookie(
+            'jwt',                          // name
+            $token,                         // value
+            now()->addDay(),                // expires
+            '/',                            // path
+            '.opinio.co.jp',                // domain
+            true,                           // secure
+            true,                           // httpOnly
+            false,                          // raw
+            'None'                          // sameSite
         );
+
+        $response->headers->setCookie($cookie);
 
         return $response;
     }
