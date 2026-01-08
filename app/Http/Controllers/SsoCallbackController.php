@@ -60,7 +60,7 @@ class SsoCallbackController
                 domain: 'ats.opinio.co.jp',
                 secure: true,
                 httpOnly: true,
-                sameSite: 'None'
+                sameSite: 'none'
             )
         );
     }
