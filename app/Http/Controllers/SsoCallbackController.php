@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
+use Symfony\Component\HttpFoundation\Cookie;
 
 class SsoCallbackController
 {
@@ -49,19 +50,25 @@ class SsoCallbackController
 
         $token = (string) $data['access_token']['access_token'];
 
-        // role に応じた初期遷移（最小限）
-        // ※ 本当の認証・ユーザー解決は VerifyJwt に任せる
-        return redirect('/dashboard')->withCookie(
-            cookie(
+        /**
+         * Cookie を Response Header に直接セットする
+         *（withCookie は使わない）
+         */
+        $response = redirect('/dashboard');
+
+        $response->headers->setCookie(
+            new Cookie(
                 name: 'jwt',
                 value: $token,
-                minutes: 60 * 24,
+                expires: now()->addDay(),
                 path: '/',
                 domain: '.opinio.co.jp',
                 secure: true,
                 httpOnly: true,
-                sameSite: 'none'
+                sameSite: 'None'
             )
         );
+
+        return $response;
     }
 }
