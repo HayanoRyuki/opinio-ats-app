@@ -9,12 +9,30 @@ class RequireSso
 {
     public function handle(Request $request, Closure $next)
     {
-        // ✅ SSO callback は必ず素通りさせる
-        if ($request->is('sso/callback')) {
+        /*
+        |--------------------------------------------------------------------------
+        | ✅ SSO / 例外ルートは必ず素通り
+        |--------------------------------------------------------------------------
+        |
+        | - SSO callback（Cookie をセットする唯一の入口）
+        | - JWT 動作確認用
+        | - ヘルスチェック
+        |
+        */
+        if (
+            $request->is('sso/*') ||
+            $request->is('__jwt_test') ||
+            $request->is('up')
+        ) {
             return $next($request);
         }
 
-        if (! $request->cookie('jwt')) {
+        /*
+        |--------------------------------------------------------------------------
+        | 🔐 JWT がなければ Auth App へ
+        |--------------------------------------------------------------------------
+        */
+        if (! $request->hasCookie('jwt')) {
             return redirect()->away(
                 rtrim(config('services.auth_app.url'), '/') . '/sso/start?client=ats'
             );
