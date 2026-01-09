@@ -64,19 +64,18 @@ class SsoCallbackController
         $response = redirect('/');
 
         $cookie = new Cookie(
-            'jwt',                          // name
-            $token,                         // value
-            now()->addDay(),                // expires
-            '/',                            // path
-            '.opinio.co.jp',                // domain
-            true,                           // secure
-            true,                           // httpOnly
-            false,                          // raw
-            'None'                          // sameSite
-        );
+    'jwt',              // name
+    $token,             // value
+    now()->addDay(),    // expires
+    '/',                // path
+    null,               // domain ← 消す（超重要）
+    false,              // secure ← false（超重要）
+    true,               // httpOnly
+    false,              // raw
+    'Lax'               // sameSite ← Lax に戻す
+);
 
-        $response->headers->setCookie($cookie);
-
+$response->headers->setCookie($cookie);
         return $response;
     }
 }
