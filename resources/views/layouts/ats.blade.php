@@ -43,15 +43,16 @@
     align-items:center;
 ">
 
-    {{-- 左：ロゴ（中メニューと同幅で固定） --}}
+    {{-- 左：ロゴ（左サイド中央揃え・大きめ） --}}
     <div style="
         width:240px;
-        padding-left:16px;
         display:flex;
         align-items:center;
+        justify-content:center;
     ">
         <a href="{{ route('dashboard') }}">
-            <img src="{{ asset('images/atslogo.svg') }}" style="height:32px;">
+            <img src="{{ asset('images/atslogo.svg') }}"
+                 style="height:40px;">
         </a>
     </div>
 
