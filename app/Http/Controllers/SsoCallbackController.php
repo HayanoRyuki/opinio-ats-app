@@ -23,20 +23,16 @@ class SsoCallbackController
             abort(401, 'missing_code');
         }
 
-        $tokenEndpoint = config('services.auth.token_endpoint');
-        $clientId      = config('services.auth.client_id');
-        $clientSecret  = config('services.auth.client_secret');
-
-        // ★ Auth に登録している redirect_uri と完全一致させる
-        $redirectUri = 'https://ats.opinio.co.jp/sso/callback';
-
-        $response = Http::asForm()->post($tokenEndpoint, [
-            'grant_type'    => 'authorization_code',
-            'code'          => $code,
-            'client_id'     => $clientId,
-            'client_secret' => $clientSecret,
-            'redirect_uri'  => $redirectUri,
-        ]);
+        $response = Http::asForm()->post(
+            config('services.auth.token_endpoint'),
+            [
+                'grant_type'    => 'authorization_code',
+                'code'          => $code,
+                'client_id'     => config('services.auth.client_id'),
+                'client_secret' => config('services.auth.client_secret'),
+                'redirect_uri'  => 'https://ats.opinio.co.jp/sso/callback',
+            ]
+        );
 
         Log::info('AUTH token endpoint response', [
             'status' => $response->status(),
@@ -44,30 +40,24 @@ class SsoCallbackController
         ]);
 
         if (! $response->successful()) {
-            Log::error('Token request failed', [
-                'status' => $response->status(),
-                'body'   => $response->body(),
-            ]);
             abort(401, 'token_request_failed');
         }
 
-        $data = $response->json();
-
-        $token = $data['access_token'] ?? null;
+        $token = $response->json('access_token');
 
         if (! $token) {
-            Log::error('Invalid token response', ['response' => $data]);
             abort(401, 'invalid_token_response');
         }
 
         $response = redirect('/');
 
-        $cookie = new Cookie(
+        // ★ Domain を指定しない（最重要）
+        $cookie = Cookie::create(
             'jwt',
             $token,
-            now()->addDay(),
+            1440,      // minutes
             '/',
-            'ats.opinio.co.jp',
+            null,      // ← ここ！！
             true,
             true,
             false,
