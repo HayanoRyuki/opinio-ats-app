@@ -19,15 +19,11 @@
     // 管理・採用担当
     $isAdminLike = in_array($role, ['admin', 'recruiter'], true);
 
-    // 大メニュー判定（route name の prefix を使う）
+    // 大メニュー判定（route name の prefix）
     $routeName  = request()->route()?->getName() ?? '';
     $activeMain = explode('.', $routeName)[0] ?? 'candidates';
 
-    // 状態別スタイル
-    $active   = 'background:#65b891; font-weight:600; border-radius:6px;';
-    $hoverBg  = '#3f3768';
-
-    // 進捗可視化用
+    // 中メニュー用スタイル
     $linkDone = 'display:block; padding:6px 8px; color:#f4f4ed; text-decoration:none; border-radius:6px;';
     $linkTodo = 'display:block; padding:6px 8px; color:rgba(244,244,237,0.35); cursor:not-allowed;';
 @endphp
@@ -45,52 +41,70 @@
     color:#f4f4ed;
     display:flex;
     align-items:center;
-    padding:0 24px;
 ">
 
-    {{-- ロゴ --}}
-    <a href="{{ route('dashboard') }}" style="margin-right:32px;">
-        <img src="{{ asset('images/atslogo.svg') }}" style="height:32px;">
-    </a>
+    {{-- 左：ロゴ（中メニューと同幅で固定） --}}
+    <div style="
+        width:240px;
+        padding-left:16px;
+        display:flex;
+        align-items:center;
+    ">
+        <a href="{{ route('dashboard') }}">
+            <img src="{{ asset('images/atslogo.svg') }}" style="height:32px;">
+        </a>
+    </div>
 
-    {{-- 大メニュー --}}
-    <ul style="display:flex; gap:24px; list-style:none; margin:0; padding:0;">
+    {{-- 中央：大メニュー --}}
+    <ul style="
+        display:flex;
+        gap:32px;
+        list-style:none;
+        margin:0;
+        padding-left:24px;
+    ">
+        @foreach ([
+            'candidates'  => ['👥','候補者'],
+            'jobs'        => ['💼','求人'],
+            'evaluations' => ['⭐','評価'],
+            'analytics'   => ['📊','分析'],
+        ] as $key => [$icon, $label])
         <li>
-            <a href="/candidates"
-               style="{{ $activeMain === 'candidates' ? $active : '' }}">
-                👥 候補者
+            <a href="/{{ $key }}"
+               style="
+                 display:flex;
+                 align-items:center;
+                 gap:8px;
+                 padding:8px 14px;
+                 font-size:16px;
+                 font-weight:600;
+                 border-radius:8px;
+                 text-decoration:none;
+                 color:#f4f4ed;
+                 {{ $activeMain === $key ? 'background:#65b891;' : '' }}
+               ">
+                <span>{{ $icon }}</span>
+                <span>{{ $label }}</span>
             </a>
         </li>
-        <li>
-            <a href="/jobs"
-               style="{{ $activeMain === 'jobs' ? $active : '' }}">
-                💼 求人
-            </a>
-        </li>
-        <li>
-            <a href="/evaluations"
-               style="{{ $activeMain === 'evaluations' ? $active : '' }}">
-                ⭐ 評価
-            </a>
-        </li>
-        <li>
-            <a href="/analytics"
-               style="{{ $activeMain === 'analytics' ? $active : '' }}">
-                📊 分析
-            </a>
-        </li>
+        @endforeach
     </ul>
 
-    {{-- 右端アイコン --}}
-    <div style="margin-left:auto; display:flex; gap:16px;">
+    {{-- 右：ユーティリティ --}}
+    <div style="
+        margin-left:auto;
+        padding-right:24px;
+        display:flex;
+        gap:16px;
+    ">
         <a href="/notifications">🔔</a>
         <a href="/me">👤</a>
         @if ($isAdminLike)
             <a href="/settings">⚙️</a>
         @endif
     </div>
-</nav>
 
+</nav>
 @endif
 
 {{-- =========================
@@ -157,7 +171,6 @@
 
 </div>
 </nav>
-
 @endif
 
 {{-- =========================
