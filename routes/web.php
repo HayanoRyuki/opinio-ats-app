@@ -10,33 +10,36 @@ use App\Http\Controllers\ApplicationShareController;
 |--------------------------------------------------------------------------
 | Root / Login
 |--------------------------------------------------------------------------
+|
+| JWT が無ければ SSO 開始
+| JWT があれば dashboard へ
+|
 */
-$redirectToAuth = function () {
-    return redirect()->away(
-        'https://auth.opinio.co.jp/sso/start'
-        . '?client_id=ats'
-        . '&redirect_uri=' . urlencode('https://ats.opinio.co.jp/sso/callback')
-    );
-};
+Route::middleware(['require.sso'])->group(function () {
+    Route::get('/', function () {
+        return redirect()->route('dashboard');
+    });
 
-Route::get('/', $redirectToAuth);
-Route::get('/login', $redirectToAuth);
+    Route::get('/login', function () {
+        return redirect()->route('dashboard');
+    });
+});
 
 /*
 |--------------------------------------------------------------------------
-| Public routes
+| Public routes（SSO callback のみ）
 |--------------------------------------------------------------------------
 */
 require __DIR__ . '/sso.php';
 
 /*
 |--------------------------------------------------------------------------
-| Protected routes（JWT はここで一度だけ）
+| Protected routes（JWT 必須）
 |--------------------------------------------------------------------------
 */
 Route::middleware(['verify.jwt'])->group(function () {
 
-    // 共通静的ページ
+    // 静的ページ
     Route::view('/terms', 'static.terms')->name('terms');
     Route::view('/privacy', 'static.privacy')->name('privacy');
     Route::view('/data-policy', 'static.data-policy')->name('data-policy');
@@ -44,53 +47,42 @@ Route::middleware(['verify.jwt'])->group(function () {
     Route::view('/company', 'static.company')->name('company');
     Route::view('/help', 'static.help')->name('help');
 
-    // 管理者・採用担当ダッシュボード
+    // ダッシュボード
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
     /*
     |--------------------------------------------------------------------------
-    | Candidates（候補者）
+    | Candidates
     |--------------------------------------------------------------------------
     */
-
-    // 候補者一覧 ★★★ これが今まで無かった ★★★
     Route::view('/candidates', 'candidates.index')
         ->name('candidates.index');
 
     /*
     |--------------------------------------------------------------------------
-    | Job Pipeline（本命）
+    | Job Pipeline
     |--------------------------------------------------------------------------
     */
-
-    // 求人別パイプライン
     Route::get('/jobs/{job}/pipeline', [JobPipelineController::class, 'show'])
         ->name('jobs.pipeline');
 
-    // 共有トークン発行
     Route::post('/jobs/{job}/share-token', [JobShareTokenController::class, 'generate'])
         ->name('jobs.share-token.generate');
 
-    // 共有URL（readonly パイプライン）
     Route::get('/jobs/{job}/pipeline/share/{token}', [JobShareTokenController::class, 'show'])
         ->name('jobs.pipeline.share');
 
     /*
     |--------------------------------------------------------------------------
-    | Application Share（応募者詳細・共有）
+    | Application Share
     |--------------------------------------------------------------------------
     */
-
-    // 応募者詳細（共有・readonly）
     Route::get(
         '/applications/{application}/share/{token}',
         [ApplicationShareController::class, 'show']
     )->name('applications.share');
 
-    // 管理者系
     require __DIR__ . '/admin.php';
-
-    // 面接官系
     require __DIR__ . '/interviewer.php';
 });

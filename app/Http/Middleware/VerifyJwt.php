@@ -49,10 +49,6 @@ final class VerifyJwt
             abort(401, 'Invalid JWT');
         }
 
-        Log::info('VerifyJwt: JWT decoded', [
-            'payload' => (array) $payload,
-        ]);
-
         /*
         |--------------------------------------------------------------------------
         | 3. audience チェック
@@ -73,55 +69,36 @@ final class VerifyJwt
         $authUserId = (string) ($payload->sub ?? null);
 
         if (! $authUserId) {
-            Log::warning('VerifyJwt: Invalid subject', [
-                'payload' => (array) $payload,
-            ]);
+            Log::warning('VerifyJwt: Invalid subject');
             abort(401, 'Invalid subject');
         }
 
-        Log::info('VerifyJwt: Subject OK', [
-            'user_id' => $authUserId,
-        ]);
-
         /*
         |--------------------------------------------------------------------------
-        | 5. Membership 取得
+        | 5. membership は「あれば使う」
         |--------------------------------------------------------------------------
         */
-        Log::info('VerifyJwt: Looking up membership', [
-            'user_id' => $authUserId,
-        ]);
-
         $membership = Membership::where('user_id', $authUserId)->first();
 
-        if (! $membership) {
-            Log::warning('VerifyJwt: No membership found', [
-                'user_id' => $authUserId,
-            ]);
-            abort(403, 'No membership found');
-        }
-
-        Log::info('VerifyJwt: Membership found', [
-            'company_id' => $membership->company_id,
-            'role'       => $membership->role,
-        ]);
+        $role = $membership->role ?? ($payload->role ?? 'guest');
+        $companyId = $membership->company_id ?? null;
 
         /*
         |--------------------------------------------------------------------------
-        | 6. ATS 実効ユーザー構築
+        | 6. ATS 実効ユーザー構築（company 非依存）
         |--------------------------------------------------------------------------
         */
         $user = new User();
-        $user->id         = $authUserId;
-        $user->company_id = $membership->company_id;
-        $user->role       = $membership->role;
+        $user->id = $authUserId;
+        $user->company_id = $companyId;
+        $user->role = $role;
 
         Auth::setUser($user);
 
-        // request attributes（互換用）
+        // request attributes
         $request->attributes->set('auth_user_id', $authUserId);
-        $request->attributes->set('company_id', $membership->company_id);
-        $request->attributes->set('role', $membership->role);
+        $request->attributes->set('company_id', $companyId);
+        $request->attributes->set('role', $role);
 
         return $next($request);
     }

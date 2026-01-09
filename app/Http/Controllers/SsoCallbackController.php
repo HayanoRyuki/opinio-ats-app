@@ -36,26 +36,29 @@ class SsoCallbackController
 
         Log::info('AUTH token endpoint response', [
             'status' => $response->status(),
-            'body'   => $response->body(),
+            'body'   => $response->json(),
         ]);
 
         if (! $response->successful()) {
             abort(401, 'token_request_failed');
         }
 
-        $token = $response->json('access_token');
+        // ✅ Auth のレスポンス仕様に正確に合わせる
+        $token = (string) data_get(
+            $response->json(),
+            'access_token.access_token'
+        );
 
-        if (! $token) {
+        if ($token === '') {
             abort(401, 'invalid_token_response');
         }
 
-        $response = redirect('/');
+        $response = redirect('/dashboard');
 
-        // ✅ expires は DateTime で渡す
         $cookie = Cookie::create(
             'jwt',
             $token,
-            now()->addDay(), // ← ここが超重要
+            now()->addDay(),
             '/',
             null,
             true,
