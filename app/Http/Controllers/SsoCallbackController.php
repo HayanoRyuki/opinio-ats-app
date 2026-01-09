@@ -33,6 +33,12 @@ class SsoCallbackController
             ]
         );
 
+        // 🔍 一時ログ（AUTH の生レスポンス確認用）
+        Log::info('AUTH token endpoint response', [
+            'status' => $response->status(),
+            'body'   => $response->body(),
+        ]);
+
         if (! $response->successful()) {
             Log::error('Token request failed', [
                 'status' => $response->status(),
@@ -43,12 +49,16 @@ class SsoCallbackController
 
         $data = $response->json();
 
-        if (! isset($data['access_token']['access_token'])) {
+        // AUTH 側のレスポンス差異に耐えるため両対応
+        $token =
+            $data['access_token']['access_token']
+            ?? $data['access_token']
+            ?? null;
+
+        if (! $token) {
             Log::error('Invalid token response', ['response' => $data]);
             abort(401, 'invalid_token_response');
         }
-
-        $token = (string) $data['access_token']['access_token'];
 
         // Cookie をレスポンスヘッダに直接セット
         $response = redirect('/dashboard');
