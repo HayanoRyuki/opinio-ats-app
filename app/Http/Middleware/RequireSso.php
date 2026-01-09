@@ -9,25 +9,21 @@ class RequireSso
 {
     public function handle(Request $request, Closure $next)
     {
-        /**
-         * ============================
-         * SSO callback は必ず素通り
-         * ============================
-         */
+        // SSO callback 自体は必ず通す
         if ($request->is('sso/callback')) {
             return $next($request);
         }
 
-        /**
-         * ============================
-         * jwt が無い場合のみ Auth に飛ばす
-         * ============================
-         * ※ 正当性チェックは VerifyJwt が担当
-         */
-        if (! $request->hasCookie('jwt')) {
+        // JWT が無ければ Auth SSO へ
+        if (! $request->cookie('jwt')) {
+            $authBase = rtrim(config('services.auth_app.url'), '/');
+
+            $redirectUri = urlencode('https://ats.opinio.co.jp/sso/callback');
+
             return redirect()->away(
-                rtrim(config('services.auth_app.url'), '/')
-                . '/sso/start?client=ats'
+                "{$authBase}/sso/start"
+                . "?client_id=ats"
+                . "&redirect_uri={$redirectUri}"
             );
         }
 
