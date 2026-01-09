@@ -9,16 +9,14 @@ class RequireSso
 {
     public function handle(Request $request, Closure $next)
     {
-        // ★ SSO callback は必ず素通りさせる
+        // ✅ SSO callback は必ず素通りさせる
         if ($request->is('sso/callback')) {
             return $next($request);
         }
 
         if (! $request->cookie('jwt')) {
-            $authApp = config('services.auth_app.url');
-
             return redirect()->away(
-                rtrim($authApp, '/') . '/sso/start?client=ats'
+                rtrim(config('services.auth_app.url'), '/') . '/sso/start?client=ats'
             );
         }
 
