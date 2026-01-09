@@ -61,7 +61,7 @@ class SsoCallbackController
         }
 
         // Cookie をレスポンスヘッダに直接セット
-        $response = redirect('/dashboard');
+        $response = redirect('/');
 
         $cookie = new Cookie(
             'jwt',                          // name
