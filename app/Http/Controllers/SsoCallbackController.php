@@ -51,13 +51,13 @@ class SsoCallbackController
 
         $response = redirect('/');
 
-        // ★ Domain を指定しない（最重要）
+        // ✅ expires は DateTime で渡す
         $cookie = Cookie::create(
             'jwt',
             $token,
-            1440,      // minutes
+            now()->addDay(), // ← ここが超重要
             '/',
-            null,      // ← ここ！！
+            null,
             true,
             true,
             false,
