@@ -19,9 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
     | Routing
     |--------------------------------------------------------------------------
     |
-    | web.php        : 通常の Web ルート
-    | sso.php        : SSO callback 専用（JWT 不要・例外）
-    | console.php    : Artisan コマンド
+    | web.php     : 通常の ATS Web ルート（JWT 必須）
+    | sso.php     : SSO callback 専用（JWT 不要・完全例外）
+    | console.php : Artisan コマンド
     |
     */
     ->withRouting(
@@ -29,10 +29,15 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
 
-        // 🔑 SSO callback はここで明示的に読み込む
+        /*
+         * ✅ SSO callback は「web を付けずに」読み込む
+         *    → RequireSso / VerifyJwt を完全に回避
+         */
         then: function () {
-            Route::middleware('web')
-                ->group(base_path('routes/sso.php'));
+            Route::group(
+                [],
+                base_path('routes/sso.php')
+            );
         },
     )
 
