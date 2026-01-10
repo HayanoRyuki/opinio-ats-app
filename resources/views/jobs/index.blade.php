@@ -80,8 +80,21 @@
                     </div>
                 </div>
 
-                {{-- 右：アクション（すべて未実装） --}}
-                <div style="display:flex; gap:12px; align-items:center;">
+                {{-- 右：アクション --}}
+                <div style="display:flex; gap:16px; align-items:center;">
+
+                    <a
+                        href="{{ route('jobs.pipeline', $job->id) }}"
+                        style="
+                            font-size:0.85rem;
+                            font-weight:600;
+                            color:#2563eb;
+                            text-decoration:none;
+                        "
+                    >
+                        選考パイプライン →
+                    </a>
+
                     <span style="font-size:0.8rem; color:#9ca3af;">
                         機能準備中
                     </span>
