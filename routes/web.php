@@ -53,6 +53,17 @@ Route::middleware(['verify.jwt'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Evaluations / Analytics（仮）
+    |--------------------------------------------------------------------------
+    */
+    Route::view('/evaluations', 'evaluations.index')
+        ->name('evaluations.index');
+
+    Route::view('/analytics', 'analytics.index')
+        ->name('analytics.index');
+
+    /*
+    |--------------------------------------------------------------------------
     | Candidates
     |--------------------------------------------------------------------------
     */
