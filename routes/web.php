@@ -64,6 +64,20 @@ Route::middleware(['verify.jwt'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Utilities（Notifications / Me / Settings）
+    |--------------------------------------------------------------------------
+    */
+    Route::view('/notifications', 'utilities.notifications')
+        ->name('notifications.index');
+
+    Route::view('/me', 'utilities.me')
+        ->name('me.index');
+
+    Route::view('/settings', 'utilities.settings')
+        ->name('settings.index');
+
+    /*
+    |--------------------------------------------------------------------------
     | Candidates
     |--------------------------------------------------------------------------
     */
