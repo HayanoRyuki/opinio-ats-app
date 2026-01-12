@@ -79,15 +79,9 @@
                                     応募者詳細を開く →
                                 </a>
                             @endif
-
-                            @if (!$readonly)
-                                <a href="{{ route('evaluations.create', $application) }}">
-                                    評価する →
-                                </a>
-                            @endif
                         </div>
 
-                        {{-- 採用判断の表示（色付き＋日時） --}}
+                        {{-- 採用判断の表示 --}}
                         @if ($decision)
                             @php
                                 $decisionMeta = match ($decision->decision) {
@@ -144,7 +138,7 @@
                             </div>
                         @endif
 
-                        {{-- 採用判断フォーム（新規 or 上書き） --}}
+                        {{-- 採用判断フォーム --}}
                         @if (!$readonly)
                             <div class="application-decision-form"
                                  style="margin-top:8px; padding-top:8px; border-top:1px dashed #ccc;">
@@ -197,34 +191,5 @@
 
     </div>
 </div>
-
-{{-- DnD --}}
-@if (!$readonly)
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script>
-document.querySelectorAll('.pipeline-column').forEach(column => {
-    new Sortable(column, {
-        group: 'pipeline',
-        animation: 150,
-        onEnd: function (evt) {
-            const applicationId = evt.item.dataset.applicationId;
-            const newStepId = evt.to.dataset.stepId;
-            if (!applicationId || !newStepId) return;
-
-            fetch(`/applications/${applicationId}/step`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    selection_step_id: newStepId
-                })
-            });
-        }
-    });
-});
-</script>
-@endif
 
 @endsection

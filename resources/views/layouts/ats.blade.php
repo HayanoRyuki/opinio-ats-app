@@ -3,6 +3,10 @@
 <head>
     <meta charset="utf-8">
     <title>Opinio ATS</title>
+
+    <!-- CSRF -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ asset('css/ats.css') }}">
 </head>
@@ -34,8 +38,10 @@
       'analytics'   => ['📊','分析'],
     ] as $key => [$icon, $label])
       <li>
-        <a href="/{{ $key }}" style="display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:16px;font-weight:600;border-radius:8px;text-decoration:none;color:#f4f4ed;{{ $activeMain === $key ? 'background:#65b891;' : '' }}">
-          <span>{{ $icon }}</span><span>{{ $label }}</span>
+        <a href="/{{ $key }}"
+           style="display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:16px;font-weight:600;border-radius:8px;text-decoration:none;color:#f4f4ed;{{ $activeMain === $key ? 'background:#65b891;' : '' }}">
+          <span>{{ $icon }}</span>
+          <span>{{ $label }}</span>
         </a>
       </li>
     @endforeach
@@ -97,6 +103,10 @@
 <main style="flex:1;padding:16px;">
   @yield('content')
 </main>
+
+<!-- Kanban JS -->
+<script src="{{ asset('js/pipeline-kanban.js') }}"></script>
+
 </div>
 </body>
 </html>

@@ -5,15 +5,13 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JobPipelineController;
 use App\Http\Controllers\JobShareTokenController;
 use App\Http\Controllers\ApplicationShareController;
+use App\Http\Controllers\ApplicationStepController;
+use App\Http\Controllers\ApplicationDecisionController;
 
 /*
 |--------------------------------------------------------------------------
 | Root / Login
 |--------------------------------------------------------------------------
-|
-| JWT が無ければ SSO 開始
-| JWT があれば dashboard へ
-|
 */
 Route::middleware(['require.sso'])->group(function () {
     Route::get('/', function () {
@@ -64,7 +62,7 @@ Route::middleware(['verify.jwt'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Utilities（Notifications / Me / Settings）
+    | Utilities
     |--------------------------------------------------------------------------
     */
     Route::view('/notifications', 'utilities.notifications')
@@ -97,6 +95,26 @@ Route::middleware(['verify.jwt'])->group(function () {
 
     Route::get('/jobs/{job}/pipeline/share/{token}', [JobShareTokenController::class, 'show'])
         ->name('jobs.pipeline.share');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Step Update
+    |--------------------------------------------------------------------------
+    */
+    Route::patch(
+        '/applications/{application}/step',
+        [ApplicationStepController::class, 'update']
+    )->name('applications.step.update');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Decision（★今回追加）
+    |--------------------------------------------------------------------------
+    */
+    Route::post(
+        '/applications/{application}/decision',
+        [ApplicationDecisionController::class, 'store']
+    )->name('applications.decision.store');
 
     /*
     |--------------------------------------------------------------------------
