@@ -32,9 +32,6 @@
 
 @if (! $isLoginPage)
 
-{{-- =========================
-   上バー（大メニュー）
-========================= --}}
 <nav style="
     height:56px;
     background:#332c54;
@@ -43,7 +40,6 @@
     align-items:center;
 ">
 
-    {{-- 左：ロゴ（左サイド中央揃え・大きめ） --}}
     <div style="
         width:240px;
         display:flex;
@@ -51,12 +47,10 @@
         justify-content:center;
     ">
         <a href="{{ route('dashboard') }}">
-            <img src="{{ asset('images/atslogo.svg') }}"
-                 style="height:40px;">
+            <img src="{{ asset('images/atslogo.svg') }}" style="height:40px;">
         </a>
     </div>
 
-    {{-- 中央：大メニュー --}}
     <ul style="
         display:flex;
         gap:32px;
@@ -91,33 +85,27 @@
         @endforeach
     </ul>
 
-    {{-- 右：ユーティリティ --}}
+    {{-- ★ 3点止血：すべて非リンク --}}
     <div style="
         margin-left:auto;
         padding-right:24px;
         display:flex;
         gap:16px;
     ">
-        <a href="/notifications">🔔</a>
-        <a href="/me">👤</a>
+        <div style="{{ $linkTodo }}">🔔</div>
+        <div style="{{ $linkTodo }}">👤</div>
         @if ($isAdminLike)
-            <a href="/settings">⚙️</a>
+            <div style="{{ $linkTodo }}">⚙️</div>
         @endif
     </div>
 
 </nav>
 @endif
 
-{{-- =========================
-   メインレイアウト
-========================= --}}
 <div style="display:flex;">
 
 @if (! $isLoginPage)
 
-{{-- =========================
-   中メニュー（左）
-========================= --}}
 <nav style="
     width:240px;
     background:#332c54;
@@ -129,7 +117,6 @@
 
 <div style="padding:16px; height:100%; overflow-y:auto;">
 
-{{-- 👥 候補者 --}}
 @if ($activeMain === 'candidates')
     <div style="font-size:12px; opacity:.5; margin-bottom:12px;">候補者</div>
     <ul style="list-style:none; padding:0; margin:0;">
@@ -140,7 +127,6 @@
     </ul>
 @endif
 
-{{-- 💼 求人（仮） --}}
 @if ($activeMain === 'jobs')
     <div style="font-size:12px; opacity:.5; margin-bottom:12px;">求人</div>
     <ul style="list-style:none; padding:0; margin:0;">
@@ -150,7 +136,6 @@
     </ul>
 @endif
 
-{{-- ⭐ 評価 --}}
 @if ($activeMain === 'evaluations')
     <div style="font-size:12px; opacity:.5; margin-bottom:12px;">評価</div>
     <ul style="list-style:none; padding:0; margin:0;">
@@ -160,7 +145,6 @@
     </ul>
 @endif
 
-{{-- 📊 分析 --}}
 @if ($activeMain === 'analytics')
     <div style="font-size:12px; opacity:.5; margin-bottom:12px;">分析</div>
     <ul style="list-style:none; padding:0; margin:0;">
@@ -174,9 +158,6 @@
 </nav>
 @endif
 
-{{-- =========================
-   メインコンテンツ
-========================= --}}
 <main style="flex:1; padding:16px;">
     @yield('content')
 </main>
