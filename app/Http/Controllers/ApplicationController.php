@@ -3,18 +3,29 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Application;
+use Inertia\Inertia;
 
 class ApplicationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // SSO 実装前のため、認証・role判定は一旦無効化
-        return view('applications.index');
+        $applications = Application::with(['candidate', 'job'])
+            ->latest()
+            ->get();
+
+        return Inertia::render('Applications/Index', [
+            'applications' => $applications,
+        ]);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        // SSO 実装前のため、認証・role判定は一旦無効化
-        return view('applications.show', ['id' => $id]);
+        $application = Application::with(['candidate', 'job'])
+            ->findOrFail($id);
+
+        return Inertia::render('Applications/Show', [
+            'application' => $application,
+        ]);
     }
 }

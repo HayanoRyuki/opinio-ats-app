@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Application;
+use Inertia\Inertia;
 
 class CandidateController extends Controller
 {
@@ -19,7 +20,7 @@ class CandidateController extends Controller
             ->latest()
             ->get();
 
-        return view('candidates.index', [
+        return Inertia::render('Candidates/Index', [
             'applications' => $applications,
         ]);
     }
@@ -44,7 +45,7 @@ class CandidateController extends Controller
             abort(404);
         }
 
-        return view('candidates.show', [
+        return Inertia::render('Candidates/Show', [
             'candidate'    => $candidate,
             'applications' => $applications,
         ]);

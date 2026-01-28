@@ -21,21 +21,21 @@ class IntakeController extends Controller
      */
     public function index(Request $request): Response
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
 
-        $intakes = ApplicationIntake::where('company_id', $user->company_id)
+        $intakes = ApplicationIntake::where('company_id', $companyId)
             ->with('draft')
             ->orderBy('received_at', 'desc')
             ->paginate(20);
 
         $stats = [
-            'pending' => ApplicationIntake::where('company_id', $user->company_id)
+            'pending' => ApplicationIntake::where('company_id', $companyId)
                 ->where('status', 'pending')
                 ->count(),
-            'draft' => ApplicationIntake::where('company_id', $user->company_id)
+            'draft' => ApplicationIntake::where('company_id', $companyId)
                 ->where('status', 'draft')
                 ->count(),
-            'confirmed' => ApplicationIntake::where('company_id', $user->company_id)
+            'confirmed' => ApplicationIntake::where('company_id', $companyId)
                 ->where('status', 'confirmed')
                 ->count(),
         ];
@@ -51,10 +51,10 @@ class IntakeController extends Controller
      */
     public function drafts(Request $request): Response
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
 
-        $drafts = IntakeCandidateDraft::whereHas('applicationIntake', function ($query) use ($user) {
-            $query->where('company_id', $user->company_id);
+        $drafts = IntakeCandidateDraft::whereHas('applicationIntake', function ($query) use ($companyId) {
+            $query->where('company_id', $companyId);
         })
             ->with(['applicationIntake'])
             ->where('status', 'draft')
@@ -69,13 +69,14 @@ class IntakeController extends Controller
     /**
      * ドラフト詳細・確認画面
      */
-    public function showDraft(Request $request, IntakeCandidateDraft $draft): Response
+    public function draftDetail(Request $request, $id): Response
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
+        $draft = IntakeCandidateDraft::findOrFail($id);
         $draft->load(['applicationIntake', 'matchedPerson', 'matchedCandidate']);
 
         // 重複候補を検索
-        $duplicates = $this->confirmService->findDuplicates($draft, $user->company_id);
+        $duplicates = $this->confirmService->findDuplicates($draft, $companyId);
 
         return Inertia::render('Intake/DraftDetail', [
             'draft' => $draft,
@@ -88,7 +89,14 @@ class IntakeController extends Controller
      */
     public function confirmDraft(Request $request, IntakeCandidateDraft $draft)
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
+        $userId = $request->attributes->get('auth_user_id');
+
+        // 簡易的なユーザーオブジェクトを作成
+        $user = (object) [
+            'id' => $userId,
+            'company_id' => $companyId,
+        ];
 
         $result = $this->confirmService->confirm($draft, $user);
 
