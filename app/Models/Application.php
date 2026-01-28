@@ -34,6 +34,14 @@ class Application extends Model
     }
 
     /**
+     * 選考ステップ進捗
+     */
+    public function steps()
+    {
+        return $this->hasMany(ApplicationStep::class);
+    }
+
+    /**
      * 評価一覧
      */
     public function evaluations()
