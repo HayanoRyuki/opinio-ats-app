@@ -11,6 +11,9 @@ const navigation = [
     { name: '候補者', href: '/candidates', icon: 'users' },
     { name: '求人', href: '/jobs', icon: 'briefcase' },
     { name: '応募', href: '/applications', icon: 'document' },
+    { name: 'パイプライン', href: '/pipeline', icon: 'kanban' },
+    { name: '面接', href: '/interviews', icon: 'calendar' },
+    { name: 'レポート', href: '/reports', icon: 'chart' },
 ];
 </script>
 
