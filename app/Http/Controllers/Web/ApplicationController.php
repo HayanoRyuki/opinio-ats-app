@@ -25,7 +25,7 @@ class ApplicationController extends Controller
         $query = Application::whereHas('candidate', function ($q) use ($companyId) {
             $q->where('company_id', $companyId);
         })
-            ->with(['candidate', 'job', 'steps.selectionStep']);
+            ->with(['candidate', 'job']);
 
         // ステータスフィルタ
         if ($status = $request->input('status')) {
@@ -92,31 +92,12 @@ class ApplicationController extends Controller
 
         $application->load([
             'candidate',
-            'job.selectionSteps' => function ($q) {
-                $q->active()->ordered();
-            },
-            'steps.selectionStep',
-            'steps.evaluator',
+            'job',
         ]);
-
-        // 選考ステップの進捗を整形
-        $selectionSteps = $application->job->selectionSteps;
-        $applicationSteps = $application->steps->keyBy('selection_step_id');
-
-        $stepsProgress = $selectionSteps->map(function ($step) use ($applicationSteps, $application) {
-            $appStep = $applicationSteps->get($step->id);
-
-            return [
-                'selection_step' => $step,
-                'application_step' => $appStep,
-                'status' => $appStep?->status?->value ?? 'not_started',
-                'status_label' => $appStep?->status?->label() ?? '未開始',
-            ];
-        });
 
         return Inertia::render('Applications/Show', [
             'application' => $application,
-            'stepsProgress' => $stepsProgress,
+            'stepsProgress' => [],
         ]);
     }
 
