@@ -25,7 +25,7 @@ class ApplicationController extends Controller
         $query = Application::whereHas('candidate', function ($q) use ($companyId) {
             $q->where('company_id', $companyId);
         })
-            ->with(['candidate.person', 'job', 'steps.selectionStep']);
+            ->with(['candidate', 'job', 'steps.selectionStep']);
 
         // ステータスフィルタ
         if ($status = $request->input('status')) {
@@ -39,7 +39,7 @@ class ApplicationController extends Controller
 
         // 検索（候補者名）
         if ($search = $request->input('search')) {
-            $query->whereHas('candidate.person', function ($q) use ($search) {
+            $query->whereHas('candidate', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%");
             });
         }
@@ -91,7 +91,7 @@ class ApplicationController extends Controller
         }
 
         $application->load([
-            'candidate.person',
+            'candidate',
             'job.selectionSteps' => function ($q) {
                 $q->active()->ordered();
             },

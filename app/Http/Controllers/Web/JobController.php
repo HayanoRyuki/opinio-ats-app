@@ -109,7 +109,7 @@ class JobController extends Controller
             abort(403);
         }
 
-        $job->load(['applications.candidate.person']);
+        $job->load(['applications.candidate']);
         $job->loadCount('applications');
 
         return Inertia::render('Jobs/Show', [

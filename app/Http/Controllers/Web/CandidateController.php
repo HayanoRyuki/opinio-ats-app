@@ -18,11 +18,11 @@ class CandidateController extends Controller
         $companyId = $request->attributes->get('company_id');
 
         $query = Candidate::where('company_id', $companyId)
-            ->with(['person', 'applications.job']);
+            ->with(['applications.job']);
 
         // 検索
         if ($search = $request->input('search')) {
-            $query->whereHas('person', function ($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%");
@@ -69,7 +69,7 @@ class CandidateController extends Controller
             abort(403);
         }
 
-        $candidate->load(['person', 'applications.job']);
+        $candidate->load(['applications.job']);
 
         return Inertia::render('Candidates/Show', [
             'candidate' => $candidate,
