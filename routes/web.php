@@ -5,7 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ApplicationController;
-use App\Http\Controllers\IntakeController;
+use App\Http\Controllers\Web\IntakeController;
 use Inertia\Inertia;
 
 /*
