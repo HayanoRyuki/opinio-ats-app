@@ -51,7 +51,7 @@ class ApplicationSeeder extends Seeder
                     'job_id'            => $job->id,
                     'candidate_id'      => $candidate->id,
                     'selection_step_id' => $step->id,
-                    'status'            => $step->key, // ← 今は参照用
+                    'status'            => $step->key ?? $step->label ?? 'in_progress',
                 ]);
             }
         }
