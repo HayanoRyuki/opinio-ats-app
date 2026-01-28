@@ -80,3 +80,14 @@ Route::middleware(['verify.jwt'])->group(function () {
 
     require __DIR__ . '/admin.php';
 });
+
+// 仮ルート（次回対応予定）
+Route::middleware(['verify.jwt'])->group(function () {
+    Route::get('/evaluations', function () {
+        return \Inertia\Inertia::render('Dashboard', ['message' => '評価ページは準備中です']);
+    })->name('evaluations.index');
+    
+    Route::get('/analytics', function () {
+        return redirect()->route('dashboard');
+    })->name('analytics.index');
+});
