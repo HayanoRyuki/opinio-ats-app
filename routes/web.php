@@ -78,7 +78,8 @@ Route::middleware(['verify.jwt'])->group(function () {
     Route::view('/terms', 'static.terms')->name('terms');
     Route::view('/privacy', 'static.privacy')->name('privacy');
 
-    require __DIR__ . '/admin.php';
+    // admin.phpは廃止（Inertia対応済みのルートをweb.phpで直接定義）
+    // require __DIR__ . '/admin.php';
 });
 
 // 仮ルート（次回対応予定）
