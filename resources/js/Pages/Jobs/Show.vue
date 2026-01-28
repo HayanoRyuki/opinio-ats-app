@@ -244,7 +244,7 @@ const updateStatus = (newStatus) => {
                                         {{ application.candidate?.name || '名前なし' }}
                                     </Link>
                                     <p class="text-sm text-gray-500 mt-1">
-                                        応募日: {{ new Date(application.applied_at).toLocaleDateString('ja-JP') }}
+                                        応募日: {{ new Date(application.created_at).toLocaleDateString('ja-JP') }}
                                         <span v-if="application.current_step" class="ml-2">
                                             • 現在: {{ application.current_step }}
                                         </span>

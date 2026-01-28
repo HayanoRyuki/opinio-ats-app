@@ -44,7 +44,7 @@ class ApplicationController extends Controller
             });
         }
 
-        $applications = $query->orderBy('applied_at', 'desc')
+        $applications = $query->orderBy('created_at', 'desc')
             ->paginate(20)
             ->withQueryString();
 

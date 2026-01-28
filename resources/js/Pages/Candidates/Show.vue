@@ -147,7 +147,7 @@ const statusColors = {
                                         {{ application.job?.title || '求人情報なし' }}
                                     </h3>
                                     <p class="text-sm text-gray-500 mt-1">
-                                        応募日: {{ new Date(application.applied_at).toLocaleDateString('ja-JP') }}
+                                        応募日: {{ new Date(application.created_at).toLocaleDateString('ja-JP') }}
                                     </p>
                                 </div>
                                 <span

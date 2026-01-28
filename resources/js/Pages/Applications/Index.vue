@@ -177,7 +177,7 @@ watch([status, jobId], applyFilters);
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ new Date(application.applied_at).toLocaleDateString('ja-JP') }}
+                                    {{ new Date(application.created_at).toLocaleDateString('ja-JP') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
                                     <Link

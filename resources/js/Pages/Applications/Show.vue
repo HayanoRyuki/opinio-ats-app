@@ -139,7 +139,7 @@ const updateStatus = (newStatus) => {
                             <div>
                                 <dt class="text-sm font-medium text-gray-500">応募日</dt>
                                 <dd class="mt-1 text-sm text-gray-900">
-                                    {{ new Date(application.applied_at).toLocaleDateString('ja-JP') }}
+                                    {{ new Date(application.created_at).toLocaleDateString('ja-JP') }}
                                 </dd>
                             </div>
                             <div>
