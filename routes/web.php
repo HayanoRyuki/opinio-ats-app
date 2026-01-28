@@ -2,9 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\CandidateController;
-use App\Http\Controllers\JobController;
-use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\Web\CandidateController;
+use App\Http\Controllers\Web\JobController;
+use App\Http\Controllers\Web\ApplicationController;
 use App\Http\Controllers\Web\IntakeController;
 use Inertia\Inertia;
 

@@ -15,9 +15,9 @@ class CandidateController extends Controller
      */
     public function index(Request $request): Response
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
 
-        $query = Candidate::where('company_id', $user->company_id)
+        $query = Candidate::where('company_id', $companyId)
             ->with(['person', 'applications.job']);
 
         // 検索
@@ -40,11 +40,11 @@ class CandidateController extends Controller
 
         // 統計
         $stats = [
-            'total' => Candidate::where('company_id', $user->company_id)->count(),
-            'direct' => Candidate::where('company_id', $user->company_id)->where('source_channel', 'direct')->count(),
-            'media' => Candidate::where('company_id', $user->company_id)->where('source_channel', 'media')->count(),
-            'agent' => Candidate::where('company_id', $user->company_id)->where('source_channel', 'agent')->count(),
-            'referral' => Candidate::where('company_id', $user->company_id)->where('source_channel', 'referral')->count(),
+            'total' => Candidate::where('company_id', $companyId)->count(),
+            'direct' => Candidate::where('company_id', $companyId)->where('source_channel', 'direct')->count(),
+            'media' => Candidate::where('company_id', $companyId)->where('source_channel', 'media')->count(),
+            'agent' => Candidate::where('company_id', $companyId)->where('source_channel', 'agent')->count(),
+            'referral' => Candidate::where('company_id', $companyId)->where('source_channel', 'referral')->count(),
         ];
 
         return Inertia::render('Candidates/Index', [
@@ -62,10 +62,10 @@ class CandidateController extends Controller
      */
     public function show(Request $request, Candidate $candidate): Response
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
 
         // 自社の候補者のみアクセス可能
-        if ($candidate->company_id !== $user->company_id) {
+        if ($candidate->company_id !== $companyId) {
             abort(403);
         }
 

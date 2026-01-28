@@ -19,10 +19,11 @@ class ApplicationController extends Controller
      */
     public function index(Request $request): Response
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
+        $userId = $request->attributes->get('auth_user_id');
 
-        $query = Application::whereHas('candidate', function ($q) use ($user) {
-            $q->where('company_id', $user->company_id);
+        $query = Application::whereHas('candidate', function ($q) use ($companyId) {
+            $q->where('company_id', $companyId);
         })
             ->with(['candidate.person', 'job', 'steps.selectionStep']);
 
@@ -48,8 +49,8 @@ class ApplicationController extends Controller
             ->withQueryString();
 
         // 統計
-        $baseQuery = Application::whereHas('candidate', function ($q) use ($user) {
-            $q->where('company_id', $user->company_id);
+        $baseQuery = Application::whereHas('candidate', function ($q) use ($companyId) {
+            $q->where('company_id', $companyId);
         });
 
         $stats = [
@@ -60,7 +61,7 @@ class ApplicationController extends Controller
         ];
 
         // 求人リスト（フィルタ用）
-        $jobs = \App\Models\Job::where('company_id', $user->company_id)
+        $jobs = \App\Models\Job::where('company_id', $companyId)
             ->select('id', 'title')
             ->orderBy('title')
             ->get();
@@ -82,9 +83,10 @@ class ApplicationController extends Controller
      */
     public function show(Request $request, Application $application): Response
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
+        $userId = $request->attributes->get('auth_user_id');
 
-        if ($application->candidate->company_id !== $user->company_id) {
+        if ($application->candidate->company_id !== $companyId) {
             abort(403);
         }
 
@@ -123,9 +125,10 @@ class ApplicationController extends Controller
      */
     public function startStep(Request $request, Application $application, int $stepId)
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
+        $userId = $request->attributes->get('auth_user_id');
 
-        if ($application->candidate->company_id !== $user->company_id) {
+        if ($application->candidate->company_id !== $companyId) {
             abort(403);
         }
 
@@ -156,9 +159,10 @@ class ApplicationController extends Controller
      */
     public function completeStep(Request $request, Application $application, int $stepId)
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
+        $userId = $request->attributes->get('auth_user_id');
 
-        if ($application->candidate->company_id !== $user->company_id) {
+        if ($application->candidate->company_id !== $companyId) {
             abort(403);
         }
 
@@ -176,7 +180,7 @@ class ApplicationController extends Controller
             ->where('selection_step_id', $selectionStep->id)
             ->firstOrFail();
 
-        DB::transaction(function () use ($appStep, $validated, $user, $application, $selectionStep) {
+        DB::transaction(function () use ($appStep, $validated, $userId, $application, $selectionStep) {
             $status = $validated['result'] === 'passed'
                 ? ApplicationStepStatus::PASSED
                 : ApplicationStepStatus::FAILED;
@@ -184,7 +188,7 @@ class ApplicationController extends Controller
             $appStep->update([
                 'status' => $status,
                 'completed_at' => now(),
-                'evaluated_by' => $user->id,
+                'evaluated_by' => $userId,
                 'notes' => $validated['notes'] ?? null,
                 'evaluation' => $validated['evaluation'] ?? null,
             ]);
@@ -222,9 +226,10 @@ class ApplicationController extends Controller
      */
     public function updateStatus(Request $request, Application $application)
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
+        $userId = $request->attributes->get('auth_user_id');
 
-        if ($application->candidate->company_id !== $user->company_id) {
+        if ($application->candidate->company_id !== $companyId) {
             abort(403);
         }
 
@@ -252,9 +257,10 @@ class ApplicationController extends Controller
      */
     public function scheduleStep(Request $request, Application $application, int $stepId)
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
+        $userId = $request->attributes->get('auth_user_id');
 
-        if ($application->candidate->company_id !== $user->company_id) {
+        if ($application->candidate->company_id !== $companyId) {
             abort(403);
         }
 

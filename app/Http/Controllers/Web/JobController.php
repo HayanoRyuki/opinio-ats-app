@@ -16,9 +16,9 @@ class JobController extends Controller
      */
     public function index(Request $request): Response
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
 
-        $query = Job::where('company_id', $user->company_id)
+        $query = Job::where('company_id', $companyId)
             ->withCount('applications');
 
         // ステータスフィルタ
@@ -37,10 +37,10 @@ class JobController extends Controller
 
         // 統計
         $stats = [
-            'total' => Job::where('company_id', $user->company_id)->count(),
-            'open' => Job::where('company_id', $user->company_id)->where('status', 'open')->count(),
-            'draft' => Job::where('company_id', $user->company_id)->where('status', 'draft')->count(),
-            'closed' => Job::where('company_id', $user->company_id)->where('status', 'closed')->count(),
+            'total' => Job::where('company_id', $companyId)->count(),
+            'open' => Job::where('company_id', $companyId)->where('status', 'open')->count(),
+            'draft' => Job::where('company_id', $companyId)->where('status', 'draft')->count(),
+            'closed' => Job::where('company_id', $companyId)->where('status', 'closed')->count(),
         ];
 
         return Inertia::render('Jobs/Index', [
@@ -66,7 +66,7 @@ class JobController extends Controller
      */
     public function store(Request $request)
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -81,7 +81,7 @@ class JobController extends Controller
         ]);
 
         $job = Job::create([
-            'company_id' => $user->company_id,
+            'company_id' => $companyId,
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'requirements' => $validated['requirements'] ?? null,
@@ -103,9 +103,9 @@ class JobController extends Controller
      */
     public function show(Request $request, Job $job): Response
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
 
-        if ($job->company_id !== $user->company_id) {
+        if ($job->company_id !== $companyId) {
             abort(403);
         }
 
@@ -122,9 +122,9 @@ class JobController extends Controller
      */
     public function edit(Request $request, Job $job): Response
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
 
-        if ($job->company_id !== $user->company_id) {
+        if ($job->company_id !== $companyId) {
             abort(403);
         }
 
@@ -138,9 +138,9 @@ class JobController extends Controller
      */
     public function update(Request $request, Job $job)
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
 
-        if ($job->company_id !== $user->company_id) {
+        if ($job->company_id !== $companyId) {
             abort(403);
         }
 
@@ -177,9 +177,9 @@ class JobController extends Controller
      */
     public function updateStatus(Request $request, Job $job)
     {
-        $user = $request->user();
+        $companyId = $request->attributes->get('company_id');
 
-        if ($job->company_id !== $user->company_id) {
+        if ($job->company_id !== $companyId) {
             abort(403);
         }
 
