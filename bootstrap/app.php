@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\VerifyJwt;
 use App\Http\Middleware\RequireSso;
 use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\HandleInertiaRequests;
 
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
@@ -71,6 +72,15 @@ return Application::configure(basePath: dirname(__DIR__))
         */
         $middleware->encryptCookies(except: [
             'jwt',
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Web Middleware Group
+        |--------------------------------------------------------------------------
+        */
+        $middleware->web(append: [
+            HandleInertiaRequests::class,
         ]);
 
         /*
