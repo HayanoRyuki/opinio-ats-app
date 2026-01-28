@@ -10,6 +10,7 @@
    - Web\JobController: Inertia + JWT対応済み
    - Web\ApplicationController: Inertia + JWT対応済み
    - Web\IntakeController: Inertia + JWT対応済み
+   - Web\MyPageController: Inertia + JWT対応済み ← NEW
 
 2. **routes/web.php 更新** ✅
    - Web名前空間のコントローラーを使用
@@ -38,6 +39,7 @@
 | パイプライン | ✅（仮ページ） |
 | 面接 | ✅（仮ページ） |
 | レポート | ✅（仮ページ） |
+| マイページ | ✅ ← NEW |
 
 ### 同期状態
 
@@ -67,3 +69,11 @@
 - `routes/web.php`: Inertiaルート定義
 - `app/Http/Controllers/Web/`: Inertia対応コントローラー
 - `resources/js/Pages/`: Vueページコンポーネント
+- `resources/js/Layouts/AppLayout.vue`: レイアウト（ユーザーメニューにマイページリンクあり）
+
+### マイページ機能
+
+- `/mypage` でアクセス可能
+- ユーザーID、権限、所属会社を表示
+- プロフィール編集（名前・メール・パスワード）はAuth側（auth.opinio.co.jp）で行う
+- ヘッダーのユーザー名クリックでドロップダウンメニューが表示される

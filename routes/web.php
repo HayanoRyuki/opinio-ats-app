@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\CandidateController;
 use App\Http\Controllers\Web\JobController;
 use App\Http\Controllers\Web\ApplicationController;
 use App\Http\Controllers\Web\IntakeController;
+use App\Http\Controllers\Web\MyPageController;
 use Inertia\Inertia;
 
 /*
@@ -73,6 +74,9 @@ Route::middleware(['verify.jwt'])->group(function () {
     Route::get('/reports', function () {
         return Inertia::render('Reports/Index');
     })->name('reports.index');
+
+    // マイページ
+    Route::get('/mypage', [MyPageController::class, 'index'])->name('mypage.index');
 
     // 静的ページ（Bladeのまま）
     Route::view('/terms', 'static.terms')->name('terms');
