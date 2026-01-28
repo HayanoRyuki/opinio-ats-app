@@ -241,7 +241,7 @@ const updateStatus = (newStatus) => {
                                         :href="`/candidates/${application.candidate_id}`"
                                         class="font-medium text-gray-900 hover:text-primary-600"
                                     >
-                                        {{ application.candidate?.person?.name || '名前なし' }}
+                                        {{ application.candidate?.name || '名前なし' }}
                                     </Link>
                                     <p class="text-sm text-gray-500 mt-1">
                                         応募日: {{ new Date(application.applied_at).toLocaleDateString('ja-JP') }}

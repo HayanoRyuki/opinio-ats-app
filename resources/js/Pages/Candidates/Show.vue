@@ -31,7 +31,7 @@ const statusColors = {
 </script>
 
 <template>
-    <Head :title="`${candidate.person?.name} - 候補者詳細`" />
+    <Head :title="`${candidate.name} - 候補者詳細`" />
 
     <AppLayout>
         <div class="py-8">
@@ -48,7 +48,7 @@ const statusColors = {
                         <div class="flex items-center justify-between">
                             <div>
                                 <h1 class="text-xl font-bold text-gray-900">
-                                    {{ candidate.person?.name }}
+                                    {{ candidate.name }}
                                 </h1>
                                 <p class="text-sm text-gray-500 mt-1">
                                     {{ channelLabels[candidate.source_channel] }} から登録
@@ -75,17 +75,17 @@ const statusColors = {
                         <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <dt class="text-sm font-medium text-gray-500">氏名</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ candidate.person?.name }}</dd>
+                                <dd class="mt-1 text-sm text-gray-900">{{ candidate.name }}</dd>
                             </div>
                             <div>
                                 <dt class="text-sm font-medium text-gray-500">ふりがな</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ candidate.person?.name_kana || '-' }}</dd>
+                                <dd class="mt-1 text-sm text-gray-900">{{ candidate.name_kana || '-' }}</dd>
                             </div>
                             <div>
                                 <dt class="text-sm font-medium text-gray-500">メールアドレス</dt>
                                 <dd class="mt-1 text-sm text-gray-900">
-                                    <a v-if="candidate.person?.email" :href="`mailto:${candidate.person.email}`" class="text-primary-600 hover:underline">
-                                        {{ candidate.person.email }}
+                                    <a v-if="candidate.email" :href="`mailto:${candidate.email}`" class="text-primary-600 hover:underline">
+                                        {{ candidate.email }}
                                     </a>
                                     <span v-else>-</span>
                                 </dd>
@@ -93,8 +93,8 @@ const statusColors = {
                             <div>
                                 <dt class="text-sm font-medium text-gray-500">電話番号</dt>
                                 <dd class="mt-1 text-sm text-gray-900">
-                                    <a v-if="candidate.person?.phone" :href="`tel:${candidate.person.phone}`" class="text-primary-600 hover:underline">
-                                        {{ candidate.person.phone }}
+                                    <a v-if="candidate.phone" :href="`tel:${candidate.phone}`" class="text-primary-600 hover:underline">
+                                        {{ candidate.phone }}
                                     </a>
                                     <span v-else>-</span>
                                 </dd>
@@ -108,10 +108,10 @@ const statusColors = {
                         </dl>
 
                         <!-- Profile data -->
-                        <div v-if="candidate.person?.profile && Object.keys(candidate.person.profile).length > 0" class="mt-6">
+                        <div v-if="candidate.profile && Object.keys(candidate.profile).length > 0" class="mt-6">
                             <h3 class="text-md font-semibold text-gray-900 mb-3">追加情報</h3>
                             <dl class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 rounded-lg p-4">
-                                <div v-for="(value, key) in candidate.person.profile" :key="key">
+                                <div v-for="(value, key) in candidate.profile" :key="key">
                                     <dt class="text-sm font-medium text-gray-500">{{ key }}</dt>
                                     <dd class="mt-1 text-sm text-gray-900">
                                         <template v-if="Array.isArray(value)">

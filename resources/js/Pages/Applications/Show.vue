@@ -97,7 +97,7 @@ const updateStatus = (newStatus) => {
 </script>
 
 <template>
-    <Head :title="`${application.candidate?.person?.name} - 選考進捗`" />
+    <Head :title="`${application.candidate?.name} - 選考進捗`" />
 
     <AppLayout>
         <div class="py-8">
@@ -114,7 +114,7 @@ const updateStatus = (newStatus) => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <h1 class="text-xl font-bold text-gray-900">
-                                    {{ application.candidate?.person?.name }}
+                                    {{ application.candidate?.name }}
                                 </h1>
                                 <p class="text-sm text-gray-500 mt-1">
                                     <Link :href="`/jobs/${application.job_id}`" class="hover:text-primary-600">

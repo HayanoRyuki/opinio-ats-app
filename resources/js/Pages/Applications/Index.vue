@@ -152,7 +152,7 @@ watch([status, jobId], applyFilters);
                                         :href="`/candidates/${application.candidate_id}`"
                                         class="font-medium text-gray-900 hover:text-primary-600"
                                     >
-                                        {{ application.candidate?.person?.name || '名前なし' }}
+                                        {{ application.candidate?.name || '名前なし' }}
                                     </Link>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">

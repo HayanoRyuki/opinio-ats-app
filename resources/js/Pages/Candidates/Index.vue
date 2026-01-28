@@ -143,12 +143,12 @@ watch(channel, applyFilters);
                             <tr v-for="candidate in candidates.data" :key="candidate.id" class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="font-medium text-gray-900">
-                                        {{ candidate.person?.name }}
+                                        {{ candidate.name }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <div v-if="candidate.person?.email">{{ candidate.person.email }}</div>
-                                    <div v-if="candidate.person?.phone">{{ candidate.person.phone }}</div>
+                                    <div v-if="candidate.email">{{ candidate.email }}</div>
+                                    <div v-if="candidate.phone">{{ candidate.phone }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span
