@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\IntakeCandidateDraft;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -29,6 +30,8 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $companyId = $request->attributes->get('company_id');
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -37,6 +40,11 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
+            ],
+            'notifications' => [
+                'draftCount' => fn () => $companyId ? IntakeCandidateDraft::whereHas('applicationIntake', function ($q) use ($companyId) {
+                    $q->where('company_id', $companyId);
+                })->where('status', 'draft')->count() : 0,
             ],
         ];
     }

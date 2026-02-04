@@ -6,6 +6,10 @@ const page = usePage();
 const activeMenu = ref(null);
 const isMobileMenuOpen = ref(false);
 const isUserMenuOpen = ref(false);
+const isNotificationOpen = ref(false);
+
+// 通知（確認待ちドラフト数）
+const draftCount = computed(() => page.props.notifications?.draftCount || 0);
 
 // 4つのメインメニュー構造
 const navigation = [
@@ -74,12 +78,16 @@ const closeMenu = () => {
 const handleClickOutside = (event) => {
     const nav = document.getElementById('main-nav');
     const userMenu = document.getElementById('user-menu');
+    const notificationMenu = document.getElementById('notification-menu');
 
     if (nav && !nav.contains(event.target)) {
         activeMenu.value = null;
     }
     if (userMenu && !userMenu.contains(event.target)) {
         isUserMenuOpen.value = false;
+    }
+    if (notificationMenu && !notificationMenu.contains(event.target)) {
+        isNotificationOpen.value = false;
     }
 };
 
@@ -188,16 +196,66 @@ onUnmounted(() => {
                     <!-- Right Side: Icons -->
                     <div class="flex items-center ml-auto px-4 h-full space-x-1">
                         <!-- Notification Icon -->
-                        <button
-                            class="relative p-2 text-gray-500 hover:text-[#332c54] hover:bg-gray-100 rounded-lg transition-colors"
-                            title="通知"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                            <!-- Notification Badge -->
-                            <span class="absolute top-1 right-1 w-2 h-2 bg-[#65b891] rounded-full animate-pulse"></span>
-                        </button>
+                        <div id="notification-menu" class="relative">
+                            <button
+                                @click="isNotificationOpen = !isNotificationOpen"
+                                class="relative p-2 text-gray-500 hover:text-[#332c54] hover:bg-gray-100 rounded-lg transition-colors"
+                                title="通知"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                <!-- Notification Badge -->
+                                <span
+                                    v-if="draftCount > 0"
+                                    class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold text-white bg-[#65b891] rounded-full px-1 animate-pulse"
+                                >
+                                    {{ draftCount > 99 ? '99+' : draftCount }}
+                                </span>
+                            </button>
+
+                            <!-- Notification Dropdown -->
+                            <div
+                                v-show="isNotificationOpen"
+                                class="absolute right-0 mt-1 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden"
+                            >
+                                <div class="px-4 py-3 bg-[#332c54] text-white">
+                                    <h3 class="font-semibold">通知</h3>
+                                </div>
+
+                                <div v-if="draftCount > 0" class="p-2">
+                                    <Link
+                                        href="/intake/drafts"
+                                        @click="isNotificationOpen = false"
+                                        class="flex items-center gap-3 p-3 rounded-lg bg-[#65b891]/10 hover:bg-[#65b891]/20 transition-colors"
+                                    >
+                                        <div class="w-10 h-10 rounded-full bg-[#65b891] flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-semibold text-[#332c54]">
+                                                確認待ちドラフト
+                                            </p>
+                                            <p class="text-xs text-gray-500">
+                                                {{ draftCount }}件の候補者が確認を待っています
+                                            </p>
+                                        </div>
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </Link>
+                                </div>
+
+                                <div v-else class="p-6 text-center text-gray-500">
+                                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <p class="text-sm">新しい通知はありません</p>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- User Menu -->
                         <div id="user-menu" class="relative">
