@@ -80,12 +80,12 @@ class OpinioProductionSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ]);
 
-            // Application作成
+            // Application作成（本番構造: company_idあり、applied_atなし）
             DB::table('applications')->insert([
+                'company_id' => $company->id,
                 'candidate_id' => $candidateId,
                 'job_id' => $job->id,
                 'status' => 'active',
-                'applied_at' => Carbon::now(),
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
