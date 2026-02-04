@@ -78,7 +78,7 @@ class IntakeController extends Controller
             $q->where('company_id', $companyId);
         })
             ->where('intake_candidate_drafts.status', 'draft')
-            ->join('application_intakes', 'intake_candidate_drafts.intake_id', '=', 'application_intakes.id')
+            ->join('application_intakes', 'intake_candidate_drafts.application_intake_id', '=', 'application_intakes.id')
             ->selectRaw('application_intakes.channel, count(*) as count')
             ->groupBy('application_intakes.channel')
             ->pluck('count', 'channel')
