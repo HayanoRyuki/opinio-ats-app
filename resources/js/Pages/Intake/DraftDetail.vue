@@ -12,6 +12,11 @@ const confirmForm = useForm({});
 const rejectForm = useForm({});
 const promoteForm = useForm({});
 
+// フォーム処理中かどうか
+const isProcessing = computed(() => {
+    return confirmForm.processing || rejectForm.processing || promoteForm.processing;
+});
+
 const hasDuplicates = computed(() => {
     return props.duplicates?.persons?.length > 0 || props.duplicates?.candidates?.length > 0;
 });
@@ -114,6 +119,43 @@ const channelLabels = {
                                 </span>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Top Actions -->
+                    <div class="px-6 py-4 border-b border-gray-200 bg-white flex flex-wrap items-center justify-end gap-3">
+                        <button
+                            @click="rejectDraft"
+                            :disabled="isProcessing"
+                            class="px-5 py-2.5 text-sm font-semibold rounded-lg border-2 border-red-300 text-red-700 bg-red-50 hover:bg-red-100 hover:border-red-400 transition-colors disabled:opacity-50"
+                        >
+                            ✕ 却下する
+                        </button>
+
+                        <!-- 仮応募の場合は昇格のみのボタンも表示 -->
+                        <button
+                            v-if="isPreliminary && !isPromoted"
+                            @click="promoteDraft"
+                            :disabled="isProcessing"
+                            class="px-5 py-2.5 text-sm font-semibold rounded-lg border-2 border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-400 transition-colors disabled:opacity-50"
+                        >
+                            ↑ 正式応募に昇格のみ
+                        </button>
+
+                        <button
+                            @click="confirmDraft"
+                            :disabled="isProcessing"
+                            class="px-6 py-2.5 text-sm font-bold rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                        >
+                            <template v-if="isPreliminary && !isPromoted">
+                                ✓ 昇格して候補者登録
+                            </template>
+                            <template v-else-if="hasDuplicates">
+                                ✓ 既存に紐付けて登録
+                            </template>
+                            <template v-else>
+                                ✓ 候補者として登録
+                            </template>
+                        </button>
                     </div>
 
                     <!-- Content -->
@@ -222,39 +264,39 @@ const channelLabels = {
                         </div>
                     </div>
 
-                    <!-- Actions -->
-                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end gap-3">
+                    <!-- Bottom Actions -->
+                    <div class="px-6 py-5 border-t-2 border-gray-200 bg-gray-100 flex flex-wrap items-center justify-end gap-3">
                         <button
                             @click="rejectDraft"
-                            :disabled="rejectForm.processing"
-                            class="btn btn-secondary"
+                            :disabled="isProcessing"
+                            class="px-5 py-2.5 text-sm font-semibold rounded-lg border-2 border-red-300 text-red-700 bg-red-50 hover:bg-red-100 hover:border-red-400 transition-colors disabled:opacity-50"
                         >
-                            却下する
+                            ✕ 却下する
                         </button>
 
                         <!-- 仮応募の場合は昇格のみのボタンも表示 -->
                         <button
                             v-if="isPreliminary && !isPromoted"
                             @click="promoteDraft"
-                            :disabled="promoteForm.processing"
-                            class="btn btn-outline-primary"
+                            :disabled="isProcessing"
+                            class="px-5 py-2.5 text-sm font-semibold rounded-lg border-2 border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-400 transition-colors disabled:opacity-50"
                         >
-                            正式応募に昇格のみ
+                            ↑ 正式応募に昇格のみ
                         </button>
 
                         <button
                             @click="confirmDraft"
-                            :disabled="confirmForm.processing"
-                            class="btn btn-primary"
+                            :disabled="isProcessing"
+                            class="px-6 py-2.5 text-sm font-bold rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 shadow-md hover:shadow-lg transition-all disabled:opacity-50"
                         >
                             <template v-if="isPreliminary && !isPromoted">
-                                昇格して候補者登録
+                                ✓ 昇格して候補者登録
                             </template>
                             <template v-else-if="hasDuplicates">
-                                既存に紐付けて登録
+                                ✓ 既存に紐付けて登録
                             </template>
                             <template v-else>
-                                候補者として登録
+                                ✓ 候補者として登録
                             </template>
                         </button>
                     </div>
