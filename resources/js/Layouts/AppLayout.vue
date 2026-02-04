@@ -18,11 +18,11 @@ const navigation = [
         icon: 'users',
         description: 'この人は基準に合っているか？',
         items: [
-            { name: '候補者一覧', href: '/candidates', icon: 'users' },
-            { name: 'パイプライン', href: '/pipeline', icon: 'kanban' },
             { name: '面接', href: '/interviews', icon: 'calendar' },
-            { name: '取り込み管理', href: '/intake', icon: 'inbox' },
+            { name: 'パイプライン', href: '/pipeline', icon: 'kanban' },
             { name: '応募一覧', href: '/applications', icon: 'document' },
+            { name: '候補者一覧', href: '/candidates', icon: 'users' },
+            { name: '取り込み管理', href: '/intake', icon: 'inbox' },
         ]
     },
     {
