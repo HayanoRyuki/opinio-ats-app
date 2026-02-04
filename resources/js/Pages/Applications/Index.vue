@@ -15,19 +15,20 @@ const status = ref(props.filters.status || '');
 const jobId = ref(props.filters.job_id || '');
 
 const statusLabels = {
-    active: '選考中',
+    applied: '応募',
+    in_progress: '選考中',
     offered: '内定',
     hired: '入社',
     rejected: '不採用',
     withdrawn: '辞退',
 };
 
-const statusColors = {
-    active: 'bg-blue-100 text-blue-800',
-    offered: 'bg-yellow-100 text-yellow-800',
-    hired: 'bg-green-100 text-green-800',
-    rejected: 'bg-red-100 text-red-800',
-    withdrawn: 'bg-gray-100 text-gray-800',
+// Opinio Colors
+const colors = {
+    primary: '#332c54',
+    teal: '#4e878c',
+    green: '#65b891',
+    cream: '#f4f4ed',
 };
 
 let searchTimeout = null;
@@ -55,161 +56,216 @@ watch([status, jobId], applyFilters);
     <Head title="応募管理" />
 
     <AppLayout>
-        <div class="py-8">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-8" :style="{ backgroundColor: colors.cream, minHeight: '100vh' }">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Header -->
-                <div class="mb-6">
-                    <h1 class="text-2xl font-bold text-gray-900">応募管理</h1>
+                <div class="mb-8">
+                    <h1 class="text-2xl font-bold" :style="{ color: colors.primary }">
+                        応募管理
+                    </h1>
+                    <p class="mt-1 text-sm text-gray-500">
+                        すべての応募と選考状況を管理します
+                    </p>
                 </div>
 
-                <!-- Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="card p-4">
-                        <p class="text-sm text-gray-500">全応募</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ stats.total }}</p>
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white rounded-xl shadow p-5">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-lg flex items-center justify-center"
+                                :style="{ backgroundColor: colors.primary + '15' }"
+                            >
+                                <svg class="w-5 h-5" :style="{ color: colors.primary }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">全応募</p>
+                                <p class="text-xl font-bold" :style="{ color: colors.primary }">{{ stats.total }}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card p-4">
-                        <p class="text-sm text-gray-500">選考中</p>
-                        <p class="text-2xl font-bold text-blue-600">{{ stats.active }}</p>
+                    <div class="bg-white rounded-xl shadow p-5">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-lg flex items-center justify-center"
+                                :style="{ backgroundColor: colors.teal + '20' }"
+                            >
+                                <svg class="w-5 h-5" :style="{ color: colors.teal }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">選考中</p>
+                                <p class="text-xl font-bold" :style="{ color: colors.teal }">{{ stats.active }}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card p-4">
-                        <p class="text-sm text-gray-500">内定</p>
-                        <p class="text-2xl font-bold text-yellow-600">{{ stats.offered }}</p>
+                    <div class="bg-white rounded-xl shadow p-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-yellow-100">
+                                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">内定</p>
+                                <p class="text-xl font-bold text-yellow-600">{{ stats.offered }}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card p-4">
-                        <p class="text-sm text-gray-500">入社</p>
-                        <p class="text-2xl font-bold text-green-600">{{ stats.hired }}</p>
+                    <div class="bg-white rounded-xl shadow p-5">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-lg flex items-center justify-center"
+                                :style="{ backgroundColor: colors.green + '20' }"
+                            >
+                                <svg class="w-5 h-5" :style="{ color: colors.green }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">入社</p>
+                                <p class="text-xl font-bold" :style="{ color: colors.green }">{{ stats.hired }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Filters -->
-                <div class="card mb-6">
-                    <div class="p-4 flex flex-wrap gap-4">
+                <div class="bg-white rounded-xl shadow p-4 mb-6">
+                    <div class="flex flex-wrap gap-4 items-center">
                         <div class="flex-1 min-w-[200px]">
                             <input
                                 v-model="search"
                                 type="text"
                                 placeholder="候補者名で検索..."
-                                class="input w-full"
+                                class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                                :style="{ '--tw-ring-color': colors.teal }"
                             />
                         </div>
-                        <div>
-                            <select v-model="status" class="input">
-                                <option value="">すべてのステータス</option>
-                                <option v-for="(label, value) in statusLabels" :key="value" :value="value">
-                                    {{ label }}
-                                </option>
-                            </select>
-                        </div>
-                        <div>
-                            <select v-model="jobId" class="input">
-                                <option value="">すべての求人</option>
-                                <option v-for="job in jobs" :key="job.id" :value="job.id">
-                                    {{ job.title }}
-                                </option>
-                            </select>
-                        </div>
+                        <select
+                            v-model="status"
+                            class="px-4 py-2 border border-gray-200 rounded-lg bg-white"
+                            :style="{ color: colors.primary }"
+                        >
+                            <option value="">すべてのステータス</option>
+                            <option v-for="(label, value) in statusLabels" :key="value" :value="value">
+                                {{ label }}
+                            </option>
+                        </select>
+                        <select
+                            v-model="jobId"
+                            class="px-4 py-2 border border-gray-200 rounded-lg bg-white"
+                            :style="{ color: colors.primary }"
+                        >
+                            <option value="">すべての求人</option>
+                            <option v-for="job in jobs" :key="job.id" :value="job.id">
+                                {{ job.title }}
+                            </option>
+                        </select>
                     </div>
                 </div>
 
-                <!-- Table -->
-                <div class="card overflow-hidden">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    候補者
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    求人
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    現在のステップ
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    ステータス
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    応募日
-                                </th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-if="applications.data.length === 0">
-                                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                                    応募がありません
-                                </td>
-                            </tr>
-                            <tr
-                                v-for="application in applications.data"
-                                :key="application.id"
-                                class="hover:bg-gray-50"
-                            >
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <Link
-                                        :href="`/candidates/${application.candidate_id}`"
-                                        class="font-medium text-gray-900 hover:text-primary-600"
+                <!-- Applications List -->
+                <div class="bg-white rounded-xl shadow overflow-hidden">
+                    <div v-if="applications.data.length === 0" class="p-12 text-center text-gray-500">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p>応募がありません</p>
+                    </div>
+
+                    <div v-else class="divide-y divide-gray-100">
+                        <div
+                            v-for="application in applications.data"
+                            :key="application.id"
+                            class="p-4 hover:bg-gray-50 transition-colors"
+                        >
+                            <div class="flex items-center gap-4">
+                                <!-- Avatar -->
+                                <div
+                                    class="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center"
+                                    :style="{ backgroundColor: colors.cream }"
+                                >
+                                    <svg
+                                        class="w-6 h-6"
+                                        :style="{ color: colors.teal }"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        viewBox="0 0 24 24"
                                     >
-                                        {{ application.candidate?.name || '名前なし' }}
-                                    </Link>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <Link
-                                        :href="`/jobs/${application.job_id}`"
-                                        class="text-sm text-gray-600 hover:text-primary-600"
-                                    >
-                                        {{ application.job?.title }}
-                                    </Link>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ application.current_step || '-' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        :class="[
-                                            'inline-flex px-2 py-1 text-xs font-medium rounded-full',
-                                            statusColors[application.status] || 'bg-gray-100 text-gray-800'
-                                        ]"
-                                    >
-                                        {{ statusLabels[application.status] || application.status }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ new Date(application.created_at).toLocaleDateString('ja-JP') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <Link
-                                        :href="`/applications/${application.id}`"
-                                        class="text-primary-600 hover:text-primary-800 text-sm font-medium"
-                                    >
-                                        選考進捗
-                                    </Link>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                    </svg>
+                                </div>
+
+                                <!-- Info -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <Link
+                                            :href="`/candidates/${application.candidate_id}`"
+                                            class="font-semibold hover:underline"
+                                            :style="{ color: colors.primary }"
+                                        >
+                                            {{ application.candidate?.name || '名前なし' }}
+                                        </Link>
+                                        <span
+                                            class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full"
+                                            :class="{
+                                                'bg-blue-100 text-blue-800': application.status === 'applied',
+                                                'bg-yellow-100 text-yellow-800': application.status === 'offered',
+                                                'bg-red-100 text-red-800': application.status === 'rejected',
+                                                'bg-gray-100 text-gray-800': application.status === 'withdrawn',
+                                            }"
+                                            :style="application.status === 'in_progress' ? { backgroundColor: colors.teal + '20', color: colors.teal } : application.status === 'hired' ? { backgroundColor: colors.green + '20', color: colors.green } : {}"
+                                        >
+                                            {{ statusLabels[application.status] || application.status }}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-4 text-sm text-gray-500">
+                                        <span v-if="application.job?.title">
+                                            {{ application.job.title }}
+                                        </span>
+                                        <span v-if="application.current_step">
+                                            ステップ: {{ application.current_step }}
+                                        </span>
+                                        <span>
+                                            {{ new Date(application.created_at).toLocaleDateString('ja-JP') }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Action -->
+                                <Link
+                                    :href="`/applications/${application.id}`"
+                                    class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                                    :style="{ backgroundColor: colors.teal + '15', color: colors.teal }"
+                                >
+                                    選考進捗 →
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Pagination -->
-                    <div v-if="applications.last_page > 1" class="px-6 py-4 border-t border-gray-200">
+                    <div v-if="applications.last_page > 1" class="px-6 py-4 border-t border-gray-100">
                         <div class="flex justify-between items-center">
                             <p class="text-sm text-gray-500">
                                 {{ applications.total }} 件中 {{ applications.from }} - {{ applications.to }} 件
                             </p>
-                            <div class="flex gap-2">
+                            <div class="flex gap-1">
                                 <Link
                                     v-for="link in applications.links"
                                     :key="link.label"
-                                    :href="link.url"
+                                    :href="link.url || '#'"
                                     :class="[
                                         'px-3 py-1 text-sm rounded',
-                                        link.active
-                                            ? 'bg-primary-600 text-white'
-                                            : link.url
-                                                ? 'bg-white text-gray-700 border hover:bg-gray-50'
-                                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        link.active ? 'text-white' : 'bg-white text-gray-700 hover:bg-gray-50',
+                                        !link.url && 'opacity-50 cursor-not-allowed'
                                     ]"
+                                    :style="link.active ? { backgroundColor: colors.primary } : {}"
                                     v-html="link.label"
                                 />
                             </div>
