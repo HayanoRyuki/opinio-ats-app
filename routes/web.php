@@ -74,10 +74,8 @@ Route::middleware(['verify.jwt'])->group(function () {
         return Inertia::render('Interviews/Index');
     })->name('interviews.index');
 
-    // レポート（仮）
-    Route::get('/reports', function () {
-        return Inertia::render('Reports/Index');
-    })->name('reports.index');
+    // レポート
+    Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
 
     // マイページ
     Route::get('/mypage', [MyPageController::class, 'index'])->name('mypage.index');
