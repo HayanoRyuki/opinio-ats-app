@@ -64,10 +64,8 @@ Route::middleware(['verify.jwt'])->group(function () {
     Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
     Route::get('/applications/{application}', [ApplicationController::class, 'show'])->name('applications.show');
 
-    // パイプライン（仮）
-    Route::get('/pipeline', function () {
-        return Inertia::render('Pipeline/Index');
-    })->name('pipeline.index');
+    // パイプライン
+    Route::get('/pipeline', [App\Http\Controllers\PipelineController::class, 'index'])->name('pipeline.index');
 
     // 面接
     Route::get('/interviews', [App\Http\Controllers\InterviewController::class, 'index'])->name('interviews.index');
