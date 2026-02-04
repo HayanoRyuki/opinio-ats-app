@@ -75,6 +75,16 @@ const channelLabels = {
     media: 'スカウト',
 };
 
+// 写真URL（draft直下 or extracted_data内）
+const photoUrl = computed(() => {
+    return props.draft?.photo_url
+        || props.draft?.extracted_data?.photo_url
+        || props.draft?.extracted_data?.photo
+        || props.draft?.extracted_data?.image_url
+        || props.draft?.extracted_data?.avatar_url
+        || null;
+});
+
 // Opinio Colors
 const colors = {
     primary: '#332c54',    // Dark purple
@@ -120,6 +130,34 @@ const colors = {
                                     <p class="text-sm mt-1 opacity-80 text-white">
                                         {{ channelLabels[draft.application_intake?.channel] }} からの取り込み
                                     </p>
+                                </div>
+
+                                <!-- Avatar -->
+                                <div class="px-6 py-5 flex justify-center border-b border-gray-100">
+                                    <div
+                                        class="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center"
+                                        :style="{ backgroundColor: photoUrl ? 'transparent' : colors.cream }"
+                                    >
+                                        <!-- 写真がある場合 -->
+                                        <img
+                                            v-if="photoUrl"
+                                            :src="photoUrl"
+                                            :alt="draft.name"
+                                            class="w-full h-full object-cover"
+                                        />
+                                        <!-- 写真がない場合：Lucide User Icon -->
+                                        <svg
+                                            v-else
+                                            class="w-12 h-12"
+                                            :style="{ color: colors.teal }"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="1.5"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                        </svg>
+                                    </div>
                                 </div>
 
                                 <!-- Badges -->
