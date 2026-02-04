@@ -69,10 +69,8 @@ Route::middleware(['verify.jwt'])->group(function () {
         return Inertia::render('Pipeline/Index');
     })->name('pipeline.index');
 
-    // 面接（仮）
-    Route::get('/interviews', function () {
-        return Inertia::render('Interviews/Index');
-    })->name('interviews.index');
+    // 面接
+    Route::get('/interviews', [App\Http\Controllers\InterviewController::class, 'index'])->name('interviews.index');
 
     // レポート
     Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
