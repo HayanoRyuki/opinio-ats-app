@@ -1,9 +1,12 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import { ref, computed } from 'vue';
 
-defineProps({
+const props = defineProps({
     drafts: Object,
+    filters: Object,
+    channelCounts: Object,
 });
 
 const channelLabels = {
@@ -15,12 +18,43 @@ const channelLabels = {
     media: 'スカウト',
 };
 
+const channels = ['direct', 'scout', 'agent', 'referral'];
+
 // Opinio Colors
 const colors = {
     primary: '#332c54',
     teal: '#4e878c',
     green: '#65b891',
     cream: '#f4f4ed',
+};
+
+const currentChannel = ref(props.filters?.channel || '');
+const currentSort = ref(props.filters?.sort || 'newest');
+
+const totalCount = computed(() => {
+    return Object.values(props.channelCounts || {}).reduce((sum, count) => sum + count, 0);
+});
+
+const applyFilter = (channel) => {
+    currentChannel.value = channel;
+    router.get('/intake/drafts', {
+        channel: channel || undefined,
+        sort: currentSort.value,
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+const applySort = (sort) => {
+    currentSort.value = sort;
+    router.get('/intake/drafts', {
+        channel: currentChannel.value || undefined,
+        sort: sort,
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+    });
 };
 </script>
 
@@ -51,6 +85,47 @@ const colors = {
                     </Link>
                 </div>
 
+                <!-- Filters -->
+                <div class="bg-white rounded-xl shadow p-4 mb-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <!-- Channel Filter -->
+                        <button
+                            @click="applyFilter('')"
+                            class="px-3 py-1.5 text-sm font-medium rounded-full transition-colors"
+                            :style="currentChannel === ''
+                                ? { backgroundColor: colors.primary, color: 'white' }
+                                : { backgroundColor: colors.cream, color: colors.primary }"
+                        >
+                            すべて ({{ totalCount }})
+                        </button>
+                        <button
+                            v-for="channel in channels"
+                            :key="channel"
+                            @click="applyFilter(channel)"
+                            class="px-3 py-1.5 text-sm font-medium rounded-full transition-colors"
+                            :style="currentChannel === channel
+                                ? { backgroundColor: colors.primary, color: 'white' }
+                                : { backgroundColor: colors.cream, color: colors.primary }"
+                        >
+                            {{ channelLabels[channel] }} ({{ channelCounts?.[channel] || 0 }})
+                        </button>
+
+                        <!-- Spacer -->
+                        <div class="flex-1"></div>
+
+                        <!-- Sort -->
+                        <select
+                            :value="currentSort"
+                            @change="applySort($event.target.value)"
+                            class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white"
+                            :style="{ color: colors.primary }"
+                        >
+                            <option value="newest">新しい順</option>
+                            <option value="oldest">古い順</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="space-y-3">
                     <div v-if="drafts.data.length === 0" class="bg-white rounded-xl shadow p-12 text-center">
                         <div class="text-gray-400 mb-2">
@@ -58,7 +133,14 @@ const colors = {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <p class="text-gray-500">確認待ちの候補者はありません</p>
+                        <p class="text-gray-500">
+                            <template v-if="currentChannel">
+                                {{ channelLabels[currentChannel] }}の確認待ちドラフトはありません
+                            </template>
+                            <template v-else>
+                                確認待ちの候補者はありません
+                            </template>
+                        </p>
                     </div>
 
                     <Link

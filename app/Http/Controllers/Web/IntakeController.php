@@ -52,17 +52,45 @@ class IntakeController extends Controller
     public function drafts(Request $request): Response
     {
         $companyId = $request->attributes->get('company_id');
+        $channel = $request->query('channel');
+        $sort = $request->query('sort', 'newest'); // newest, oldest
 
-        $drafts = IntakeCandidateDraft::whereHas('applicationIntake', function ($query) use ($companyId) {
-            $query->where('company_id', $companyId);
+        $query = IntakeCandidateDraft::whereHas('applicationIntake', function ($q) use ($companyId, $channel) {
+            $q->where('company_id', $companyId);
+            if ($channel) {
+                $q->where('channel', $channel);
+            }
         })
             ->with(['applicationIntake'])
+            ->where('status', 'draft');
+
+        // ソート
+        if ($sort === 'oldest') {
+            $query->orderBy('created_at', 'asc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $drafts = $query->paginate(20)->withQueryString();
+
+        // チャネル別の件数を取得
+        $channelCounts = IntakeCandidateDraft::whereHas('applicationIntake', function ($q) use ($companyId) {
+            $q->where('company_id', $companyId);
+        })
             ->where('status', 'draft')
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->join('application_intakes', 'intake_candidate_drafts.intake_id', '=', 'application_intakes.id')
+            ->selectRaw('application_intakes.channel, count(*) as count')
+            ->groupBy('application_intakes.channel')
+            ->pluck('count', 'channel')
+            ->toArray();
 
         return Inertia::render('Intake/Drafts', [
             'drafts' => $drafts,
+            'filters' => [
+                'channel' => $channel,
+                'sort' => $sort,
+            ],
+            'channelCounts' => $channelCounts,
         ]);
     }
 
