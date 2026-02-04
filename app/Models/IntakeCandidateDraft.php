@@ -12,6 +12,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * ApplicationIntake から抽出した候補者情報。
  * 人間の確認後に SoT（Person, Candidate）へ昇格。
+ *
+ * 仮応募（is_preliminary = true）の場合：
+ * - スカウト反応など、正式応募前の段階
+ * - 面談確定などで正式応募に昇格（promoted_at に日時記録）
  */
 class IntakeCandidateDraft extends Model
 {
@@ -20,6 +24,7 @@ class IntakeCandidateDraft extends Model
     protected $fillable = [
         'application_intake_id',
         'status',
+        'is_preliminary',
         'name',
         'email',
         'phone',
@@ -28,12 +33,15 @@ class IntakeCandidateDraft extends Model
         'matched_candidate_id',
         'confirmed_by',
         'confirmed_at',
+        'promoted_at',
     ];
 
     protected $casts = [
         'status' => IntakeStatus::class,
+        'is_preliminary' => 'boolean',
         'extracted_data' => 'array',
         'confirmed_at' => 'datetime',
+        'promoted_at' => 'datetime',
     ];
 
     // ========================================
@@ -77,5 +85,49 @@ class IntakeCandidateDraft extends Model
     public function hasPotentialDuplicate(): bool
     {
         return $this->matched_person_id !== null || $this->matched_candidate_id !== null;
+    }
+
+    /**
+     * 仮応募かどうか
+     */
+    public function isPreliminary(): bool
+    {
+        return $this->is_preliminary ?? false;
+    }
+
+    /**
+     * 正式応募に昇格済みかどうか
+     */
+    public function isPromoted(): bool
+    {
+        return $this->is_preliminary && $this->promoted_at !== null;
+    }
+
+    /**
+     * 仮応募から正式応募に昇格可能かどうか
+     */
+    public function canPromote(): bool
+    {
+        return $this->is_preliminary && $this->promoted_at === null;
+    }
+
+    /**
+     * 仮応募から正式応募に昇格する
+     */
+    public function promoteToFormal(): void
+    {
+        if (!$this->canPromote()) {
+            throw new \InvalidArgumentException('この応募は昇格できません。');
+        }
+
+        $this->update([
+            'is_preliminary' => false,
+            'promoted_at' => now(),
+        ]);
+
+        // 親の ApplicationIntake も更新
+        $this->applicationIntake->update([
+            'is_preliminary' => false,
+        ]);
     }
 }

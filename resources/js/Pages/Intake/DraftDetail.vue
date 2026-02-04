@@ -10,18 +10,48 @@ const props = defineProps({
 
 const confirmForm = useForm({});
 const rejectForm = useForm({});
+const promoteForm = useForm({});
 
 const hasDuplicates = computed(() => {
     return props.duplicates?.persons?.length > 0 || props.duplicates?.candidates?.length > 0;
 });
 
+// 仮応募かどうか
+const isPreliminary = computed(() => {
+    return props.draft?.is_preliminary ?? false;
+});
+
+// 仮応募から昇格済みかどうか
+const isPromoted = computed(() => {
+    return props.draft?.is_preliminary && props.draft?.promoted_at;
+});
+
 const confirmDraft = () => {
+    // 仮応募で未昇格の場合は、昇格して登録するか確認
+    if (isPreliminary.value && !isPromoted.value) {
+        const message = hasDuplicates.value
+            ? 'これは仮応募（スカウト反応）です。正式応募に昇格して候補者登録しますか？\n\n※重複の可能性があります'
+            : 'これは仮応募（スカウト反応）です。正式応募に昇格して候補者登録しますか？';
+
+        if (confirm(message)) {
+            confirmForm.post(`/intake/drafts/${props.draft.id}/confirm-and-promote`);
+        }
+        return;
+    }
+
     const message = hasDuplicates.value
         ? '重複の可能性がありますが、この候補者を登録しますか？'
         : 'この候補者を登録しますか？';
 
     if (confirm(message)) {
         confirmForm.post(`/intake/drafts/${props.draft.id}/confirm`);
+    }
+};
+
+// 仮応募から正式応募に昇格（候補者登録はしない）
+const promoteDraft = () => {
+    if (confirm('この仮応募を正式応募に昇格しますか？\n（候補者登録は別途行います）')) {
+        promoteForm.post(`/intake/drafts/${props.draft.id}/promote`);
     }
 };
 
@@ -33,9 +63,11 @@ const rejectDraft = () => {
 
 const channelLabels = {
     direct: '直接応募',
-    media: 'メディア経由',
-    agent: 'エージェント推薦',
-    referral: 'リファラル（社員紹介）',
+    scout: 'スカウト',
+    agent: 'エージェント',
+    referral: 'リファラル',
+    // 旧値（後方互換）
+    media: 'スカウト',
 };
 </script>
 
@@ -63,9 +95,24 @@ const channelLabels = {
                                     {{ channelLabels[draft.application_intake?.channel] }} からの取り込み
                                 </p>
                             </div>
-                            <span class="inline-flex px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
-                                確認待ち
-                            </span>
+                            <div class="flex gap-2">
+                                <!-- 仮応募バッジ -->
+                                <span
+                                    v-if="isPreliminary && !isPromoted"
+                                    class="inline-flex px-3 py-1 text-sm font-medium rounded-full bg-orange-100 text-orange-800"
+                                >
+                                    仮応募
+                                </span>
+                                <span
+                                    v-else-if="isPromoted"
+                                    class="inline-flex px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800"
+                                >
+                                    昇格済み
+                                </span>
+                                <span class="inline-flex px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
+                                    確認待ち
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -184,13 +231,31 @@ const channelLabels = {
                         >
                             却下する
                         </button>
+
+                        <!-- 仮応募の場合は昇格のみのボタンも表示 -->
+                        <button
+                            v-if="isPreliminary && !isPromoted"
+                            @click="promoteDraft"
+                            :disabled="promoteForm.processing"
+                            class="btn btn-outline-primary"
+                        >
+                            正式応募に昇格のみ
+                        </button>
+
                         <button
                             @click="confirmDraft"
                             :disabled="confirmForm.processing"
                             class="btn btn-primary"
                         >
-                            <span v-if="hasDuplicates">既存に紐付けて登録</span>
-                            <span v-else>候補者として登録</span>
+                            <template v-if="isPreliminary && !isPromoted">
+                                昇格して候補者登録
+                            </template>
+                            <template v-else-if="hasDuplicates">
+                                既存に紐付けて登録
+                            </template>
+                            <template v-else>
+                                候補者として登録
+                            </template>
                         </button>
                     </div>
                 </div>

@@ -61,6 +61,7 @@ class IntakeApiController extends Controller
                 // ApplicationIntake 作成
                 $intake = ApplicationIntake::create([
                     'company_id' => $data['company_id'],
+                    'job_id' => $job->id,
                     'channel' => IntakeChannel::DIRECT,
                     'source_id' => 'web_' . now()->timestamp . '_' . uniqid(),
                     'raw_data' => $data,
@@ -70,12 +71,11 @@ class IntakeApiController extends Controller
 
                 // IntakeCandidateDraft 作成
                 $draft = IntakeCandidateDraft::create([
-                    'intake_id' => $intake->id,
+                    'application_intake_id' => $intake->id,
                     'name' => $data['name'],
                     'email' => $data['email'],
                     'phone' => $data['phone'] ?? null,
-                    'job_id' => $job->id,
-                    'profile_data' => array_merge(
+                    'extracted_data' => array_merge(
                         $data['profile'] ?? [],
                         [
                             'resume_url' => $data['resume_url'] ?? null,
@@ -118,6 +118,8 @@ class IntakeApiController extends Controller
      * エージェントAPI - 人材紹介会社からの推薦受付
      *
      * POST /api/intake/agent
+     *
+     * エージェント経由は書類選考が前提のため、履歴書（resume_url）は必須。
      */
     public function agent(Request $request): JsonResponse
     {
@@ -131,9 +133,11 @@ class IntakeApiController extends Controller
             'candidate.name' => ['required', 'string', 'max:255'],
             'candidate.email' => ['nullable', 'email', 'max:255'],
             'candidate.phone' => ['nullable', 'string', 'max:50'],
-            'candidate.resume_url' => ['nullable', 'url'],
+            'candidate.resume_url' => ['required', 'url'], // エージェント経由は履歴書必須
             'candidate.recommendation' => ['nullable', 'string'],
             'candidate.profile' => ['nullable', 'array'],
+        ], [
+            'candidate.resume_url.required' => 'エージェント経由の推薦には履歴書（resume_url）が必須です。',
         ]);
 
         if ($validator->fails()) {
@@ -162,6 +166,7 @@ class IntakeApiController extends Controller
             $result = DB::transaction(function () use ($data, $job) {
                 $intake = ApplicationIntake::create([
                     'company_id' => $data['company_id'],
+                    'job_id' => $job->id,
                     'channel' => IntakeChannel::AGENT,
                     'source_id' => 'agent_' . now()->timestamp . '_' . uniqid(),
                     'raw_data' => $data,
@@ -171,15 +176,14 @@ class IntakeApiController extends Controller
 
                 $candidate = $data['candidate'];
                 $draft = IntakeCandidateDraft::create([
-                    'intake_id' => $intake->id,
+                    'application_intake_id' => $intake->id,
                     'name' => $candidate['name'],
                     'email' => $candidate['email'] ?? null,
                     'phone' => $candidate['phone'] ?? null,
-                    'job_id' => $job->id,
-                    'profile_data' => array_merge(
+                    'extracted_data' => array_merge(
                         $candidate['profile'] ?? [],
                         [
-                            'resume_url' => $candidate['resume_url'] ?? null,
+                            'resume_url' => $candidate['resume_url'],
                             'recommendation' => $candidate['recommendation'] ?? null,
                             'agent_company' => $data['agent_company'],
                             'agent_name' => $data['agent_name'] ?? null,
@@ -218,17 +222,22 @@ class IntakeApiController extends Controller
     }
 
     /**
-     * スカウトAPI - スカウトサービスからの応募受付
+     * スカウトAPI - スカウトサービスからの反応受付
      *
      * POST /api/intake/scout
+     *
+     * スカウト反応は「興味あり」の段階であり、正式な応募ではない。
+     * ATS上では「仮応募（is_preliminary = true）」として扱い、
+     * 面談確定などで正式応募に昇格する。
      */
     public function scout(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'company_id' => ['required', 'integer', 'exists:companies,id'],
             'job_id' => ['nullable', 'integer', 'exists:recruitment_jobs,id'],
-            'scout_service' => ['required', 'string', 'max:255'], // ビズリーチ、Wantedly等
+            'scout_service' => ['required', 'string', 'max:255'], // ビズリーチ、Wantedly、Green等
             'scout_id' => ['nullable', 'string', 'max:255'],
+            'response_type' => ['nullable', 'string', 'in:interested,want_to_talk,applied'], // 反応の種類
             'candidate' => ['required', 'array'],
             'candidate.name' => ['required', 'string', 'max:255'],
             'candidate.email' => ['nullable', 'email', 'max:255'],
@@ -264,28 +273,32 @@ class IntakeApiController extends Controller
 
         try {
             $result = DB::transaction(function () use ($data, $job) {
+                // スカウトは仮応募として扱う（is_preliminary = true）
                 $intake = ApplicationIntake::create([
                     'company_id' => $data['company_id'],
-                    'channel' => IntakeChannel::MEDIA,
+                    'job_id' => $job?->id,
+                    'channel' => IntakeChannel::SCOUT,
                     'source_id' => 'scout_' . ($data['scout_id'] ?? now()->timestamp . '_' . uniqid()),
                     'raw_data' => $data,
                     'status' => IntakeStatus::RECEIVED,
+                    'is_preliminary' => true, // 仮応募フラグ
                     'received_at' => now(),
                 ]);
 
                 $candidate = $data['candidate'];
                 $draft = IntakeCandidateDraft::create([
-                    'intake_id' => $intake->id,
+                    'application_intake_id' => $intake->id,
                     'name' => $candidate['name'],
                     'email' => $candidate['email'] ?? null,
                     'phone' => $candidate['phone'] ?? null,
-                    'job_id' => $job?->id,
-                    'profile_data' => array_merge(
+                    'is_preliminary' => true, // 仮応募フラグ
+                    'extracted_data' => array_merge(
                         $candidate['profile'] ?? [],
                         [
                             'profile_url' => $candidate['profile_url'] ?? null,
                             'scout_service' => $data['scout_service'],
                             'scout_id' => $data['scout_id'] ?? null,
+                            'response_type' => $data['response_type'] ?? 'interested',
                         ]
                     ),
                 ]);
@@ -295,19 +308,20 @@ class IntakeApiController extends Controller
                 return [
                     'intake_id' => $intake->id,
                     'draft_id' => $draft->id,
+                    'is_preliminary' => true,
                 ];
             });
 
-            Log::info('スカウト応募を受け付けました', $result);
+            Log::info('スカウト反応を受け付けました（仮応募）', $result);
 
             return response()->json([
                 'success' => true,
-                'message' => 'スカウト応募を受け付けました。',
+                'message' => 'スカウト反応を受け付けました。面談確定後に正式応募へ昇格できます。',
                 'data' => $result,
             ], 201);
 
         } catch (\Exception $e) {
-            Log::error('スカウト応募の処理に失敗しました', [
+            Log::error('スカウト反応の処理に失敗しました', [
                 'error' => $e->getMessage(),
                 'data' => $data,
             ]);
@@ -372,6 +386,7 @@ class IntakeApiController extends Controller
             $result = DB::transaction(function () use ($data, $job) {
                 $intake = ApplicationIntake::create([
                     'company_id' => $data['company_id'],
+                    'job_id' => $job?->id,
                     'channel' => IntakeChannel::REFERRAL,
                     'source_id' => 'referral_' . now()->timestamp . '_' . uniqid(),
                     'raw_data' => $data,
@@ -383,12 +398,11 @@ class IntakeApiController extends Controller
                 $referrer = $data['referrer'];
 
                 $draft = IntakeCandidateDraft::create([
-                    'intake_id' => $intake->id,
+                    'application_intake_id' => $intake->id,
                     'name' => $candidate['name'],
                     'email' => $candidate['email'] ?? null,
                     'phone' => $candidate['phone'] ?? null,
-                    'job_id' => $job?->id,
-                    'profile_data' => array_merge(
+                    'extracted_data' => array_merge(
                         $candidate['profile'] ?? [],
                         [
                             'recommendation' => $candidate['recommendation'] ?? null,

@@ -15,44 +15,96 @@ class IntakeConfirmService
 {
     /**
      * ドラフトを確定し、SoT（Person, Candidate, Application）を作成する
+     *
+     * 仮応募（is_preliminary = true）の場合は、先に promoteToFormal() を呼ぶか、
+     * confirmAndPromote() を使用すること。
      */
     public function confirm(IntakeCandidateDraft $draft, User $confirmedBy): array
     {
+        // 仮応募の場合は昇格が必要
+        if ($draft->isPreliminary() && !$draft->isPromoted()) {
+            throw new \InvalidArgumentException(
+                '仮応募を確定するには、先に正式応募に昇格する必要があります。' .
+                'promoteToFormal() を呼ぶか、confirmAndPromote() を使用してください。'
+            );
+        }
+
         return DB::transaction(function () use ($draft, $confirmedBy) {
-            $intake = $draft->applicationIntake;
-            $companyId = $intake->company_id;
+            return $this->confirmInternal($draft, $confirmedBy);
+        });
+    }
 
-            // 1. Person を取得または作成
-            $person = $this->findOrCreatePerson($draft);
-
-            // 2. Candidate を取得または作成
-            $candidate = $this->findOrCreateCandidate($person, $companyId, $intake->channel);
-
-            // 3. Application を作成（求人が指定されている場合）
-            $application = null;
-            if ($intake->job_id) {
-                $application = $this->createApplication($candidate, $intake->job_id);
+    /**
+     * 仮応募を正式応募に昇格してから確定する
+     *
+     * スカウト反応などの仮応募を、面談確定後に正式候補者として登録する場合に使用。
+     */
+    public function confirmAndPromote(IntakeCandidateDraft $draft, User $confirmedBy): array
+    {
+        return DB::transaction(function () use ($draft, $confirmedBy) {
+            // 仮応募の場合は先に昇格
+            if ($draft->isPreliminary() && !$draft->isPromoted()) {
+                $draft->promoteToFormal();
+                $draft->refresh();
             }
 
-            // 4. ドラフトと取り込みのステータスを更新
-            $draft->update([
-                'status' => IntakeStatus::CONFIRMED,
-                'matched_person_id' => $person->id,
-                'matched_candidate_id' => $candidate->id,
-                'confirmed_by' => $confirmedBy->id,
-                'confirmed_at' => now(),
-            ]);
-
-            $intake->update([
-                'status' => IntakeStatus::CONFIRMED,
-            ]);
-
-            return [
-                'person' => $person,
-                'candidate' => $candidate,
-                'application' => $application,
-            ];
+            // 確定処理を実行
+            return $this->confirmInternal($draft, $confirmedBy);
         });
+    }
+
+    /**
+     * 確定処理の内部実装
+     */
+    private function confirmInternal(IntakeCandidateDraft $draft, User $confirmedBy): array
+    {
+        $intake = $draft->applicationIntake;
+        $companyId = $intake->company_id;
+
+        // 1. Person を取得または作成
+        $person = $this->findOrCreatePerson($draft);
+
+        // 2. Candidate を取得または作成
+        $candidate = $this->findOrCreateCandidate($person, $companyId, $intake->channel);
+
+        // 3. Application を作成（求人が指定されている場合）
+        $application = null;
+        if ($intake->job_id) {
+            $application = $this->createApplication($candidate, $intake->job_id);
+        }
+
+        // 4. ドラフトと取り込みのステータスを更新
+        $draft->update([
+            'status' => IntakeStatus::CONFIRMED,
+            'matched_person_id' => $person->id,
+            'matched_candidate_id' => $candidate->id,
+            'confirmed_by' => $confirmedBy->id,
+            'confirmed_at' => now(),
+        ]);
+
+        $intake->update([
+            'status' => IntakeStatus::CONFIRMED,
+        ]);
+
+        return [
+            'person' => $person,
+            'candidate' => $candidate,
+            'application' => $application,
+        ];
+    }
+
+    /**
+     * 仮応募を正式応募に昇格する（確定はしない）
+     *
+     * 面談確定したが、まだ選考には進めない場合に使用。
+     */
+    public function promote(IntakeCandidateDraft $draft): void
+    {
+        if (!$draft->canPromote()) {
+            throw new \InvalidArgumentException('この応募は昇格できません。');
+        }
+
+        $draft->promoteToFormal();
     }
 
     /**

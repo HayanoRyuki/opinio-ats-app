@@ -14,6 +14,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  *
  * 外部チャネルからの応募を一旦格納する。
  * 確認後に SoT（Candidate, Application）へ昇格。
+ *
+ * チャネル：
+ * - direct: 直接応募（採用サイト・LP）→ 正式応募
+ * - scout: スカウト（ビズリーチ・Wantedly等）→ 仮応募
+ * - agent: エージェント推薦 → 正式応募
+ * - referral: リファラル（社員紹介）→ 正式応募
  */
 class ApplicationIntake extends Model
 {
@@ -24,6 +30,7 @@ class ApplicationIntake extends Model
         'job_id',
         'channel',
         'status',
+        'is_preliminary',
         'raw_data',
         'parsed_data',
         'source_id',
@@ -33,6 +40,7 @@ class ApplicationIntake extends Model
     protected $casts = [
         'channel' => IntakeChannel::class,
         'status' => IntakeStatus::class,
+        'is_preliminary' => 'boolean',
         'raw_data' => 'array',
         'parsed_data' => 'array',
         'received_at' => 'datetime',
@@ -64,6 +72,22 @@ class ApplicationIntake extends Model
     public function isPending(): bool
     {
         return $this->status === IntakeStatus::PENDING;
+    }
+
+    /**
+     * 仮応募かどうか（スカウト反応など）
+     */
+    public function isPreliminary(): bool
+    {
+        return $this->is_preliminary ?? $this->channel->isPreliminary();
+    }
+
+    /**
+     * 正式応募かどうか
+     */
+    public function isFormalApplication(): bool
+    {
+        return !$this->isPreliminary();
     }
 
     public function markAsDraft(): void

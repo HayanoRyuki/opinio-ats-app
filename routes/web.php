@@ -45,6 +45,10 @@ Route::middleware(['verify.jwt'])->group(function () {
     Route::get('/intake', [IntakeController::class, 'index'])->name('intake.index');
     Route::get('/intake/drafts', [IntakeController::class, 'drafts'])->name('intake.drafts');
     Route::get('/intake/drafts/{id}', [IntakeController::class, 'draftDetail'])->name('intake.drafts.show');
+    Route::post('/intake/drafts/{draft}/confirm', [IntakeController::class, 'confirmDraft'])->name('intake.drafts.confirm');
+    Route::post('/intake/drafts/{draft}/confirm-and-promote', [IntakeController::class, 'confirmAndPromoteDraft'])->name('intake.drafts.confirm-and-promote');
+    Route::post('/intake/drafts/{draft}/promote', [IntakeController::class, 'promoteDraft'])->name('intake.drafts.promote');
+    Route::post('/intake/drafts/{draft}/reject', [IntakeController::class, 'rejectDraft'])->name('intake.drafts.reject');
 
     // 候補者
     Route::get('/candidates', [CandidateController::class, 'index'])->name('candidates.index');

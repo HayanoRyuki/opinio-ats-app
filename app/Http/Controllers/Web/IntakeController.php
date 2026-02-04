@@ -86,6 +86,9 @@ class IntakeController extends Controller
 
     /**
      * ドラフトを確定（SoTへ昇格）
+     *
+     * 仮応募（is_preliminary = true）の場合はエラーになる。
+     * その場合は confirmAndPromoteDraft を使用すること。
      */
     public function confirmDraft(Request $request, IntakeCandidateDraft $draft)
     {
@@ -98,7 +101,12 @@ class IntakeController extends Controller
             'company_id' => $companyId,
         ];
 
-        $result = $this->confirmService->confirm($draft, $user);
+        try {
+            $result = $this->confirmService->confirm($draft, $user);
+        } catch (\InvalidArgumentException $e) {
+            return redirect()->back()
+                ->with('error', $e->getMessage());
+        }
 
         $message = "候補者「{$result['candidate']->person->name}」を登録しました。";
         if ($result['application']) {
@@ -107,6 +115,48 @@ class IntakeController extends Controller
 
         return redirect()->route('intake.drafts')
             ->with('success', $message);
+    }
+
+    /**
+     * 仮応募を正式応募に昇格してから確定
+     *
+     * スカウト反応などの仮応募を、面談確定後に正式候補者として登録する場合に使用。
+     */
+    public function confirmAndPromoteDraft(Request $request, IntakeCandidateDraft $draft)
+    {
+        $companyId = $request->attributes->get('company_id');
+        $userId = $request->attributes->get('auth_user_id');
+
+        $user = (object) [
+            'id' => $userId,
+            'company_id' => $companyId,
+        ];
+
+        $result = $this->confirmService->confirmAndPromote($draft, $user);
+
+        $message = "仮応募を正式応募に昇格し、候補者「{$result['candidate']->person->name}」を登録しました。";
+        if ($result['application']) {
+            $message .= '（応募も作成）';
+        }
+
+        return redirect()->route('intake.drafts')
+            ->with('success', $message);
+    }
+
+    /**
+     * 仮応募を正式応募に昇格のみ（候補者登録はしない）
+     */
+    public function promoteDraft(Request $request, IntakeCandidateDraft $draft)
+    {
+        try {
+            $this->confirmService->promote($draft);
+        } catch (\InvalidArgumentException $e) {
+            return redirect()->back()
+                ->with('error', $e->getMessage());
+        }
+
+        return redirect()->back()
+            ->with('success', '仮応募を正式応募に昇格しました。引き続き確認・登録を行ってください。');
     }
 
     /**

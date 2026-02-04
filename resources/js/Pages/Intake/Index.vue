@@ -9,12 +9,16 @@ defineProps({
 
 const channelLabels = {
     direct: '直接応募',
-    media: 'メディア',
+    scout: 'スカウト',
     agent: 'エージェント',
     referral: 'リファラル',
+    // 旧値（後方互換）
+    media: 'スカウト',
 };
 
 const statusLabels = {
+    received: '受信済み',
+    processing: '処理中',
     pending: '未処理',
     draft: 'ドラフト',
     confirmed: '確定済み',
@@ -23,6 +27,8 @@ const statusLabels = {
 };
 
 const statusColors = {
+    received: 'bg-gray-100 text-gray-800',
+    processing: 'bg-blue-50 text-blue-600',
     pending: 'bg-yellow-100 text-yellow-800',
     draft: 'bg-blue-100 text-blue-800',
     confirmed: 'bg-green-100 text-green-800',

@@ -8,9 +8,11 @@ defineProps({
 
 const channelLabels = {
     direct: '直接応募',
-    media: 'メディア',
+    scout: 'スカウト',
     agent: 'エージェント',
     referral: 'リファラル',
+    // 旧値（後方互換）
+    media: 'スカウト',
 };
 </script>
 
