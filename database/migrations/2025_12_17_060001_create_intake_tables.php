@@ -17,7 +17,7 @@ return new class extends Migration
         // ApplicationIntake - 応募取り込み生データ
         Schema::create('application_intakes', function (Blueprint $table) {
             $table->id();
-            $table->char('company_id', 36);
+            $table->uuid('company_id');
             $table->foreign('company_id')->references('id')->on('companies')->cascadeOnDelete();
             $table->foreignId('job_id')->nullable()->constrained('recruitment_jobs')->nullOnDelete();
             $table->string('channel'); // direct, media, agent, referral
@@ -55,7 +55,7 @@ return new class extends Migration
         // MediaSource - 求人媒体マスタ
         Schema::create('media_sources', function (Blueprint $table) {
             $table->id();
-            $table->char('company_id', 36);
+            $table->uuid('company_id');
             $table->foreign('company_id')->references('id')->on('companies')->cascadeOnDelete();
             $table->string('name');
             $table->string('code')->unique();
@@ -72,7 +72,7 @@ return new class extends Migration
         // MediaApplicationIntake - メディア経由応募
         Schema::create('media_application_intakes', function (Blueprint $table) {
             $table->id();
-            $table->char('company_id', 36);
+            $table->uuid('company_id');
             $table->foreign('company_id')->references('id')->on('companies')->cascadeOnDelete();
             $table->foreignId('media_source_id')->constrained()->cascadeOnDelete();
             $table->foreignId('job_id')->nullable()->constrained('recruitment_jobs')->nullOnDelete();
@@ -91,7 +91,7 @@ return new class extends Migration
         // Recommendation - エージェント推薦
         Schema::create('recommendations', function (Blueprint $table) {
             $table->id();
-            $table->char('company_id', 36);
+            $table->uuid('company_id');
             $table->foreign('company_id')->references('id')->on('companies')->cascadeOnDelete();
             $table->foreignId('job_id')->nullable()->constrained('recruitment_jobs')->nullOnDelete();
             $table->foreignId('application_intake_id')->nullable()->constrained()->nullOnDelete();
@@ -110,7 +110,7 @@ return new class extends Migration
         // ReferralIntake - リファラル
         Schema::create('referral_intakes', function (Blueprint $table) {
             $table->id();
-            $table->char('company_id', 36);
+            $table->uuid('company_id');
             $table->foreign('company_id')->references('id')->on('companies')->cascadeOnDelete();
             $table->foreignId('job_id')->nullable()->constrained('recruitment_jobs')->nullOnDelete();
             $table->foreignId('application_intake_id')->nullable()->constrained()->nullOnDelete();

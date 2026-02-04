@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Person - SoT エンティティ
@@ -17,7 +15,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
  */
 class Person extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'persons';
 
@@ -32,13 +30,6 @@ class Person extends Model
     protected $casts = [
         'profile' => 'array',
     ];
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logFillable()
-            ->logOnlyDirty();
-    }
 
     // ========================================
     // Relations

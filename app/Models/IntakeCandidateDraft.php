@@ -6,8 +6,6 @@ use App\Enums\IntakeStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * IntakeCandidateDraft - 候補者ドラフト
@@ -17,7 +15,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
  */
 class IntakeCandidateDraft extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
 
     protected $fillable = [
         'application_intake_id',
@@ -37,13 +35,6 @@ class IntakeCandidateDraft extends Model
         'extracted_data' => 'array',
         'confirmed_at' => 'datetime',
     ];
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly(['status', 'confirmed_by'])
-            ->logOnlyDirty();
-    }
 
     // ========================================
     // Relations

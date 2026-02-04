@@ -8,14 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('jobs', function (Blueprint $table) {
+        Schema::table('recruitment_jobs', function (Blueprint $table) {
             $table->string('share_token')->nullable()->unique();
         });
     }
 
     public function down(): void
     {
-        Schema::table('jobs', function (Blueprint $table) {
+        Schema::table('recruitment_jobs', function (Blueprint $table) {
             $table->dropUnique(['share_token']);
             $table->dropColumn('share_token');
         });

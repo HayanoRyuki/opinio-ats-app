@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * ApplicationIntake - 応募取り込み生データ
@@ -19,7 +17,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
  */
 class ApplicationIntake extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
 
     protected $fillable = [
         'company_id',
@@ -39,13 +37,6 @@ class ApplicationIntake extends Model
         'parsed_data' => 'array',
         'received_at' => 'datetime',
     ];
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly(['status'])
-            ->logOnlyDirty();
-    }
 
     // ========================================
     // Relations

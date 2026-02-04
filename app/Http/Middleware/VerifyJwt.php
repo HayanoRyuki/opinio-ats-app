@@ -18,6 +18,31 @@ final class VerifyJwt
     {
         /*
         |--------------------------------------------------------------------------
+        | 0. 開発環境バイパス
+        |--------------------------------------------------------------------------
+        */
+        if (app()->environment('local') && config('app.dev_bypass_auth', false)) {
+            // 開発用に会社がなければ作成
+            $company = \App\Models\Company::firstOrCreate(
+                ['slug' => 'dev-company'],
+                ['name' => 'Development Company']
+            );
+
+            $user = new User();
+            $user->id = 'dev-user-001';
+            $user->company_id = $company->id;
+            $user->role = 'admin';
+            $user->name = 'Dev Admin';
+            $user->email = 'admin@example.com';
+            Auth::setUser($user);
+            $request->attributes->set('auth_user_id', $user->id);
+            $request->attributes->set('company_id', $company->id);
+            $request->attributes->set('role', $user->role);
+            return $next($request);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
         | 1. JWT 取得
         |--------------------------------------------------------------------------
         */

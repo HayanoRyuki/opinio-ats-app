@@ -8,6 +8,8 @@ use App\Models\Page;
 
 class Job extends Model
 {
+    protected $table = 'recruitment_jobs';
+
     protected $fillable = [
         'company_id',
         'job_category_id',

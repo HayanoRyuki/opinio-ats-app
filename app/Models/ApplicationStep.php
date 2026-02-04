@@ -6,8 +6,6 @@ use App\Enums\ApplicationStepStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * ApplicationStep - 応募の選考進捗
@@ -16,7 +14,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
  */
 class ApplicationStep extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
 
     protected $fillable = [
         'application_id',
@@ -37,13 +35,6 @@ class ApplicationStep extends Model
         'scheduled_at' => 'datetime',
         'evaluation' => 'array',
     ];
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logFillable()
-            ->logOnlyDirty();
-    }
 
     // ========================================
     // Relations

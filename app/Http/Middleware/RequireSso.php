@@ -10,6 +10,11 @@ class RequireSso
 {
     public function handle(Request $request, Closure $next)
     {
+        // 開発環境バイパス
+        if (app()->environment('local') && config('app.dev_bypass_auth', false)) {
+            return $next($request);
+        }
+
         // SSO callback は必ず素通り
         if ($request->is('sso/callback')) {
             return $next($request);

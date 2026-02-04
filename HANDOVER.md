@@ -1,6 +1,6 @@
 # OpinioATS 引き継ぎドキュメント
 
-## 現在の状態 (2026-01-28) ✅ 全ページ動作確認済み
+## 現在の状態 (2026-01-28) ✅ デモ用データ投入済み
 
 ### 完了した作業
 
@@ -10,7 +10,7 @@
    - Web\JobController: Inertia + JWT対応済み
    - Web\ApplicationController: Inertia + JWT対応済み
    - Web\IntakeController: Inertia + JWT対応済み
-   - Web\MyPageController: Inertia + JWT対応済み ← NEW
+   - Web\MyPageController: Inertia + JWT対応済み
 
 2. **routes/web.php 更新** ✅
    - Web名前空間のコントローラーを使用
@@ -27,6 +27,20 @@
    - inertiajs/inertia-laravel: インストール済み
    - tightenco/ziggy: インストール済み
 
+5. **サンプルデータ投入** ✅ (2026-01-28)
+   - 求人: 3件
+   - 候補者: 4名
+   - 応募: 5件
+   - Membershipにuser_id=2（柴社長）をOpinio社に紐付け済み
+
+6. **モデル・コントローラー修正** ✅ (2026-01-28)
+   - Candidateモデル: name/email/phoneは直接持つ（personリレーション不要）
+   - Candidateモデル: applicationsリレーション追加
+   - Applicationモデル: stepsリレーション追加（ただしテーブル未作成）
+   - 全コントローラー・Vue: `candidate.person.xxx` → `candidate.xxx` に修正
+   - 全コントローラー・Vue: `applied_at` → `created_at` に修正
+   - ApplicationController: application_stepsテーブル未作成のためsteps参照を一時削除
+
 ### 動作確認済みページ
 
 | ページ | 状態 |
@@ -39,7 +53,7 @@
 | パイプライン | ✅（仮ページ） |
 | 面接 | ✅（仮ページ） |
 | レポート | ✅（仮ページ） |
-| マイページ | ✅ ← NEW |
+| マイページ | ✅ |
 
 ### 同期状態
 
@@ -77,3 +91,17 @@
 - ユーザーID、権限、所属会社を表示
 - プロフィール編集（名前・メール・パスワード）はAuth側（auth.opinio.co.jp）で行う
 - ヘッダーのユーザー名クリックでドロップダウンメニューが表示される
+
+### 残タスク
+
+1. **application_stepsテーブル作成** - 選考進捗機能を有効化するため
+2. **Auth側のマイページ作成** - プロフィール編集機能（名前・メール・パスワード）
+
+---
+
+## 次のタスク: Auth側をBladeからVue/Inertiaに移行
+
+auth.opinio.co.jp のUIをATSと同じデザインに揃える
+- 現在: Blade
+- 目標: Vue/Inertia（ATSと同じ）
+- マイページ編集機能を実装

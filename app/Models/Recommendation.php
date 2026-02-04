@@ -6,8 +6,6 @@ use App\Enums\IntakeStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Recommendation - エージェント推薦
@@ -16,7 +14,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
  */
 class Recommendation extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
 
     protected $fillable = [
         'company_id',
@@ -36,13 +34,6 @@ class Recommendation extends Model
         'candidate_data' => 'array',
         'received_at' => 'datetime',
     ];
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly(['status'])
-            ->logOnlyDirty();
-    }
 
     // ========================================
     // Relations

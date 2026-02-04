@@ -15,9 +15,8 @@ return new class extends Migration
             $table->string('user_id');
 
             // ATS 側の company
-            $table->foreignId('company_id')
-                ->constrained()
-                ->cascadeOnDelete();
+            $table->uuid('company_id');
+            $table->foreign('company_id')->references('id')->on('companies')->cascadeOnDelete();
 
             // admin / recruiter / interviewer
             $table->string('role');

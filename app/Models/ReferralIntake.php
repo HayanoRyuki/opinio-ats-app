@@ -6,8 +6,6 @@ use App\Enums\IntakeStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * ReferralIntake - リファラル（社員紹介）
@@ -16,7 +14,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
  */
 class ReferralIntake extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
 
     protected $fillable = [
         'company_id',
@@ -34,13 +32,6 @@ class ReferralIntake extends Model
     protected $casts = [
         'status' => IntakeStatus::class,
     ];
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly(['status'])
-            ->logOnlyDirty();
-    }
 
     // ========================================
     // Relations

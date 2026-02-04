@@ -21,17 +21,17 @@ class DatabaseSeeder extends Seeder
             CompanySeeder::class,
             JobCategorySeeder::class,
 
-            // 会社単位の選考フローを先に作る
-            SelectionStepSeeder::class,
+            // TODO: 新しいスキーマに合わせて修正が必要
+            // SelectionStepSeeder::class,
 
             // 求人
-            JobSeeder::class,
+            // JobSeeder::class,
 
             // 応募者
-            CandidateSeeder::class,
+            // CandidateSeeder::class,
 
             // 応募（pipeline 用）
-            ApplicationSeeder::class,
+            // ApplicationSeeder::class,
         ]);
     }
 }

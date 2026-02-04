@@ -34,7 +34,7 @@ return new class extends Migration
         // Recruitment Jobs - 求人票（SoT）
         Schema::create('recruitment_jobs', function (Blueprint $table) {
             $table->id();
-            $table->char('company_id', 36);
+            $table->uuid('company_id');
             $table->foreign('company_id')->references('id')->on('companies')->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
@@ -52,7 +52,7 @@ return new class extends Migration
         // Candidate - 企業別候補者（SoT）
         Schema::create('candidates', function (Blueprint $table) {
             $table->id();
-            $table->char('company_id', 36);
+            $table->uuid('company_id');
             $table->foreign('company_id')->references('id')->on('companies')->cascadeOnDelete();
             $table->foreignId('person_id')->constrained('persons')->cascadeOnDelete();
             $table->string('source_channel')->nullable(); // direct, media, agent, referral

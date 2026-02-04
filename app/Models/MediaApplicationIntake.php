@@ -6,8 +6,6 @@ use App\Enums\IntakeStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * MediaApplicationIntake - メディア経由応募
@@ -16,7 +14,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
  */
 class MediaApplicationIntake extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
 
     protected $fillable = [
         'company_id',
@@ -35,13 +33,6 @@ class MediaApplicationIntake extends Model
         'candidate_data' => 'array',
         'synced_at' => 'datetime',
     ];
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly(['status'])
-            ->logOnlyDirty();
-    }
 
     // ========================================
     // Relations
