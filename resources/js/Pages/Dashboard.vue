@@ -62,7 +62,12 @@ const totalActions = computed(() => {
                     :style="{ backgroundColor: colors.green }"
                 >
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-bold text-white">⚡ 今すぐのアクション</h2>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            今すぐのアクション
+                        </h2>
                         <span class="px-3 py-1 bg-white/20 rounded-full text-white text-sm font-medium">
                             {{ totalActions }}件
                         </span>
