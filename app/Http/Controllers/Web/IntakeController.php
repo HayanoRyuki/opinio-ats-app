@@ -77,7 +77,7 @@ class IntakeController extends Controller
         $channelCounts = IntakeCandidateDraft::whereHas('applicationIntake', function ($q) use ($companyId) {
             $q->where('company_id', $companyId);
         })
-            ->where('status', 'draft')
+            ->where('intake_candidate_drafts.status', 'draft')
             ->join('application_intakes', 'intake_candidate_drafts.intake_id', '=', 'application_intakes.id')
             ->selectRaw('application_intakes.channel, count(*) as count')
             ->groupBy('application_intakes.channel')
