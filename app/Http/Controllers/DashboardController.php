@@ -25,16 +25,15 @@ class DashboardController extends Controller
 
         // === 今すぐのアクション ===
         $actions = [
-            'schedulePending' => Application::where('company_id', $companyId)
-                ->where('status', 'in_progress')
-                ->whereNull('next_interview_at')
+            'schedulePending' => Application::whereHas('candidate', fn($q) => $q->where('company_id', $companyId))
+                ->where('status', 'active')
                 ->count(),
             'evaluationPending' => 0, // Interview評価未入力（Interviewモデルがあれば）
             'draftPending' => IntakeCandidateDraft::whereHas('applicationIntake', fn($q) => $q->where('company_id', $companyId))
                 ->where('status', 'draft')
                 ->count(),
-            'longStagnant' => Application::where('company_id', $companyId)
-                ->where('status', 'in_progress')
+            'longStagnant' => Application::whereHas('candidate', fn($q) => $q->where('company_id', $companyId))
+                ->where('status', 'active')
                 ->where('updated_at', '<', $now->copy()->subDays(14))
                 ->count(),
         ];
@@ -43,18 +42,18 @@ class DashboardController extends Controller
         $weeklyInterviews = []; // Interviewモデルから取得（あれば）
 
         // === KPIサマリー ===
-        $thisWeekApplications = Application::where('company_id', $companyId)
+        $thisWeekApplications = Application::whereHas('candidate', fn($q) => $q->where('company_id', $companyId))
             ->whereBetween('created_at', [$weekStart, $weekEnd])
             ->count();
-        $lastWeekApplications = Application::where('company_id', $companyId)
+        $lastWeekApplications = Application::whereHas('candidate', fn($q) => $q->where('company_id', $companyId))
             ->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])
             ->count();
 
-        $thisWeekHired = Application::where('company_id', $companyId)
+        $thisWeekHired = Application::whereHas('candidate', fn($q) => $q->where('company_id', $companyId))
             ->where('status', 'hired')
             ->whereBetween('updated_at', [$weekStart, $weekEnd])
             ->count();
-        $lastWeekHired = Application::where('company_id', $companyId)
+        $lastWeekHired = Application::whereHas('candidate', fn($q) => $q->where('company_id', $companyId))
             ->where('status', 'hired')
             ->whereBetween('updated_at', [$lastWeekStart, $lastWeekEnd])
             ->count();
@@ -65,8 +64,8 @@ class DashboardController extends Controller
                 'change' => $thisWeekApplications - $lastWeekApplications,
             ],
             'activeApplications' => [
-                'value' => Application::where('company_id', $companyId)
-                    ->whereIn('status', ['applied', 'in_progress'])
+                'value' => Application::whereHas('candidate', fn($q) => $q->where('company_id', $companyId))
+                    ->whereIn('status', ['active', 'offered'])
                     ->count(),
                 'change' => 0,
             ],
@@ -75,7 +74,7 @@ class DashboardController extends Controller
                 'change' => $thisWeekHired - $lastWeekHired,
             ],
             'offered' => [
-                'value' => Application::where('company_id', $companyId)
+                'value' => Application::whereHas('candidate', fn($q) => $q->where('company_id', $companyId))
                     ->where('status', 'offered')
                     ->count(),
                 'change' => 0,
@@ -83,13 +82,14 @@ class DashboardController extends Controller
         ];
 
         // === 選考ファネル ===
+        $companyFilter = fn($q) => $q->where('company_id', $companyId);
         $funnel = [
-            ['stage' => '応募', 'count' => Application::where('company_id', $companyId)->count()],
-            ['stage' => '書類通過', 'count' => Application::where('company_id', $companyId)->whereNotIn('status', ['rejected'])->where('current_step', '>=', 1)->count()],
-            ['stage' => '1次面接', 'count' => Application::where('company_id', $companyId)->whereIn('status', ['in_progress', 'offered', 'hired'])->count()],
-            ['stage' => '2次面接', 'count' => Application::where('company_id', $companyId)->whereIn('status', ['in_progress', 'offered', 'hired'])->where('current_step', '>=', 2)->count()],
-            ['stage' => '内定', 'count' => Application::where('company_id', $companyId)->whereIn('status', ['offered', 'hired'])->count()],
-            ['stage' => '承諾', 'count' => Application::where('company_id', $companyId)->where('status', 'hired')->count()],
+            ['stage' => '応募', 'count' => Application::whereHas('candidate', $companyFilter)->count()],
+            ['stage' => '書類通過', 'count' => Application::whereHas('candidate', $companyFilter)->whereNotIn('status', ['rejected', 'withdrawn'])->count()],
+            ['stage' => '1次面接', 'count' => Application::whereHas('candidate', $companyFilter)->whereIn('status', ['active', 'offered', 'hired'])->count()],
+            ['stage' => '2次面接', 'count' => Application::whereHas('candidate', $companyFilter)->whereIn('status', ['active', 'offered', 'hired'])->count()],
+            ['stage' => '内定', 'count' => Application::whereHas('candidate', $companyFilter)->whereIn('status', ['offered', 'hired'])->count()],
+            ['stage' => '承諾', 'count' => Application::whereHas('candidate', $companyFilter)->where('status', 'hired')->count()],
         ];
 
         // === チャネル別分析 ===
