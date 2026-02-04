@@ -161,7 +161,7 @@ class IntakeConfirmService
     /**
      * Candidate を検索または作成
      */
-    private function findOrCreateCandidate(Person $person, int $companyId, mixed $channel): Candidate
+    private function findOrCreateCandidate(Person $person, string $companyId, mixed $channel): Candidate
     {
         // 既にこの企業の Candidate として登録されているか確認
         $existingCandidate = Candidate::where('company_id', $companyId)
@@ -205,7 +205,7 @@ class IntakeConfirmService
     /**
      * 重複候補を検索
      */
-    public function findDuplicates(IntakeCandidateDraft $draft, int $companyId): array
+    public function findDuplicates(IntakeCandidateDraft $draft, string $companyId): array
     {
         $duplicates = [
             'persons' => [],
