@@ -36,4 +36,9 @@ class Candidate extends Model
     {
         return $this->hasMany(CandidateMessage::class);
     }
+
+    public function externalChatImports()
+    {
+        return $this->hasMany(ExternalChatImport::class);
+    }
 }

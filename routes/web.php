@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\JobController;
 use App\Http\Controllers\Web\ApplicationController;
 use App\Http\Controllers\Web\IntakeController;
 use App\Http\Controllers\Web\CandidateMessageController;
+use App\Http\Controllers\Web\ExternalChatImportController;
 use App\Http\Controllers\Web\MyPageController;
 use Inertia\Inertia;
 
@@ -55,6 +56,7 @@ Route::middleware(['verify.jwt'])->group(function () {
     Route::get('/candidates', [CandidateController::class, 'index'])->name('candidates.index');
     Route::get('/candidates/{candidate}', [CandidateController::class, 'show'])->name('candidates.show');
     Route::post('/candidates/{candidate}/messages', [CandidateMessageController::class, 'store'])->name('candidates.messages.store');
+    Route::post('/candidates/{candidate}/external-chat', [ExternalChatImportController::class, 'store'])->name('candidates.external-chat.store');
 
     // 求人
     Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');

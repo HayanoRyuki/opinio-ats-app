@@ -8,6 +8,7 @@ const props = defineProps({
     candidate: Object,
     canViewChat: Boolean,
     messages: Array,
+    externalChats: Array,
 });
 
 const activeTab = ref('info');
@@ -169,7 +170,9 @@ const statusColors = {
                     <div v-if="canViewChat" v-show="activeTab === 'chat'">
                         <CandidateChat
                             :candidate-id="candidate.id"
+                            :candidate-name="candidate.name"
                             :messages="messages || []"
+                            :external-chats="externalChats || []"
                         />
                     </div>
                 </div>

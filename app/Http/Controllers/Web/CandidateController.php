@@ -81,9 +81,14 @@ class CandidateController extends Controller
 
         // チャット閲覧可能ならメッセージを読み込み
         $messages = [];
+        $externalChats = [];
         if ($canViewChat) {
             $messages = $candidate->messages()
                 ->orderBy('created_at', 'asc')
+                ->get();
+
+            $externalChats = $candidate->externalChatImports()
+                ->orderBy('created_at', 'desc')
                 ->get();
         }
 
@@ -91,6 +96,7 @@ class CandidateController extends Controller
             'candidate' => $candidate,
             'canViewChat' => $canViewChat,
             'messages' => $messages,
+            'externalChats' => $externalChats,
         ]);
     }
 }
