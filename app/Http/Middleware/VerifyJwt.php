@@ -117,6 +117,8 @@ final class VerifyJwt
         $user->id = $authUserId;
         $user->company_id = $companyId;
         $user->role = $role;
+        $user->name = $payload->name ?? null;
+        $user->email = $payload->email ?? null;
 
         Auth::setUser($user);
 
