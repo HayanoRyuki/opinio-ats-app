@@ -113,6 +113,12 @@ final class VerifyJwt
         | 6. ATS 実効ユーザー構築（company 非依存）
         |--------------------------------------------------------------------------
         */
+        // DEBUG: JWTペイロードのフィールドを確認（確認後に削除）
+        Log::info('VerifyJwt: JWT payload fields', [
+            'keys' => array_keys((array) $payload),
+            'payload' => (array) $payload,
+        ]);
+
         $user = new User();
         $user->id = $authUserId;
         $user->company_id = $companyId;
