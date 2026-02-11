@@ -63,7 +63,8 @@ class CandidateController extends Controller
     public function show(Request $request, Candidate $candidate): Response
     {
         $companyId = $request->attributes->get('company_id');
-        $user = $request->attributes->get('user');
+        $authUserId = $request->attributes->get('auth_user_id');
+        $user = \App\Models\User::find($authUserId);
 
         // 自社の候補者のみアクセス可能
         if ($candidate->company_id !== $companyId) {
@@ -74,7 +75,7 @@ class CandidateController extends Controller
 
         // チャット閲覧可否判定：本人（入社後ユーザー）には非表示
         $canViewChat = true;
-        if ($user->person_id && $candidate->person_id && $user->person_id === $candidate->person_id) {
+        if ($user && $user->person_id && $candidate->person_id && $user->person_id === $candidate->person_id) {
             $canViewChat = false;
         }
 

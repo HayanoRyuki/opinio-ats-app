@@ -15,7 +15,8 @@ class CandidateMessageController extends Controller
     public function store(Request $request, Candidate $candidate)
     {
         $companyId = $request->attributes->get('company_id');
-        $user = $request->attributes->get('user');
+        $authUserId = $request->attributes->get('auth_user_id');
+        $user = \App\Models\User::find($authUserId);
 
         // 自社の候補者のみ
         if ($candidate->company_id !== $companyId) {
@@ -23,7 +24,7 @@ class CandidateMessageController extends Controller
         }
 
         // 本人チェック：自分が候補者本人ならチャット投稿不可
-        if ($user->person_id && $candidate->person_id && $user->person_id === $candidate->person_id) {
+        if ($user && $user->person_id && $candidate->person_id && $user->person_id === $candidate->person_id) {
             abort(403, 'この候補者のチャットにはアクセスできません');
         }
 
@@ -33,7 +34,7 @@ class CandidateMessageController extends Controller
 
         CandidateMessage::create([
             'candidate_id' => $candidate->id,
-            'user_id' => $user->id,
+            'user_id' => $authUserId,
             'body' => $request->input('body'),
         ]);
 
