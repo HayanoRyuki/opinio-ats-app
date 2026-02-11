@@ -83,7 +83,6 @@ class CandidateController extends Controller
         $messages = [];
         if ($canViewChat) {
             $messages = $candidate->messages()
-                ->with('user:id,name')
                 ->orderBy('created_at', 'asc')
                 ->get();
         }

@@ -9,6 +9,7 @@ class CandidateMessage extends Model
     protected $fillable = [
         'candidate_id',
         'user_id',
+        'sender_name',
         'body',
     ];
 

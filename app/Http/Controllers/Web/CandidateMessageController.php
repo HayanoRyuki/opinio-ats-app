@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Candidate;
 use App\Models\CandidateMessage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CandidateMessageController extends Controller
 {
@@ -32,9 +33,12 @@ class CandidateMessageController extends Controller
             'body' => 'required|string|max:5000',
         ]);
 
+        $authUser = Auth::user();
+
         CandidateMessage::create([
             'candidate_id' => $candidate->id,
             'user_id' => $authUserId,
+            'sender_name' => $authUser->name ?? '名前未設定',
             'body' => $request->input('body'),
         ]);
 

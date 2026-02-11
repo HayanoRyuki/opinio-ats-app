@@ -66,12 +66,12 @@ function formatTime(dateStr) {
             >
                 <!-- アバター -->
                 <div class="flex-shrink-0 w-8 h-8 rounded-full bg-[#4e878c] flex items-center justify-center text-white text-xs font-bold">
-                    {{ msg.user?.name?.charAt(0) || '?' }}
+                    {{ msg.sender_name?.charAt(0) || '?' }}
                 </div>
                 <!-- 本文 -->
                 <div class="flex-1 min-w-0">
                     <div class="flex items-baseline gap-2">
-                        <span class="text-sm font-medium text-gray-900">{{ msg.user?.name || '不明' }}</span>
+                        <span class="text-sm font-medium text-gray-900">{{ msg.sender_name || '不明' }}</span>
                         <span class="text-xs text-gray-400">{{ formatTime(msg.created_at) }}</span>
                     </div>
                     <p class="text-sm text-gray-700 mt-0.5 whitespace-pre-wrap break-words">{{ msg.body }}</p>
