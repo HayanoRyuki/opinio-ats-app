@@ -26,4 +26,14 @@ class Candidate extends Model
     {
         return $this->hasMany(Application::class);
     }
+
+    public function person()
+    {
+        return $this->belongsTo(Person::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(CandidateMessage::class);
+    }
 }

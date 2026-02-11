@@ -63,6 +63,7 @@ class CandidateController extends Controller
     public function show(Request $request, Candidate $candidate): Response
     {
         $companyId = $request->attributes->get('company_id');
+        $user = $request->attributes->get('user');
 
         // 自社の候補者のみアクセス可能
         if ($candidate->company_id !== $companyId) {
@@ -71,8 +72,25 @@ class CandidateController extends Controller
 
         $candidate->load(['applications.job']);
 
+        // チャット閲覧可否判定：本人（入社後ユーザー）には非表示
+        $canViewChat = true;
+        if ($user->person_id && $candidate->person_id && $user->person_id === $candidate->person_id) {
+            $canViewChat = false;
+        }
+
+        // チャット閲覧可能ならメッセージを読み込み
+        $messages = [];
+        if ($canViewChat) {
+            $messages = $candidate->messages()
+                ->with('user:id,name')
+                ->orderBy('created_at', 'asc')
+                ->get();
+        }
+
         return Inertia::render('Candidates/Show', [
             'candidate' => $candidate,
+            'canViewChat' => $canViewChat,
+            'messages' => $messages,
         ]);
     }
 }

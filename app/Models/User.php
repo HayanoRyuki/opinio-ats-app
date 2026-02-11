@@ -20,6 +20,7 @@ class User extends Authenticatable
         'password',
         'role',       // admin / recruiter / interviewer
         'company_id', // 所属会社ID
+        'person_id',  // 入社後に候補者チャット非表示にするための紐付け
     ];
 
     /**
@@ -45,6 +46,14 @@ class User extends Authenticatable
     public function company()
     {
         return $this->belongsTo(\App\Models\Company::class);
+    }
+
+    /**
+     * 紐づく人物レコード（入社後のチャット閲覧制限に使用）
+     */
+    public function person()
+    {
+        return $this->belongsTo(\App\Models\Person::class);
     }
 
     /**

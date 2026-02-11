@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\CandidateController;
 use App\Http\Controllers\Web\JobController;
 use App\Http\Controllers\Web\ApplicationController;
 use App\Http\Controllers\Web\IntakeController;
+use App\Http\Controllers\Web\CandidateMessageController;
 use App\Http\Controllers\Web\MyPageController;
 use Inertia\Inertia;
 
@@ -53,6 +54,7 @@ Route::middleware(['verify.jwt'])->group(function () {
     // 候補者
     Route::get('/candidates', [CandidateController::class, 'index'])->name('candidates.index');
     Route::get('/candidates/{candidate}', [CandidateController::class, 'show'])->name('candidates.show');
+    Route::post('/candidates/{candidate}/messages', [CandidateMessageController::class, 'store'])->name('candidates.messages.store');
 
     // 求人
     Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');

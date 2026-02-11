@@ -1,10 +1,16 @@
 <script setup>
+import { ref } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import CandidateChat from '@/Components/CandidateChat.vue';
 
-defineProps({
+const props = defineProps({
     candidate: Object,
+    canViewChat: Boolean,
+    messages: Array,
 });
+
+const activeTab = ref('info');
 
 const channelLabels = {
     direct: '直接応募',
@@ -70,7 +76,40 @@ const statusColors = {
                         </div>
                     </div>
 
-                    <div class="p-6">
+                    <!-- タブ -->
+                    <div class="border-b border-gray-200">
+                        <nav class="flex -mb-px">
+                            <button
+                                @click="activeTab = 'info'"
+                                :class="[
+                                    'px-6 py-3 text-sm font-medium border-b-2 transition-colors',
+                                    activeTab === 'info'
+                                        ? 'border-[#4e878c] text-[#4e878c]'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                ]"
+                            >
+                                基本情報
+                            </button>
+                            <button
+                                v-if="canViewChat"
+                                @click="activeTab = 'chat'"
+                                :class="[
+                                    'px-6 py-3 text-sm font-medium border-b-2 transition-colors',
+                                    activeTab === 'chat'
+                                        ? 'border-[#4e878c] text-[#4e878c]'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                ]"
+                            >
+                                チャット
+                                <span v-if="messages && messages.length > 0" class="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-[#4e878c] text-white rounded-full">
+                                    {{ messages.length }}
+                                </span>
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- 基本情報タブ -->
+                    <div v-show="activeTab === 'info'" class="p-6">
                         <h2 class="text-lg font-semibold text-gray-900 mb-4">基本情報</h2>
                         <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
@@ -125,10 +164,18 @@ const statusColors = {
                             </dl>
                         </div>
                     </div>
+
+                    <!-- チャットタブ -->
+                    <div v-if="canViewChat" v-show="activeTab === 'chat'">
+                        <CandidateChat
+                            :candidate-id="candidate.id"
+                            :messages="messages || []"
+                        />
+                    </div>
                 </div>
 
                 <!-- Applications -->
-                <div class="card">
+                <div class="card mt-6">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <h2 class="text-lg font-semibold text-gray-900">応募履歴</h2>
                     </div>
