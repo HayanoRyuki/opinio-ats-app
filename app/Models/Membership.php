@@ -10,6 +10,8 @@ class Membership extends Model
         'user_id',
         'company_id',
         'role',
+        'name',
+        'email',
     ];
 
     public function company()
