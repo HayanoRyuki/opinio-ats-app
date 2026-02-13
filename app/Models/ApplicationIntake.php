@@ -34,6 +34,7 @@ class ApplicationIntake extends Model
         'raw_data',
         'parsed_data',
         'source_id',
+        'email_message_id',
         'received_at',
     ];
 

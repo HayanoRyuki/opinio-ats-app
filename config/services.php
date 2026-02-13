@@ -41,4 +41,16 @@ return [
     'anthropic' => [
         'api_key' => env('ANTHROPIC_API_KEY'),
     ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect_uri' => env('GOOGLE_OAUTH_REDIRECT_URI', 'http://localhost/settings/gmail/callback'),
+    ],
+
+    'gmail_sync' => [
+        'interval_minutes' => (int) env('GMAIL_SYNC_INTERVAL', 15),
+        'batch_size' => (int) env('GMAIL_BATCH_SIZE', 50),
+        'lookback_days' => (int) env('GMAIL_LOOKBACK_DAYS', 7),
+    ],
 ];

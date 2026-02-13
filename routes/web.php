@@ -9,6 +9,7 @@ use App\Http\Controllers\Web\IntakeController;
 use App\Http\Controllers\Web\CandidateMessageController;
 use App\Http\Controllers\Web\ExternalChatImportController;
 use App\Http\Controllers\Web\MyPageController;
+use App\Http\Controllers\Web\GmailConnectionController;
 use Inertia\Inertia;
 
 /*
@@ -79,6 +80,13 @@ Route::middleware(['verify.jwt'])->group(function () {
 
     // マイページ
     Route::get('/mypage', [MyPageController::class, 'index'])->name('mypage.index');
+
+    // 設定 - Gmail連携
+    Route::get('/settings/gmail', [GmailConnectionController::class, 'index'])->name('settings.gmail.index');
+    Route::get('/settings/gmail/connect', [GmailConnectionController::class, 'connect'])->name('settings.gmail.connect');
+    Route::get('/settings/gmail/callback', [GmailConnectionController::class, 'callback'])->name('settings.gmail.callback');
+    Route::post('/settings/gmail/{connection}/disconnect', [GmailConnectionController::class, 'disconnect'])->name('settings.gmail.disconnect');
+    Route::post('/settings/gmail/{connection}/sync', [GmailConnectionController::class, 'syncNow'])->name('settings.gmail.sync');
 
     // 静的ページ（Bladeのまま）
     Route::view('/terms', 'static.terms')->name('terms');

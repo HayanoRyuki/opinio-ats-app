@@ -28,12 +28,17 @@ final class VerifyJwt
                 ['name' => 'Development Company']
             );
 
-            $user = new User();
-            $user->id = 'dev-user-001';
+            // 開発用ユーザーをDBに作成（Gmail連携等のFK制約のため）
+            $user = User::firstOrCreate(
+                ['email' => 'admin@example.com'],
+                [
+                    'name' => 'Dev Admin',
+                    'password' => bcrypt('password'),
+                    'company_id' => $company->id,
+                ]
+            );
             $user->company_id = $company->id;
             $user->role = 'admin';
-            $user->name = 'Dev Admin';
-            $user->email = 'admin@example.com';
             Auth::setUser($user);
             $request->attributes->set('auth_user_id', $user->id);
             $request->attributes->set('company_id', $company->id);

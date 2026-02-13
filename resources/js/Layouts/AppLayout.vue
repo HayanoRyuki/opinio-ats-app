@@ -303,7 +303,7 @@ onUnmounted(() => {
 
                         <!-- Settings Icon -->
                         <Link
-                            href="/settings"
+                            href="/settings/gmail"
                             class="p-2 text-gray-500 hover:text-[#332c54] hover:bg-gray-100 rounded-lg transition-colors"
                             title="設定"
                         >
