@@ -121,20 +121,26 @@ final class VerifyJwt
         $userName = $membership->name ?? ($payload->name ?? null);
         $userEmail = $membership->email ?? ($payload->email ?? null);
 
-        $user = User::firstOrCreate(
-            ['id' => $authUserId],
-            [
+        // まずemailで既存ユーザーを検索、なければidで検索、なければ新規作成
+        $user = null;
+        if ($userEmail) {
+            $user = User::where('email', $userEmail)->first();
+        }
+        if (!$user) {
+            $user = User::find($authUserId);
+        }
+        if (!$user) {
+            $user = User::create([
                 'name' => $userName ?? 'Unknown',
                 'email' => $userEmail ?? $authUserId . '@sso.opinio.co.jp',
                 'password' => bcrypt(\Illuminate\Support\Str::random(32)),
                 'company_id' => $companyId,
-            ]
-        );
+            ]);
+        }
 
-        // SSO側で名前・メール・会社が変わった場合に同期
+        // SSO側で名前・会社が変わった場合に同期
         $user->update(array_filter([
             'name' => $userName,
-            'email' => $userEmail,
             'company_id' => $companyId,
             'role' => $role,
         ]));
