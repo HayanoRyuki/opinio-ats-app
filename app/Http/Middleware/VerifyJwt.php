@@ -115,15 +115,29 @@ final class VerifyJwt
 
         /*
         |--------------------------------------------------------------------------
-        | 6. ATS 実効ユーザー構築（company 非依存）
+        | 6. ATS 実効ユーザー構築（DBに永続化してFK制約を満たす）
         |--------------------------------------------------------------------------
         */
-        $user = new User();
-        $user->id = $authUserId;
-        $user->company_id = $companyId;
-        $user->role = $role;
-        $user->name = $membership->name ?? ($payload->name ?? null);
-        $user->email = $membership->email ?? ($payload->email ?? null);
+        $userName = $membership->name ?? ($payload->name ?? null);
+        $userEmail = $membership->email ?? ($payload->email ?? null);
+
+        $user = User::firstOrCreate(
+            ['id' => $authUserId],
+            [
+                'name' => $userName ?? 'Unknown',
+                'email' => $userEmail ?? $authUserId . '@sso.opinio.co.jp',
+                'password' => bcrypt(\Illuminate\Support\Str::random(32)),
+                'company_id' => $companyId,
+            ]
+        );
+
+        // SSO側で名前・メール・会社が変わった場合に同期
+        $user->update(array_filter([
+            'name' => $userName,
+            'email' => $userEmail,
+            'company_id' => $companyId,
+            'role' => $role,
+        ]));
 
         Auth::setUser($user);
 
