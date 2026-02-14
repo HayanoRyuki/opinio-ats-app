@@ -148,7 +148,7 @@ final class VerifyJwt
         Auth::setUser($user);
 
         // request attributes
-        $request->attributes->set('auth_user_id', $authUserId);
+        $request->attributes->set('auth_user_id', $user->id);
         $request->attributes->set('company_id', $companyId);
         $request->attributes->set('role', $role);
 
