@@ -9,6 +9,8 @@ use App\Http\Controllers\Web\IntakeController;
 use App\Http\Controllers\Web\CandidateMessageController;
 use App\Http\Controllers\Web\ExternalChatImportController;
 use App\Http\Controllers\Web\MyPageController;
+use App\Http\Controllers\Web\AgentController;
+use App\Http\Controllers\Web\RecommendationController;
 use App\Http\Controllers\Web\GmailConnectionController;
 use Inertia\Inertia;
 
@@ -64,6 +66,21 @@ Route::middleware(['verify.jwt'])->group(function () {
     Route::get('/jobs/create', [JobController::class, 'create'])->name('jobs.create');
     Route::get('/jobs/{job}', [JobController::class, 'show'])->name('jobs.show');
     Route::get('/jobs/{job}/edit', [JobController::class, 'edit'])->name('jobs.edit');
+
+    // エージェント管理
+    Route::get('/agents', [AgentController::class, 'index'])->name('agents.index');
+    Route::get('/agents/create', [AgentController::class, 'create'])->name('agents.create');
+    Route::post('/agents', [AgentController::class, 'store'])->name('agents.store');
+    Route::get('/agents/{agent}', [AgentController::class, 'show'])->name('agents.show');
+    Route::get('/agents/{agent}/edit', [AgentController::class, 'edit'])->name('agents.edit');
+    Route::put('/agents/{agent}', [AgentController::class, 'update'])->name('agents.update');
+
+    // 推薦管理
+    Route::get('/recommendations', [RecommendationController::class, 'index'])->name('recommendations.index');
+    Route::get('/recommendations/{recommendation}', [RecommendationController::class, 'show'])->name('recommendations.show');
+    Route::post('/recommendations/{recommendation}/link', [RecommendationController::class, 'link'])->name('recommendations.link');
+    Route::post('/recommendations/{recommendation}/unlink', [RecommendationController::class, 'unlink'])->name('recommendations.unlink');
+    Route::post('/recommendations/{recommendation}/archive', [RecommendationController::class, 'archive'])->name('recommendations.archive');
 
     // 応募
     Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');

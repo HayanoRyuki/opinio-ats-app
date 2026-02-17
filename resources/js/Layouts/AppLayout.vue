@@ -23,6 +23,8 @@ const navigation = [
             { name: '応募一覧', href: '/applications', icon: 'document' },
             { name: '候補者一覧', href: '/candidates', icon: 'users' },
             { name: '取り込み管理', href: '/intake', icon: 'inbox' },
+            { name: 'エージェント', href: '/agents', icon: 'building' },
+            { name: '推薦', href: '/recommendations', icon: 'star' },
         ]
     },
     {
