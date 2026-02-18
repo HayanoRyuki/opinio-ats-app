@@ -147,9 +147,10 @@ final class VerifyJwt
 
         Auth::setUser($user);
 
-        // request attributes
+        // request attributes（membership に company_id がない場合は User の既存値をフォールバック）
+        $resolvedCompanyId = $companyId ?? $user->company_id;
         $request->attributes->set('auth_user_id', $user->id);
-        $request->attributes->set('company_id', $companyId);
+        $request->attributes->set('company_id', $resolvedCompanyId);
         $request->attributes->set('role', $role);
 
         return $next($request);

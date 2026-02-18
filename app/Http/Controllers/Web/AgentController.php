@@ -5,17 +5,33 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AgentController extends Controller
 {
     /**
+     * リクエストから company_id を取得（フォールバック付き）
+     */
+    private function resolveCompanyId(Request $request): string
+    {
+        $companyId = $request->attributes->get('company_id')
+            ?? Auth::user()?->company_id;
+
+        if (! $companyId) {
+            abort(403, '会社情報が取得できません。管理者にお問い合わせください。');
+        }
+
+        return $companyId;
+    }
+
+    /**
      * エージェント一覧
      */
     public function index(Request $request): Response
     {
-        $companyId = $request->attributes->get('company_id');
+        $companyId = $this->resolveCompanyId($request);
         $search = $request->query('search');
         $status = $request->query('status'); // active, inactive, all
 
@@ -72,7 +88,7 @@ class AgentController extends Controller
      */
     public function store(Request $request)
     {
-        $companyId = $request->attributes->get('company_id');
+        $companyId = $this->resolveCompanyId($request);
 
         $validated = $request->validate([
             'organization' => ['required', 'string', 'max:255'],
