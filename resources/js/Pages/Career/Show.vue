@@ -22,6 +22,9 @@ const employmentTypes = {
 };
 
 const flash = computed(() => usePage().props.flash || {});
+const featuredImageUrl = computed(() => {
+    return props.page.featured_image ? `/storage/${props.page.featured_image}` : null;
+});
 const showForm = ref(false);
 const submitted = ref(false);
 const isJobOpen = computed(() => props.job && props.job.status === 'open');
@@ -62,14 +65,22 @@ const scrollToSection = (id) => {
 
     <div class="min-h-screen bg-gray-50">
         <!-- ===== Hero Section ===== -->
-        <div
-            class="relative overflow-hidden"
-            :style="{ background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.teal} 100%)` }"
-        >
-            <!-- パターン背景 -->
-            <div class="absolute inset-0 opacity-10">
-                <div class="absolute top-0 left-0 w-full h-full"
-                    style="background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.2) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 40%);">
+        <div class="relative overflow-hidden">
+            <!-- アイキャッチ画像がある場合 -->
+            <div v-if="featuredImageUrl" class="absolute inset-0">
+                <img :src="featuredImageUrl" class="w-full h-full object-cover" alt="" />
+                <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
+            </div>
+            <!-- 画像がない場合のグラデーション背景 -->
+            <div
+                v-else
+                class="absolute inset-0"
+                :style="{ background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.teal} 100%)` }"
+            >
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute top-0 left-0 w-full h-full"
+                        style="background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.2) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 40%);">
+                    </div>
                 </div>
             </div>
 

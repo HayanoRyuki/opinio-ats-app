@@ -2,7 +2,7 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import RichEditor from '@/Components/RichEditor.vue';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 const props = defineProps({
     job: Object,
@@ -19,8 +19,33 @@ const form = useForm({
     title: '',
     slug: '',
     content: '',
+    featured_image: null,
     status: 'draft',
 });
+
+// 画像プレビュー
+const imagePreview = ref(null);
+const fileInput = ref(null);
+
+const onImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        form.featured_image = file;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            imagePreview.value = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+const removeImage = () => {
+    form.featured_image = null;
+    imagePreview.value = null;
+    if (fileInput.value) {
+        fileInput.value.value = '';
+    }
+};
 
 // タイトルからスラッグを自動生成
 const autoSlug = ref(true);
@@ -41,7 +66,9 @@ const onSlugInput = () => {
 };
 
 const submit = () => {
-    form.post(`/jobs/${props.job.id}/pages`);
+    form.post(`/jobs/${props.job.id}/pages`, {
+        forceFormData: true,
+    });
 };
 </script>
 
@@ -128,6 +155,57 @@ const submit = () => {
                                     <option value="published">公開</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Featured Image -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="p-6">
+                            <h2
+                                class="text-lg font-semibold pb-2 border-b-2 mb-4"
+                                :style="{ color: colors.primary, borderColor: colors.green }"
+                            >
+                                アイキャッチ画像
+                            </h2>
+
+                            <div v-if="!imagePreview" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-gray-400 transition-colors">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="mt-4">
+                                    <label class="cursor-pointer">
+                                        <span
+                                            class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white transition-colors"
+                                            :style="{ backgroundColor: colors.teal }"
+                                        >
+                                            画像を選択
+                                        </span>
+                                        <input
+                                            ref="fileInput"
+                                            type="file"
+                                            accept="image/*"
+                                            class="hidden"
+                                            @change="onImageChange"
+                                        />
+                                    </label>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2">PNG, JPG, WEBP（最大5MB）</p>
+                            </div>
+
+                            <div v-else class="relative">
+                                <img :src="imagePreview" class="w-full h-64 object-cover rounded-xl" />
+                                <button
+                                    type="button"
+                                    @click="removeImage"
+                                    class="absolute top-3 right-3 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <p v-if="form.errors.featured_image" class="text-red-500 text-sm mt-2">{{ form.errors.featured_image }}</p>
                         </div>
                     </div>
 

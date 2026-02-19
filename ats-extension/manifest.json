@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "Opinio ATS - BizReach連携",
+  "version": "1.0.0",
+  "description": "ビズリーチの候補者情報をOpinio ATSに自動取り込み",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "*://*.bizreach.jp/*",
+    "*://*.bizreach.biz/*",
+    "https://ats.opinio.co.jp/*",
+    "http://localhost/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.bizreach.jp/*",
+        "*://*.bizreach.biz/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

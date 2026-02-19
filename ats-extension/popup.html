@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=360">
+  <title>Opinio ATS 設定</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <div class="popup-header">
+      <div class="popup-logo">
+        <img src="icons/icon-48.png" alt="Opinio" width="28" height="28">
+        <div>
+          <div class="popup-title">Opinio ATS</div>
+          <div class="popup-subtitle">BizReach連携</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Form -->
+    <div class="popup-body">
+      <div class="form-group">
+        <label for="atsUrl">ATS URL</label>
+        <input type="url" id="atsUrl" placeholder="https://ats.opinio.co.jp">
+      </div>
+
+      <div class="form-group">
+        <label for="companyId">会社ID (Company ID)</label>
+        <input type="text" id="companyId" placeholder="会社のUUIDを入力">
+        <span class="help-text">ATS管理画面の設定から確認できます</span>
+      </div>
+
+      <div class="form-group">
+        <label for="apiKey">APIキー（任意）</label>
+        <input type="password" id="apiKey" placeholder="APIキーを入力">
+        <span class="help-text">セキュリティ強化用（未設定でも動作します）</span>
+      </div>
+
+      <div class="form-divider"></div>
+
+      <!-- Connection Test -->
+      <button id="testBtn" class="btn btn-outline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        接続テスト
+      </button>
+      <div id="testResult" class="test-result" style="display:none;"></div>
+
+      <div class="form-divider"></div>
+
+      <!-- Save -->
+      <button id="saveBtn" class="btn btn-primary">設定を保存</button>
+      <div id="saveResult" class="save-result" style="display:none;"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="popup-footer">
+      <span>v1.0.0</span>
+      <a href="https://ats.opinio.co.jp" target="_blank">ATSを開く →</a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

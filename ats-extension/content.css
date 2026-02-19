@@ -1,0 +1,165 @@
+/* Opinio ATS Chrome Extension - Content Script Styles */
+
+#opinio-ats-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 99999;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+#opinio-ats-fab {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #332c54;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(51, 44, 84, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#opinio-ats-fab:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 16px rgba(51, 44, 84, 0.5);
+}
+
+#opinio-ats-fab svg {
+  width: 24px;
+  height: 24px;
+}
+
+#opinio-ats-card {
+  position: absolute;
+  bottom: 64px;
+  right: 0;
+  width: 320px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  display: none;
+}
+
+#opinio-ats-card.open {
+  display: block;
+}
+
+.opinio-card-header {
+  background: #332c54;
+  color: #fff;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.opinio-card-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.opinio-card-body {
+  padding: 16px;
+}
+
+.opinio-field {
+  margin-bottom: 10px;
+}
+
+.opinio-field-label {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.opinio-field-value {
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+}
+
+.opinio-field-value.empty {
+  color: #999;
+  font-style: italic;
+}
+
+.opinio-send-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #4e878c;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 8px;
+}
+
+.opinio-send-btn:hover {
+  background: #3d6b6f;
+}
+
+.opinio-send-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.opinio-send-btn.success {
+  background: #65b891;
+}
+
+.opinio-send-btn.error {
+  background: #e74c3c;
+}
+
+.opinio-status {
+  text-align: center;
+  font-size: 12px;
+  margin-top: 8px;
+  padding: 6px;
+  border-radius: 4px;
+}
+
+.opinio-status.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.opinio-status.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Toast notification */
+#opinio-ats-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100000;
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateX(120%);
+  transition: transform 0.3s ease;
+}
+
+#opinio-ats-toast.show {
+  transform: translateX(0);
+}
+
+#opinio-ats-toast.info { background: #4e878c; }
+#opinio-ats-toast.success { background: #65b891; }
+#opinio-ats-toast.error { background: #e74c3c; }

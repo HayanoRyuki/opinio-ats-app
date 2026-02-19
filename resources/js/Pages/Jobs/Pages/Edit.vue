@@ -1,7 +1,8 @@
 <script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import RichEditor from '@/Components/RichEditor.vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
     job: Object,
@@ -16,14 +17,57 @@ const colors = {
 };
 
 const form = useForm({
+    _method: 'PUT',
     title: props.page.title,
     slug: props.page.slug,
     content: props.page.content || '',
+    featured_image: null,
+    remove_featured_image: false,
     status: props.page.status,
 });
 
+// 画像プレビュー
+const imagePreview = ref(null);
+const fileInput = ref(null);
+const existingImage = computed(() => {
+    if (form.remove_featured_image) return null;
+    return props.page.featured_image ? `/storage/${props.page.featured_image}` : null;
+});
+
+const onImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        form.featured_image = file;
+        form.remove_featured_image = false;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            imagePreview.value = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+const removeImage = () => {
+    form.featured_image = null;
+    imagePreview.value = null;
+    form.remove_featured_image = true;
+    if (fileInput.value) {
+        fileInput.value.value = '';
+    }
+};
+
+const removeNewImage = () => {
+    form.featured_image = null;
+    imagePreview.value = null;
+    if (fileInput.value) {
+        fileInput.value.value = '';
+    }
+};
+
 const submit = () => {
-    form.put(`/jobs/${props.job.id}/pages/${props.page.id}`);
+    form.post(`/jobs/${props.job.id}/pages/${props.page.id}`, {
+        forceFormData: true,
+    });
 };
 </script>
 
@@ -117,6 +161,88 @@ const submit = () => {
                                     <option value="published">公開</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Featured Image -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="p-6">
+                            <h2
+                                class="text-lg font-semibold pb-2 border-b-2 mb-4"
+                                :style="{ color: colors.primary, borderColor: colors.green }"
+                            >
+                                アイキャッチ画像
+                            </h2>
+
+                            <!-- 新しい画像が選択されている場合 -->
+                            <div v-if="imagePreview" class="relative">
+                                <img :src="imagePreview" class="w-full h-64 object-cover rounded-xl" />
+                                <div class="absolute top-3 right-3 flex gap-2">
+                                    <span class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">新しい画像</span>
+                                    <button
+                                        type="button"
+                                        @click="removeNewImage"
+                                        class="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 既存の画像がある場合 -->
+                            <div v-else-if="existingImage" class="relative">
+                                <img :src="existingImage" class="w-full h-64 object-cover rounded-xl" />
+                                <div class="absolute top-3 right-3 flex gap-2">
+                                    <label class="cursor-pointer bg-white text-gray-700 text-xs px-3 py-1.5 rounded-full shadow-lg hover:bg-gray-50 transition-colors font-medium">
+                                        変更
+                                        <input
+                                            ref="fileInput"
+                                            type="file"
+                                            accept="image/*"
+                                            class="hidden"
+                                            @change="onImageChange"
+                                        />
+                                    </label>
+                                    <button
+                                        type="button"
+                                        @click="removeImage"
+                                        class="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 画像なし → アップロードエリア -->
+                            <div v-else class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-gray-400 transition-colors">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="mt-4">
+                                    <label class="cursor-pointer">
+                                        <span
+                                            class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white transition-colors"
+                                            :style="{ backgroundColor: colors.teal }"
+                                        >
+                                            画像を選択
+                                        </span>
+                                        <input
+                                            ref="fileInput"
+                                            type="file"
+                                            accept="image/*"
+                                            class="hidden"
+                                            @change="onImageChange"
+                                        />
+                                    </label>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2">PNG, JPG, WEBP（最大5MB）</p>
+                            </div>
+
+                            <p v-if="form.errors.featured_image" class="text-red-500 text-sm mt-2">{{ form.errors.featured_image }}</p>
                         </div>
                     </div>
 

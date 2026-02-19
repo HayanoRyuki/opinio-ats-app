@@ -12,6 +12,7 @@ class Page extends Model
         'title',
         'slug',
         'content',
+        'featured_image',
         'status',
     ];
 
