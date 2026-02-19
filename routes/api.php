@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 // ========================================
-// 公開API（APIキー認証）
+// 公開API（APIキー認証 — オプショナル）
 // ========================================
-Route::prefix('intake')->name('api.intake.')->group(function () {
+Route::prefix('intake')->name('api.intake.')->middleware('intake.apikey')->group(function () {
     Route::post('/web', [IntakeApiController::class, 'web'])->name('web');
     Route::post('/agent', [IntakeApiController::class, 'agent'])->name('agent');
     Route::post('/scout', [IntakeApiController::class, 'scout'])->name('scout');

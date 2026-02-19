@@ -52,6 +52,26 @@ const applicationStatusColors = {
     withdrawn: { bg: '#6b728020', color: '#6b7280' },
 };
 
+const deleteProcessing = ref(null);
+
+const deletePage = (pageId) => {
+    if (!confirm('このページを削除してよろしいですか？')) return;
+    deleteProcessing.value = pageId;
+
+    router.delete(`/jobs/${props.job.id}/pages/${pageId}`, {
+        onFinish: () => {
+            deleteProcessing.value = null;
+        },
+    });
+};
+
+const togglePageStatus = (page) => {
+    const newStatus = page.status === 'published' ? 'draft' : 'published';
+    router.patch(`/jobs/${props.job.id}/pages/${page.id}/status`, {
+        status: newStatus,
+    });
+};
+
 const processing = ref(false);
 
 const updateStatus = (newStatus) => {
@@ -158,6 +178,18 @@ const updateStatus = (newStatus) => {
                                         }"
                                     >
                                         選考ステップ設定
+                                    </Link>
+
+                                    <Link
+                                        :href="`/jobs/${job.id}/pages/create`"
+                                        class="block w-full px-5 py-2.5 text-sm font-semibold rounded-lg border-2 text-center transition-colors"
+                                        :style="{
+                                            borderColor: colors.green,
+                                            color: colors.green,
+                                            backgroundColor: 'white'
+                                        }"
+                                    >
+                                        求人ページ作成
                                     </Link>
 
                                     <button
@@ -295,6 +327,102 @@ const updateStatus = (newStatus) => {
                                     福利厚生・待遇
                                 </h2>
                                 <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ job.benefits }}</p>
+                            </div>
+                        </div>
+
+                        <!-- 求人ページ（CMS） -->
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-4 pb-2 border-b-2" :style="{ borderColor: colors.green }">
+                                    <h2 class="text-lg font-semibold" :style="{ color: colors.primary }">
+                                        求人ページ
+                                    </h2>
+                                    <Link
+                                        :href="`/jobs/${job.id}/pages/create`"
+                                        class="text-sm font-medium px-3 py-1.5 rounded-lg text-white transition-all hover:shadow-md"
+                                        :style="{ backgroundColor: colors.green }"
+                                    >
+                                        + 新規作成
+                                    </Link>
+                                </div>
+
+                                <div v-if="!job.pages || job.pages.length === 0" class="text-center py-8">
+                                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                    </svg>
+                                    <p class="text-sm text-gray-500 mb-3">求人ページがまだありません</p>
+                                    <Link
+                                        :href="`/jobs/${job.id}/pages/create`"
+                                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white transition-all"
+                                        :style="{ backgroundColor: colors.teal }"
+                                    >
+                                        ページを作成する
+                                    </Link>
+                                </div>
+
+                                <div v-else class="space-y-3">
+                                    <div
+                                        v-for="pg in job.pages"
+                                        :key="pg.id"
+                                        class="p-4 rounded-lg transition-colors"
+                                        :style="{ backgroundColor: colors.cream }"
+                                    >
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex items-center gap-2">
+                                                    <h3 class="font-medium truncate" :style="{ color: colors.primary }">
+                                                        {{ pg.title }}
+                                                    </h3>
+                                                    <span
+                                                        class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full flex-shrink-0"
+                                                        :style="{
+                                                            backgroundColor: pg.status === 'published' ? colors.green + '20' : '#6b728020',
+                                                            color: pg.status === 'published' ? colors.green : '#6b7280'
+                                                        }"
+                                                    >
+                                                        {{ pg.status === 'published' ? '公開中' : '下書き' }}
+                                                    </span>
+                                                </div>
+                                                <p class="text-xs text-gray-500 mt-1 font-mono">/careers/{{ pg.slug }}</p>
+                                            </div>
+                                            <div class="flex items-center gap-2 ml-4 flex-shrink-0">
+                                                <a
+                                                    v-if="pg.status === 'published'"
+                                                    :href="`/careers/${pg.slug}`"
+                                                    target="_blank"
+                                                    class="text-xs px-2 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors"
+                                                    title="プレビュー"
+                                                >
+                                                    表示
+                                                </a>
+                                                <button
+                                                    @click="togglePageStatus(pg)"
+                                                    class="text-xs px-2 py-1 rounded border transition-colors"
+                                                    :style="{
+                                                        borderColor: pg.status === 'published' ? '#f59e0b' : colors.green,
+                                                        color: pg.status === 'published' ? '#f59e0b' : colors.green,
+                                                    }"
+                                                >
+                                                    {{ pg.status === 'published' ? '非公開' : '公開' }}
+                                                </button>
+                                                <Link
+                                                    :href="`/jobs/${job.id}/pages/${pg.id}/edit`"
+                                                    class="text-xs px-2 py-1 rounded border transition-colors"
+                                                    :style="{ borderColor: colors.teal, color: colors.teal }"
+                                                >
+                                                    編集
+                                                </Link>
+                                                <button
+                                                    @click="deletePage(pg.id)"
+                                                    :disabled="deleteProcessing === pg.id"
+                                                    class="text-xs px-2 py-1 rounded border border-red-300 text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
+                                                >
+                                                    削除
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

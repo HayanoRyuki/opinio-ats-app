@@ -11,7 +11,9 @@ use App\Http\Controllers\Web\ExternalChatImportController;
 use App\Http\Controllers\Web\MyPageController;
 use App\Http\Controllers\Web\AgentController;
 use App\Http\Controllers\Web\RecommendationController;
+use App\Http\Controllers\Web\PageController;
 use App\Http\Controllers\Web\GmailConnectionController;
+use App\Http\Controllers\CareerController;
 use Inertia\Inertia;
 
 /*
@@ -35,6 +37,14 @@ Route::middleware(['require.sso'])->group(function () {
 |--------------------------------------------------------------------------
 */
 require __DIR__ . '/sso.php';
+
+/*
+|--------------------------------------------------------------------------
+| Public Career Pages（認証不要）
+|--------------------------------------------------------------------------
+*/
+Route::get('/careers/{slug}', [CareerController::class, 'show'])->name('careers.show');
+Route::post('/careers/{slug}/apply', [CareerController::class, 'apply'])->name('careers.apply');
 
 /*
 |--------------------------------------------------------------------------
@@ -64,8 +74,19 @@ Route::middleware(['verify.jwt'])->group(function () {
     // 求人
     Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
     Route::get('/jobs/create', [JobController::class, 'create'])->name('jobs.create');
+    Route::post('/jobs', [JobController::class, 'store'])->name('jobs.store');
     Route::get('/jobs/{job}', [JobController::class, 'show'])->name('jobs.show');
     Route::get('/jobs/{job}/edit', [JobController::class, 'edit'])->name('jobs.edit');
+    Route::put('/jobs/{job}', [JobController::class, 'update'])->name('jobs.update');
+    Route::patch('/jobs/{job}/status', [JobController::class, 'updateStatus'])->name('jobs.updateStatus');
+
+    // 求人ページ CMS
+    Route::get('/jobs/{job}/pages/create', [PageController::class, 'create'])->name('jobs.pages.create');
+    Route::post('/jobs/{job}/pages', [PageController::class, 'store'])->name('jobs.pages.store');
+    Route::get('/jobs/{job}/pages/{page}/edit', [PageController::class, 'edit'])->name('jobs.pages.edit');
+    Route::put('/jobs/{job}/pages/{page}', [PageController::class, 'update'])->name('jobs.pages.update');
+    Route::delete('/jobs/{job}/pages/{page}', [PageController::class, 'destroy'])->name('jobs.pages.destroy');
+    Route::patch('/jobs/{job}/pages/{page}/status', [PageController::class, 'updateStatus'])->name('jobs.pages.updateStatus');
 
     // エージェント管理
     Route::get('/agents', [AgentController::class, 'index'])->name('agents.index');

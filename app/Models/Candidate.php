@@ -11,10 +11,19 @@ class Candidate extends Model
 
     protected $fillable = [
         'company_id',
+        'person_id',
         'name',
         'email',
         'phone',
         'memo',
+        'source_channel',
+        'source_detail',
+        'tags',
+        'notes',
+    ];
+
+    protected $casts = [
+        'tags' => 'array',
     ];
 
     public function company()

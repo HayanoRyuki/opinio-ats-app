@@ -16,6 +16,14 @@ class Application extends Model
         'selection_step_id',
         'status',
         'opinio_meet_url',
+        'applied_at',
+        'current_step',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'metadata' => 'array',
+        'applied_at' => 'datetime',
     ];
 
     public function candidate()

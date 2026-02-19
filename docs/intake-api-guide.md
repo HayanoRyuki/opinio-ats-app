@@ -15,14 +15,32 @@ Opinio ATS では、4つのチャンネルから候補者データを取り込�
 
 ### ベースURL
 ```
-本番環境: https://ats.example.com/api
+本番環境: https://ats.opinio.co.jp/api
 開発環境: http://localhost/api
+```
+
+### 認証（APIキー）
+
+APIキーによる認証に対応しています。APIキーを使用する場合、`X-API-Key` ヘッダーにキーを設定します。
+APIキーが設定されている場合、リクエストボディの `company_id` は自動的にキーに紐づく会社IDで上書きされます。
+
+```
+X-API-Key: opn_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+**APIキーなしの場合**: リクエストボディに `company_id` を含めることで引き続き利用可能です（後方互換性あり）。
+
+**APIキーの発行方法** (tinker):
+```php
+$result = App\Models\ApiKey::generate('会社UUID', 'Chrome拡張用');
+echo $result['plain_key']; // ← この値を控える（一度しか表示されない）
 ```
 
 ### リクエストヘッダー
 ```
 Content-Type: application/json
 Accept: application/json
+X-API-Key: opn_xxxx... (任意)
 ```
 
 ### レスポンス形式
