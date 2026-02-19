@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Page;
 use App\Models\Person;
 use App\Models\Candidate;
@@ -13,18 +14,44 @@ use Inertia\Response;
 class CareerController extends Controller
 {
     /**
+     * 会社の公開求人一覧（認証不要）
+     */
+    public function index(string $companySlug): Response
+    {
+        $company = Company::where('slug', $companySlug)->firstOrFail();
+
+        // この会社の公開中ページを持つ求人を取得
+        $pages = Page::where('status', 'published')
+            ->whereHas('job', function ($q) use ($company) {
+                $q->where('company_id', $company->id)
+                  ->where('status', 'open');
+            })
+            ->with(['job' => function ($q) {
+                $q->select('id', 'company_id', 'title', 'location', 'employment_type', 'salary_min', 'salary_max');
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return Inertia::render('Career/Index', [
+            'company' => $company,
+            'pages' => $pages,
+        ]);
+    }
+
+    /**
      * 公開キャリアページ表示（認証不要）
      */
     public function show(string $slug): Response
     {
         $page = Page::where('slug', $slug)
             ->where('status', 'published')
-            ->with('job')
+            ->with(['job.company'])
             ->firstOrFail();
 
         return Inertia::render('Career/Show', [
             'page' => $page,
             'job' => $page->job,
+            'company' => $page->job?->company,
         ]);
     }
 

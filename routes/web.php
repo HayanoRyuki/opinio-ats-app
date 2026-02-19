@@ -43,6 +43,7 @@ require __DIR__ . '/sso.php';
 | Public Career Pages（認証不要）
 |--------------------------------------------------------------------------
 */
+Route::get('/careers/company/{companySlug}', [CareerController::class, 'index'])->name('careers.index');
 Route::get('/careers/{slug}', [CareerController::class, 'show'])->name('careers.show');
 Route::post('/careers/{slug}/apply', [CareerController::class, 'apply'])->name('careers.apply');
 

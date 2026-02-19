@@ -1,10 +1,15 @@
 <script setup>
-import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
     page: Object,
     job: Object,
+    company: Object,
+});
+
+const companyListUrl = computed(() => {
+    return props.company?.slug ? `/careers/company/${props.company.slug}` : null;
 });
 
 const colors = {
@@ -86,12 +91,19 @@ const scrollToSection = (id) => {
 
             <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
                 <!-- 会社ロゴ＋名前 -->
-                <div class="flex items-center gap-3 mb-8">
+                <component
+                    :is="companyListUrl ? 'a' : 'div'"
+                    :href="companyListUrl"
+                    class="flex items-center gap-3 mb-8"
+                    :class="{ 'hover:opacity-80 transition-opacity': companyListUrl }"
+                >
                     <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                        <span class="font-bold text-xl" :style="{ color: colors.primary }">O</span>
+                        <span class="font-bold text-xl" :style="{ color: colors.primary }">
+                            {{ company?.name?.charAt(0) || 'O' }}
+                        </span>
                     </div>
                     <div>
-                        <span class="text-white font-bold text-lg">Opinio</span>
+                        <span class="text-white font-bold text-lg">{{ company?.name || 'Opinio' }}</span>
                         <span
                             v-if="job?.employment_type"
                             class="ml-3 inline-flex px-3 py-0.5 text-xs font-medium rounded-full bg-white/20 text-white border border-white/30"
@@ -99,7 +111,7 @@ const scrollToSection = (id) => {
                             {{ employmentTypes[job.employment_type] || job.employment_type }}
                         </span>
                     </div>
-                </div>
+                </component>
 
                 <!-- 求人タイトル -->
                 <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4">
@@ -381,13 +393,21 @@ const scrollToSection = (id) => {
                                         class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                                         :style="{ backgroundColor: colors.primary }"
                                     >
-                                        <span class="text-white font-bold">O</span>
+                                        <span class="text-white font-bold">{{ company?.name?.charAt(0) || 'O' }}</span>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-sm" :style="{ color: colors.primary }">Opinio</p>
-                                        <p class="text-xs text-gray-500">採用をフェアに。</p>
+                                        <p class="font-bold text-sm" :style="{ color: colors.primary }">{{ company?.name || 'Opinio' }}</p>
+                                        <p v-if="company?.industry" class="text-xs text-gray-500">{{ company.industry }}</p>
                                     </div>
                                 </div>
+                                <a
+                                    v-if="companyListUrl"
+                                    :href="companyListUrl"
+                                    class="mt-3 block w-full text-center py-2 text-sm font-medium rounded-lg border transition-colors hover:bg-gray-50"
+                                    :style="{ borderColor: colors.teal, color: colors.teal }"
+                                >
+                                    この会社の求人一覧を見る
+                                </a>
                             </div>
                         </div>
                     </div>
