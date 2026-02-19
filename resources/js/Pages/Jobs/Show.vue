@@ -235,7 +235,7 @@ const updateStatus = (newStatus) => {
                     </div>
 
                     <!-- Right Column: Details -->
-                    <div class="flex-1 space-y-6">
+                    <div class="flex-1 min-w-0 space-y-6">
                         <!-- 基本情報 -->
                         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                             <div class="p-6">
@@ -300,7 +300,7 @@ const updateStatus = (newStatus) => {
                                 >
                                     仕事内容
                                 </h2>
-                                <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ job.description }}</p>
+                                <p class="text-sm text-gray-700 whitespace-pre-wrap break-words">{{ job.description }}</p>
                             </div>
                         </div>
 
@@ -313,7 +313,7 @@ const updateStatus = (newStatus) => {
                                 >
                                     応募資格
                                 </h2>
-                                <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ job.requirements }}</p>
+                                <p class="text-sm text-gray-700 whitespace-pre-wrap break-words">{{ job.requirements }}</p>
                             </div>
                         </div>
 
@@ -326,7 +326,7 @@ const updateStatus = (newStatus) => {
                                 >
                                     福利厚生・待遇
                                 </h2>
-                                <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ job.benefits }}</p>
+                                <p class="text-sm text-gray-700 whitespace-pre-wrap break-words">{{ job.benefits }}</p>
                             </div>
                         </div>
 
