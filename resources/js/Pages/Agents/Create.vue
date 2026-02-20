@@ -83,14 +83,16 @@ const submit = () => {
 
                         <!-- メール -->
                         <div>
-                            <label class="block text-sm font-medium mb-1" :style="{ color: colors.teal }">メールアドレス</label>
+                            <label class="block text-sm font-medium mb-1" :style="{ color: colors.teal }">メールアドレス *</label>
                             <input
                                 v-model="form.email"
                                 type="email"
+                                required
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#4e878c] focus:border-transparent"
                                 placeholder="例: tanaka@example.com"
                             />
                             <p v-if="form.errors.email" class="text-red-500 text-xs mt-1">{{ form.errors.email }}</p>
+                            <p class="text-xs text-gray-400 mt-1">登録完了時にこのアドレスへ通知メールが送信されます</p>
                         </div>
 
                         <!-- 電話 -->

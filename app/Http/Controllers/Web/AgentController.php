@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AgentWelcomeMail;
 use App\Models\Agent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -93,7 +96,7 @@ class AgentController extends Controller
         $validated = $request->validate([
             'organization' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'email', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'agent_type' => ['required', 'in:human,ai'],
             'notes' => ['nullable', 'string', 'max:2000'],
@@ -104,8 +107,34 @@ class AgentController extends Controller
             'company_id' => $companyId,
         ]);
 
+        // 人間エージェントの場合は推薦トークンを生成
+        if ($agent->isHuman()) {
+            $agent->generateRecommendationToken();
+            $agent->refresh(); // トークン反映
+        }
+
+        // ウェルカムメール送信
+        $emailSent = false;
+        try {
+            Mail::to($agent->email)->send(new AgentWelcomeMail($agent));
+            $emailSent = true;
+        } catch (\Throwable $e) {
+            Log::error('エージェントウェルカムメール送信失敗', [
+                'agent_id' => $agent->id,
+                'email' => $agent->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        $message = "エージェント「{$agent->display_name}」を登録しました。";
+        if ($emailSent) {
+            $message .= "推薦リンク付きの通知メールを {$agent->email} に送信しました。";
+        } else {
+            $message .= "（メール送信に失敗しました。設定を確認してください。）";
+        }
+
         return redirect()->route('agents.show', $agent)
-            ->with('success', "エージェント「{$agent->display_name}」を登録しました。");
+            ->with('success', $message);
     }
 
     /**
@@ -153,7 +182,7 @@ class AgentController extends Controller
         $validated = $request->validate([
             'organization' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'email', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'agent_type' => ['required', 'in:human,ai'],
             'notes' => ['nullable', 'string', 'max:2000'],

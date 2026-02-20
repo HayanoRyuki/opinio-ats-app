@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\RecommendationController;
 use App\Http\Controllers\Web\PageController;
 use App\Http\Controllers\Web\GmailConnectionController;
 use App\Http\Controllers\CareerController;
+use App\Http\Controllers\AgentRecommendationController;
 use Inertia\Inertia;
 
 /*
@@ -46,6 +47,15 @@ require __DIR__ . '/sso.php';
 Route::get('/careers/company/{companySlug}', [CareerController::class, 'index'])->name('careers.index');
 Route::get('/careers/{slug}', [CareerController::class, 'show'])->name('careers.show');
 Route::post('/careers/{slug}/apply', [CareerController::class, 'apply'])->name('careers.apply');
+
+/*
+|--------------------------------------------------------------------------
+| Agent Recommendation Form（エージェント推薦フォーム・認証不要）
+|--------------------------------------------------------------------------
+*/
+Route::get('/recommend/{token}', [AgentRecommendationController::class, 'form'])->name('recommend.form');
+Route::post('/recommend/{token}', [AgentRecommendationController::class, 'store'])->name('recommend.store');
+Route::get('/recommend/{token}/thanks', [AgentRecommendationController::class, 'thanks'])->name('recommend.thanks');
 
 /*
 |--------------------------------------------------------------------------
