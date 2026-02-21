@@ -100,7 +100,11 @@ class AgentController extends Controller
             'phone' => ['nullable', 'string', 'max:50'],
             'agent_type' => ['required', 'in:human,ai'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'send_email' => ['boolean'],
         ]);
+
+        $sendEmail = $validated['send_email'] ?? false;
+        unset($validated['send_email']);
 
         $agent = Agent::create([
             ...$validated,
@@ -113,23 +117,25 @@ class AgentController extends Controller
             $agent->refresh(); // トークン反映
         }
 
-        // ウェルカムメール送信
+        // ウェルカムメール送信（ユーザーが許可した場合のみ）
         $emailSent = false;
-        try {
-            Mail::to($agent->email)->send(new AgentWelcomeMail($agent));
-            $emailSent = true;
-        } catch (\Throwable $e) {
-            Log::error('エージェントウェルカムメール送信失敗', [
-                'agent_id' => $agent->id,
-                'email' => $agent->email,
-                'error' => $e->getMessage(),
-            ]);
+        if ($sendEmail && $agent->email) {
+            try {
+                Mail::to($agent->email)->send(new AgentWelcomeMail($agent));
+                $emailSent = true;
+            } catch (\Throwable $e) {
+                Log::error('エージェントウェルカムメール送信失敗', [
+                    'agent_id' => $agent->id,
+                    'email' => $agent->email,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         $message = "エージェント「{$agent->display_name}」を登録しました。";
         if ($emailSent) {
             $message .= "推薦リンク付きの通知メールを {$agent->email} に送信しました。";
-        } else {
+        } elseif ($sendEmail && !$emailSent) {
             $message .= "（メール送信に失敗しました。設定を確認してください。）";
         }
 

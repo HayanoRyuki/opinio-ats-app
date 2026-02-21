@@ -16,6 +16,7 @@ const form = useForm({
     phone: '',
     agent_type: 'human',
     notes: '',
+    send_email: true,
 });
 
 const submit = () => {
@@ -117,6 +118,25 @@ const submit = () => {
                                 placeholder="得意領域、注意事項など"
                             ></textarea>
                             <p v-if="form.errors.notes" class="text-red-500 text-xs mt-1">{{ form.errors.notes }}</p>
+                        </div>
+
+                        <!-- メール送信確認 -->
+                        <div v-if="form.agent_type === 'human'" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    v-model="form.send_email"
+                                    class="mt-0.5 accent-[#4e878c]"
+                                />
+                                <div>
+                                    <span class="text-sm font-medium text-gray-700">
+                                        このエージェントに招待メールを送信する
+                                    </span>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        推薦フォームへのリンクを含むウェルカムメールが送信されます
+                                    </p>
+                                </div>
+                            </label>
                         </div>
 
                         <!-- Buttons -->
